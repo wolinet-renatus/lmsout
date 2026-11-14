@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /lmsout/
+    RewriteRule ^$ public/ [L,R=301]
+    RewriteCond %{REQUEST_URI} !^/lmsout/public/ [NC]
+    RewriteRule ^(.*)$ public/$1 [L,R=301]
+</IfModule>
