@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents a submission for an assignment.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class AssignmentSubmission extends Model
 {
@@ -40,36 +41,57 @@ class AssignmentSubmission extends Model
     const STATUS_GRADED = 'graded';
     const STATUS_RETURNED = 'returned';
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Assignment.
+     */
     public function assignment(): BelongsTo
     {
         return $this->belongsTo(Assignment::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Enrollment.
+     */
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(Enrollment::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Files.
+     */
     public function files(): HasMany
     {
         return $this->hasMany(AssignmentSubmissionFile::class);
     }
 
+    /**
+     * Check condition: Is pending.
+     */
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
     }
 
+    /**
+     * Check condition: Is graded.
+     */
     public function isGraded(): bool
     {
         return $this->status === self::STATUS_GRADED;
     }
 
+    /**
+     * Check condition: Is returned.
+     */
     public function isReturned(): bool
     {
         return $this->status === self::STATUS_RETURNED;

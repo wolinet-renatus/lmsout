@@ -6,6 +6,11 @@ use App\Models\Country;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
 
+/**
+ * Country seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class CountrySeeder extends Seeder
 {
     /**

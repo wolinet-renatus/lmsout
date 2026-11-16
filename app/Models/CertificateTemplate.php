@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+/**
+ * Certificate template Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class CertificateTemplate extends Model
 {
     use HasFactory;
@@ -39,6 +44,9 @@ class CertificateTemplate extends Model
         'issued_count' => 'integer',
     ];
 
+    /**
+     * Booted.
+     */
     protected static function booted()
     {
         static::creating(function ($template) {
@@ -55,11 +63,17 @@ class CertificateTemplate extends Model
         });
     }
 
+    /**
+     * Eloquent belongsTo relationship for Courses.
+     */
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Creator.
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

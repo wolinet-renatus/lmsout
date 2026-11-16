@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="app-url" content="{{ rtrim(url('/'), '/') }}">
     <meta name="author" content="OUT LMS — Wolinet">
     <meta name="application-name" content="{{ site_name() }}">
     <meta name="theme-color" content="#013ba6">

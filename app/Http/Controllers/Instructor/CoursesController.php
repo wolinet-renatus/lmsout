@@ -18,6 +18,7 @@ use Illuminate\View\View;
  * status filtering, sorting, and dynamic pagination.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class CoursesController extends Controller
 {
@@ -119,7 +120,7 @@ class CoursesController extends Controller
                 'rating_for_stars' => $ratingForStars,
                 'lessons' => $totalLessons,
                 'students' => (int) $course->students_count,
-                'price' => $displayPrice > 0 ? currency_format($displayPrice) : currency_format(0),
+                'price' => $displayPrice > 0 ? $course->formatPrice($displayPrice) : currency_format(0),
                 'pricing_model' => $course->pricing_model,
                 'status' => $course->status ?? 'draft',
                 'is_live_course' => (bool) $course->is_live_course,

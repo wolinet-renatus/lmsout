@@ -18,9 +18,13 @@ use Illuminate\Support\Carbon;
  * This controller handles the quiz attempts functionality.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class QuizAttemptsController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View
     {
         $user = $this->currentUser();
@@ -91,6 +95,9 @@ class QuizAttemptsController extends Controller
         ]);
     }
 
+    /**
+     * Build summary.
+     */
     private function buildSummary(int $userId): array
     {
         $attempts = QuizAttempt::query()
@@ -125,6 +132,9 @@ class QuizAttemptsController extends Controller
         ];
     }
 
+    /**
+     * Normalize status.
+     */
     private function normalizeStatus(?string $status): ?string
     {
         $status = $status !== null ? trim($status) : null;
@@ -136,6 +146,9 @@ class QuizAttemptsController extends Controller
         return in_array($status, ['passed', 'failed'], true) ? $status : null;
     }
 
+    /**
+     * Format seconds.
+     */
     private function formatSeconds(?int $seconds): ?string
     {
         if ($seconds === null) {
@@ -147,6 +160,9 @@ class QuizAttemptsController extends Controller
         return $interval->format('%H:%I:%S');
     }
 
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

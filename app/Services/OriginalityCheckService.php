@@ -6,6 +6,11 @@ use App\Models\AssignmentSubmission;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Originality check service — encapsulates domain business logic and transactional operations.
+ *
+ * @author Renatus Bernardo
+ */
 class OriginalityCheckService
 {
     /**
@@ -77,6 +82,9 @@ class OriginalityCheckService
         return $report;
     }
 
+    /**
+     * Normalize text.
+     */
     protected function normalizeText(string $text): string
     {
         $plain = strip_tags($text);
@@ -85,6 +93,9 @@ class OriginalityCheckService
         return trim(preg_replace('/\s+/', ' ', $plain));
     }
 
+    /**
+     * Build shingles.
+     */
     protected function buildShingles(string $text, int $n = 4): array
     {
         if ($text === '') {
@@ -102,6 +113,9 @@ class OriginalityCheckService
         return $shingles;
     }
 
+    /**
+     * Compute similarity.
+     */
     protected function computeSimilarity(string $a, string $b, array $shinglesA, array $shinglesB): float
     {
         if ($a === $b) {
@@ -121,6 +135,9 @@ class OriginalityCheckService
         return round(max($jaccard, $containment * 0.85), 2);
     }
 
+    /**
+     * Run external check.
+     */
     protected function runExternalCheck(string $text, string $provider): array
     {
         $endpoint = config('services.originality.endpoint');

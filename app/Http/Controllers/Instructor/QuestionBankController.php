@@ -10,8 +10,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Question bank controller — handles instructor studio workflows and cohort delivery.
+ *
+ * @author Renatus Bernardo
+ */
 class QuestionBankController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View|JsonResponse
     {
         $user = $request->user();
@@ -52,6 +60,9 @@ class QuestionBankController extends Controller
         ]);
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $data = $request->validate([
@@ -74,6 +85,9 @@ class QuestionBankController extends Controller
         return redirect()->route('instructor.question-banks.show', $bank)->with('success', 'Question bank created.');
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Request $request, QuestionBank $questionBank): View|JsonResponse
     {
         $this->authorizeBank($questionBank, $request->user());
@@ -104,6 +118,9 @@ class QuestionBankController extends Controller
         ]);
     }
 
+    /**
+     * Store item.
+     */
     public function storeItem(Request $request, QuestionBank $questionBank): RedirectResponse|JsonResponse
     {
         $this->authorizeBank($questionBank, $request->user());
@@ -137,6 +154,9 @@ class QuestionBankController extends Controller
         return back()->with('success', 'Question added to bank.');
     }
 
+    /**
+     * Import csv.
+     */
     public function importCsv(Request $request, QuestionBank $questionBank): RedirectResponse|JsonResponse
     {
         $this->authorizeBank($questionBank, $request->user());
@@ -171,6 +191,9 @@ class QuestionBankController extends Controller
         return back()->with('success', "Imported {$imported} question(s) from CSV.");
     }
 
+    /**
+     * Random paper.
+     */
     public function randomPaper(Request $request, QuestionBank $questionBank): JsonResponse
     {
         $this->authorizeBank($questionBank, $request->user());
@@ -192,6 +215,9 @@ class QuestionBankController extends Controller
         ]);
     }
 
+    /**
+     * Destroy item.
+     */
     public function destroyItem(Request $request, QuestionBank $questionBank, QuestionBankItem $item): RedirectResponse
     {
         $this->authorizeBank($questionBank, $request->user());
@@ -201,6 +227,9 @@ class QuestionBankController extends Controller
         return back()->with('success', 'Question removed from bank.');
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(Request $request, QuestionBank $questionBank): RedirectResponse
     {
         $this->authorizeBank($questionBank, $request->user());
@@ -208,6 +237,9 @@ class QuestionBankController extends Controller
         return redirect()->route('instructor.question-banks.index')->with('success', 'Question bank deleted.');
     }
 
+    /**
+     * Create item from csv row.
+     */
     private function createItemFromCsvRow(QuestionBank $bank, array $row): bool
     {
         $questionText = trim((string) ($row[0] ?? ''));
@@ -252,6 +284,9 @@ class QuestionBankController extends Controller
         return true;
     }
 
+    /**
+     * Authorize bank.
+     */
     private function authorizeBank(QuestionBank $bank, $user): void
     {
         if ($user->role !== 'admin' && (int) $bank->user_id !== (int) $user->id) {

@@ -17,9 +17,13 @@ use Illuminate\View\View;
  * status filtering, and dynamic pagination.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class MyCoursesController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View|JsonResponse
     {
         $user = $this->currentUser();
@@ -134,6 +138,9 @@ class MyCoursesController extends Controller
         ]);
     }
 
+    /**
+     * Price label.
+     */
     private function priceLabel($course): string
     {
         if (! $course) {
@@ -151,6 +158,9 @@ class MyCoursesController extends Controller
         return '$' . number_format($course->regular_price ?? 0, 2);
     }
 
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

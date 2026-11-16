@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
+/**
+ * Certificate controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class CertificateController extends Controller
 {
     /**
@@ -139,6 +144,9 @@ class CertificateController extends Controller
         return $this->renderCertificatePdf($enrollment);
     }
 
+    /**
+     * Render certificate pdf.
+     */
     private function renderCertificatePdf(Enrollment $enrollment)
     {
         if ($enrollment->certificate_serial) {

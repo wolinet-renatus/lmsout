@@ -18,6 +18,11 @@ use App\Models\QuizAttemptAnswer;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
+/**
+ * Student course controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class StudentCourseController extends Controller
 {
     /**
@@ -600,6 +605,9 @@ class StudentCourseController extends Controller
     /*                               Helper Methods                               */
     /* -------------------------------------------------------------------------- */
 
+    /**
+     * Prepare lesson video data.
+     */
     private function prepareLessonVideoData($lesson)
     {
         $videoData = [
@@ -649,6 +657,9 @@ class StudentCourseController extends Controller
         return $videoData;
     }
 
+    /**
+     * Get all course items.
+     */
     private function getAllCourseItems($course)
     {
         $items = collect();
@@ -687,6 +698,9 @@ class StudentCourseController extends Controller
         ])->values();
     }
 
+    /**
+     * Check condition: Is item accessible.
+     */
     private function isItemAccessible($user, $enrollment, $courseId, $type, $itemId)
     {
         $course = Course::with(['topics.lessons', 'topics.quizzes', 'topics.assignments'])->find($courseId);
@@ -715,6 +729,9 @@ class StudentCourseController extends Controller
         return true;
     }
 
+    /**
+     * Check condition: Is item completed.
+     */
     private function isItemCompleted($user, $enrollment, $type, $itemId)
     {
         if ($type === 'lesson') {
@@ -740,6 +757,9 @@ class StudentCourseController extends Controller
         return false;
     }
 
+    /**
+     * Check condition: Is course completed.
+     */
     private function isCourseCompleted($user, $enrollment, $course)
     {
         $allItems = $this->getAllCourseItems($course);
@@ -754,6 +774,9 @@ class StudentCourseController extends Controller
         return true;
     }
 
+    /**
+     * Check and update course completion.
+     */
     private function checkAndUpdateCourseCompletion($user, $enrollment, $course)
     {
         if ($enrollment->status !== Enrollment::STATUS_COMPLETED && $this->isCourseCompleted($user, $enrollment, $course)) {
@@ -764,6 +787,9 @@ class StudentCourseController extends Controller
         return false;
     }
 
+    /**
+     * Determine current item.
+     */
     private function determineCurrentItem($allItems, $accessibleItems, $userProgress, $userQuizAttempts, $userAssignmentSubmissions)
     {
         // Default to first item

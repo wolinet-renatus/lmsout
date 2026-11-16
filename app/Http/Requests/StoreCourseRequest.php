@@ -11,9 +11,13 @@ use Illuminate\Validation\Rule;
  * This request validates the data for storing a course.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class StoreCourseRequest extends FormRequest
 {
+    /**
+     * Determine whether the current user is authorized to perform this request.
+     */
     public function authorize(): bool
     {
         /** @var \App\Models\User|null $user */
@@ -21,6 +25,9 @@ class StoreCourseRequest extends FormRequest
         return $user !== null && ($user->role === 'admin' || $user->isApprovedInstructor());
     }
 
+    /**
+     * Define the validation rules applied to the incoming request.
+     */
     public function rules(): array
     {
         $rules = [
@@ -33,6 +40,7 @@ class StoreCourseRequest extends FormRequest
             'difficulty' => ['nullable', Rule::in(['beginner', 'intermediate', 'advanced'])],
             
             'pricing_model' => ['required', Rule::in(['free', 'paid'])],
+            'price_currency' => ['nullable', Rule::in(['TZS', 'TSH', 'USD', 'tzs', 'tsh', 'usd'])],
             'regular_price' => ['nullable', 'required_if:pricing_model,paid', 'numeric', 'min:0'],
             'sale_price' => ['nullable', 'numeric', 'min:0', 'lt:regular_price'],
             

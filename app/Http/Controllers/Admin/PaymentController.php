@@ -19,9 +19,13 @@ use Carbon\Carbon;
  * This controller handles the management of payments.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class PaymentController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private RevenueShareService $revenueShareService) {}
     /**
      * Display all payments
@@ -56,6 +60,9 @@ class PaymentController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
                     ->orWhere('transaction_id', 'like', "%{$search}%")
+                    ->orWhere('pesapal_order_tracking_id', 'like', "%{$search}%")
+                    ->orWhere('pesapal_merchant_reference', 'like', "%{$search}%")
+                    ->orWhere('pesapal_confirmation_code', 'like', "%{$search}%")
                     ->orWhereHas('enrollment.user', function ($userQuery) use ($search) {
                         $userQuery->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
@@ -91,6 +98,9 @@ class PaymentController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
                     ->orWhere('transaction_id', 'like', "%{$search}%")
+                    ->orWhere('pesapal_order_tracking_id', 'like', "%{$search}%")
+                    ->orWhere('pesapal_merchant_reference', 'like', "%{$search}%")
+                    ->orWhere('pesapal_confirmation_code', 'like', "%{$search}%")
                     ->orWhereHas('enrollment.user', function ($userQuery) use ($search) {
                         $userQuery->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
@@ -198,39 +208,39 @@ class PaymentController extends Controller
     }
 
     /**
-     * Approve pending payment
+     * Approve pending or verified-pending payment.
      */
     public function approve(Request $request, $id)
     {
-        $payment = Payment::with('enrollment')->findOrFail($id);
+        $payment = Payment::withoutGlobalScope('branch')->with('enrollment')->findOrFail($id);
 
-        if ($payment->status !== Payment::STATUS_PENDING) {
-            ToastMagic::error('Only pending payments can be approved.');
+        if ($payment->status !== Payment::STATUS_PENDING && $payment->verification_status !== 'verified') {
+            ToastMagic::error('Only pending or uncompleted payments can be approved.');
             return back();
         }
 
         DB::beginTransaction();
 
         try {
-            $payment->status = Payment::STATUS_COMPLETED;
-            $payment->save();
+            $payment->update([
+                'status' => Payment::STATUS_COMPLETED,
+                'verification_status' => 'verified',
+                'payment_date' => $payment->payment_date ?? now()->toDateString(),
+            ]);
 
-            if ($payment->enrollment) {
-                $enrollment = $payment->enrollment;
-                if ($enrollment->status === Enrollment::STATUS_PENDING) {
-                    $enrollment->status = Enrollment::STATUS_APPROVED;
-                    if (!$enrollment->enrolled_at) {
-                        $enrollment->enrolled_at = now();
-                    }
-                    $enrollment->save();
-                }
-            }
-
-            $this->revenueShareService->process($payment->fresh());
+            app(\App\Services\SrsWorkflowService::class)->finalizeCompletedPayment($payment->fresh());
 
             DB::commit();
 
-            ToastMagic::success('Payment approved successfully. Enrollment has been activated.');
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'status' => $payment->fresh()->status,
+                    'verification_status' => $payment->fresh()->verification_status,
+                ]);
+            }
+
+            ToastMagic::success('Payment approved successfully. Enrollment and invoice records are updated.');
             return back();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -244,7 +254,7 @@ class PaymentController extends Controller
      */
     public function reject(Request $request, $id)
     {
-        $payment = Payment::with('enrollment')->findOrFail($id);
+        $payment = Payment::withoutGlobalScope('branch')->with('enrollment')->findOrFail($id);
 
         if ($payment->status !== Payment::STATUS_PENDING) {
             ToastMagic::error('Only pending payments can be rejected.');
@@ -259,6 +269,7 @@ class PaymentController extends Controller
 
         try {
             $payment->status = Payment::STATUS_FAILED;
+            $payment->verification_status = 'rejected';
             if ($request->has('reason')) {
                 $payment->notes = ($payment->notes ? $payment->notes . "\n\n" : '') . 'Rejection Reason: ' . $request->reason;
             }
@@ -290,7 +301,7 @@ class PaymentController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        $payment = Payment::with('enrollment')->findOrFail($id);
+        $payment = Payment::withoutGlobalScope('branch')->with('enrollment')->findOrFail($id);
 
         $request->validate([
             'status' => 'required|in:pending,completed,failed,refunded',
@@ -298,17 +309,18 @@ class PaymentController extends Controller
 
         $oldStatus = $payment->status;
         $payment->status = $request->status;
+        if ($request->status === Payment::STATUS_COMPLETED) {
+            $payment->verification_status = 'verified';
+            $payment->payment_date = $payment->payment_date ?? now()->toDateString();
+        } elseif ($request->status === Payment::STATUS_PENDING && $payment->verification_status === 'verified') {
+            $payment->verification_status = 'pending';
+        } elseif ($request->status === Payment::STATUS_FAILED && $payment->verification_status === 'pending') {
+            $payment->verification_status = 'rejected';
+        }
         $payment->save();
 
-        if ($request->status === Payment::STATUS_COMPLETED && $payment->enrollment) {
-            $enrollment = $payment->enrollment;
-            if ($enrollment->status === Enrollment::STATUS_PENDING) {
-                $enrollment->status = Enrollment::STATUS_APPROVED;
-                if (!$enrollment->enrolled_at) {
-                    $enrollment->enrolled_at = now();
-                }
-                $enrollment->save();
-            }
+        if ($request->status === Payment::STATUS_COMPLETED) {
+            app(\App\Services\SrsWorkflowService::class)->finalizeCompletedPayment($payment->fresh());
         }
 
         if (in_array($request->status, [Payment::STATUS_FAILED, Payment::STATUS_REFUNDED]) && $payment->enrollment) {
@@ -317,10 +329,6 @@ class PaymentController extends Controller
                 $enrollment->status = Enrollment::STATUS_CANCELLED;
                 $enrollment->save();
             }
-        }
-
-        if ($request->status === Payment::STATUS_COMPLETED) {
-            $this->revenueShareService->process($payment->fresh());
         }
 
         ToastMagic::success("Payment status updated from " . ucfirst($oldStatus) . " to " . ucfirst($request->status) . ".");

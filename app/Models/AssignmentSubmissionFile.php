@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
  * This model represents a file associated with an assignment submission.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class AssignmentSubmissionFile extends Model
 {
@@ -25,11 +26,17 @@ class AssignmentSubmissionFile extends Model
         'mime_type',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for Assignment submission.
+     */
     public function assignmentSubmission(): BelongsTo
     {
         return $this->belongsTo(AssignmentSubmission::class);
     }
 
+    /**
+     * Accessor for computed File url attribute.
+     */
     public function getFileUrlAttribute(): string
     {
         $path = $this->file_path;

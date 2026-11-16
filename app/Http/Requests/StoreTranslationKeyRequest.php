@@ -4,6 +4,11 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Store translation key request — validates and authorizes incoming request payloads.
+ *
+ * @author Renatus Bernardo
+ */
 class StoreTranslationKeyRequest extends FormRequest
 {
     /**

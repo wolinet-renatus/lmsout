@@ -6,8 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Bundle;
 use Illuminate\Http\Request;
 
+/**
+ * Bundle controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class BundleController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $bundles = $request->user()->id; // Actually, instructor bundles have vendor_id = user_id
@@ -23,6 +31,9 @@ class BundleController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Request $request, $id)
     {
         $bundle = Bundle::where('vendor_id', $request->user()->id)

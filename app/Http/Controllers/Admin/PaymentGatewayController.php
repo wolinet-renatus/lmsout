@@ -16,28 +16,30 @@ use App\Services\PaymentGatewayService;
  * This controller handles the management of payment gateways.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class PaymentGatewayController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(): View
     {
         $gateways = PaymentGatewaySetting::orderBy('type')->orderBy('name')->get();
 
         $credentialFieldMap = [
-            'razorpay' => ['key', 'secret'],
             'stripe' => ['key', 'secret'],
-            'paystack' => ['public_key', 'secret_key'],
             'flutterwave' => ['public_key', 'secret_key'],
             'paypal' => ['client_id', 'client_secret', 'mode'],
-            'sslcommerz' => ['store_id', 'store_password', 'mode'],
-            'mollie' => ['api_key'],
-            'bkash'  => ['app_key', 'app_secret', 'username', 'password', 'mode'],
-            'xpay'   => ['store_id', 'api_key', 'mode'],
+            'pesapal' => ['consumer_key', 'consumer_secret', 'ipn_id', 'mode'],
         ];
 
         return view('admin.settings.gateways.index', compact('gateways', 'credentialFieldMap'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, string $identifier): RedirectResponse
     {
         $gateway = PaymentGatewaySetting::where('identifier', $identifier)->firstOrFail();

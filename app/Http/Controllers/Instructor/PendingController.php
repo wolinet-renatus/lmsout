@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
  * This controller handles the pending functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class PendingController extends Controller
 {
@@ -33,6 +34,9 @@ class PendingController extends Controller
 
     }
 
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

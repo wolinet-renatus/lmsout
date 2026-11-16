@@ -29,6 +29,11 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
+/**
+ * Campus unified workflow test — verifies platform security, RBAC isolation, and workflow integrity.
+ *
+ * @author Renatus Bernardo
+ */
 class CampusUnifiedWorkflowTest extends TestCase
 {
     use DatabaseTransactions;
@@ -45,6 +50,9 @@ class CampusUnifiedWorkflowTest extends TestCase
 
     private Country $country;
 
+    /**
+     * Set up.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -100,6 +108,9 @@ class CampusUnifiedWorkflowTest extends TestCase
         ]);
     }
 
+    /**
+     * Test online course blocks offline payment and hides offline gateway.
+     */
     public function test_online_course_blocks_offline_payment_and_hides_offline_gateway(): void
     {
         Storage::fake('public');
@@ -140,6 +151,9 @@ class CampusUnifiedWorkflowTest extends TestCase
         ]);
     }
 
+    /**
+     * Test face to face redirects to scms applicant form and submits quarter installment.
+     */
     public function test_face_to_face_redirects_to_scms_applicant_form_and_submits_quarter_installment(): void
     {
         Storage::fake('public');
@@ -294,6 +308,9 @@ class CampusUnifiedWorkflowTest extends TestCase
         $this->assertNotNull($checkoutF2f->viewData('campusInvoice'));
     }
 
+    /**
+     * Test revenue share and online payment sync with invoice.
+     */
     public function test_revenue_share_and_online_payment_sync_with_invoice(): void
     {
         $revenue = app(RevenueShareService::class);
@@ -419,6 +436,9 @@ class CampusUnifiedWorkflowTest extends TestCase
         $this->assertEquals(Enrollment::STATUS_APPROVED, $enrollment->status);
     }
 
+    /**
+     * Test admin timetable conflict attendance and certificate clearance.
+     */
     public function test_admin_timetable_conflict_attendance_and_certificate_clearance(): void
     {
         $course = Course::create([
@@ -562,6 +582,9 @@ class CampusUnifiedWorkflowTest extends TestCase
             ->assertStatus(403);
     }
 
+    /**
+     * Test srs auth security lockout block and force password reset.
+     */
     public function test_srs_auth_security_lockout_block_and_force_password_reset(): void
     {
         app(SettingsRepository::class)->set('authentication.security', [
@@ -614,6 +637,9 @@ class CampusUnifiedWorkflowTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
+    /**
+     * Test campus certificate verification pdf and student unenroll.
+     */
     public function test_campus_certificate_verification_pdf_and_student_unenroll(): void
     {
         $course = Course::create([
@@ -691,6 +717,9 @@ class CampusUnifiedWorkflowTest extends TestCase
         $this->assertDatabaseMissing('invoices', ['id' => $unpaidInvoice->id]);
     }
 
+    /**
+     * Test rest api campus intake enrollment guards attendance and srs auth.
+     */
     public function test_rest_api_campus_intake_enrollment_guards_attendance_and_srs_auth(): void
     {
         Storage::fake('public');
@@ -848,5 +877,492 @@ class CampusUnifiedWorkflowTest extends TestCase
 
         $apiLocked->forceFill(['is_blocked' => true, 'blocked_reason' => 'Suspended'])->save();
         $this->postJson('/api/auth/login', ['email' => $apiLocked->email, 'password' => 'Secret@123'])->assertStatus(403);
+    }
+
+    public function test_campus_invoice_print_and_verification_render_dual_logo_sides_and_edge_branding(): void
+    {
+        $course = Course::create([
+            'title' => 'Edge Branded Invoice Course ' . Str::random(5),
+            'course_type' => 'course',
+            'delivery_mode' => 'face_to_face',
+            'branch_id' => $this->branch->id,
+            'instructor_id' => $this->instructor->id,
+            'pricing_model' => 'paid',
+            'regular_price' => 172000,
+            'status' => 'published',
+        ]);
+
+        $enrollment = Enrollment::create([
+            'user_id' => $this->student->id,
+            'course_id' => $course->id,
+            'branch_id' => $this->branch->id,
+            'delivery_mode' => 'face_to_face',
+            'status' => Enrollment::STATUS_PENDING,
+        ]);
+
+        $invoice = Invoice::withoutGlobalScope('branch')->create([
+            'invoice_number' => 'INV-EDGE-' . Str::random(5),
+            'control_number' => '99117' . random_int(1000000, 9999999),
+            'user_id' => $this->student->id,
+            'enrollment_id' => $enrollment->id,
+            'course_id' => $course->id,
+            'branch_id' => $this->branch->id,
+            'total_amount' => 172000,
+            'discount_amount' => 0,
+            'net_amount' => 172000,
+            'paid_amount' => 0,
+            'balance' => 172000,
+            'payment_status' => 'unpaid',
+            'installment_plan' => 'full',
+            'issued_at' => now()->toDateString(),
+        ]);
+
+        $printRes = $this->actingAs($this->admin)
+            ->get(route('admin.campus.invoices.print', $invoice->id));
+
+        $printRes->assertOk()
+            ->assertSee($invoice->invoice_number)
+            ->assertSee('lmsout-doc-edge-top', false)
+            ->assertSee('lmsout-doc-edge-bottom', false)
+            ->assertSee('lmsout-invoice-logo-left', false)
+            ->assertSee('lmsout-invoice-logo-right', false)
+            ->assertSee('border-left: 7px solid var(--inv-primary)', false)
+            ->assertSee('border-right: 7px solid var(--inv-secondary)', false)
+            ->assertSee('TZS 172,000.00');
+
+        $verifyRes = $this->get(route('campus.invoice.verify', ['number' => $invoice->invoice_number]));
+        $verifyRes->assertOk()
+            ->assertSee($invoice->invoice_number)
+            ->assertSee('lmsout-invoice-logo-left', false)
+            ->assertSee('lmsout-invoice-logo-right', false)
+            ->assertSee('lmsout-doc-edge-top', false)
+            ->assertSee('TZS 172,000.00');
+    }
+
+    public function test_student_campus_invoices_payments_and_timetable_fetch_db_and_reflect_live_status_changes(): void
+    {
+        $f2fCourse = Course::create([
+            'title' => 'Student Live Sync Campus Course ' . Str::random(5),
+            'course_type' => 'course',
+            'delivery_mode' => 'face_to_face',
+            'branch_id' => $this->branch->id,
+            'instructor_id' => $this->instructor->id,
+            'pricing_model' => 'paid',
+            'regular_price' => 240000,
+            'status' => 'published',
+        ]);
+
+        // Enrollment without course_assignment_id (relies on direct branch/venue fallback as in legacy SCMS imports)
+        $enrollment = Enrollment::create([
+            'user_id' => $this->student->id,
+            'course_id' => $f2fCourse->id,
+            'branch_id' => $this->branch->id,
+            'venue_id' => $this->venue->id,
+            'delivery_mode' => 'face_to_face',
+            'session' => 'evening',
+            'start_date' => now()->subDays(2)->toDateString(),
+            'end_date' => now()->addDays(14)->toDateString(),
+            'status' => Enrollment::STATUS_PENDING,
+        ]);
+
+        // Regional assignment with 'completed' status (still visible and properly badged)
+        $assignment = CourseAssignment::withoutGlobalScope('branch')->create([
+            'course_id' => $f2fCourse->id,
+            'instructor_id' => $this->instructor->id,
+            'branch_id' => $this->branch->id,
+            'venue_id' => $this->venue->id,
+            'session' => 'evening',
+            'start_date' => now()->subDays(30)->toDateString(),
+            'end_date' => now()->subDays(5)->toDateString(),
+            'start_time' => '17:00:00',
+            'end_time' => '19:30:00',
+            'status' => 'completed',
+        ]);
+
+        $invoice = Invoice::withoutGlobalScope('branch')->create([
+            'invoice_number' => 'INV-LIVE-' . Str::random(5),
+            'control_number' => '99118' . random_int(1000000, 9999999),
+            'user_id' => $this->student->id,
+            'enrollment_id' => $enrollment->id,
+            'course_id' => $f2fCourse->id,
+            'branch_id' => $this->branch->id,
+            'total_amount' => 240000,
+            'discount_amount' => 0,
+            'net_amount' => 240000,
+            'paid_amount' => 0,
+            'balance' => 240000,
+            'payment_status' => 'unpaid',
+            'installment_plan' => 'full',
+            'issued_at' => now()->toDateString(),
+        ]);
+
+        // Direct invoice payment (no enrollment_id) + another student's payment (must NOT leak in search)
+        $payment = Payment::create([
+            'user_id' => $this->student->id,
+            'invoice_id' => $invoice->id,
+            'payment_method' => 'cash',
+            'amount' => 120000,
+            'status' => Payment::STATUS_PENDING,
+            'verification_status' => 'pending',
+            'transaction_id' => 'TXN-MINE-' . Str::random(5),
+        ]);
+
+        $otherUser = User::create([
+            'name' => 'Other Isolation Student',
+            'email' => 'other-' . Str::random(6) . '@out.ac.tz',
+            'password' => Hash::make('Secret@123'),
+            'role' => 'student',
+            'is_approved' => true,
+        ]);
+        $otherSecretTxn = 'TXN-SECRET-' . Str::random(6);
+        Payment::create([
+            'user_id' => $otherUser->id,
+            'payment_method' => 'pesapal',
+            'amount' => 95000,
+            'status' => Payment::STATUS_COMPLETED,
+            'verification_status' => 'verified',
+            'transaction_id' => $otherSecretTxn,
+        ]);
+
+        // 1. Invoices UI + Live Status Polling
+        $this->actingAs($this->student)
+            ->get(route('student.campus.invoices.index'))
+            ->assertOk()
+            ->assertSee($invoice->invoice_number)
+            ->assertSee($f2fCourse->title)
+            ->assertSee('TZS 240,000.00');
+
+        $liveInvBefore = $this->actingAs($this->student)
+            ->getJson(route('student.campus.invoices.live'))
+            ->assertOk()
+            ->assertJsonPath('invoices.0.payment_status', 'unpaid');
+        $this->assertSame('TZS 240,000.00', $liveInvBefore->json('invoices.0.balance_formatted'));
+
+        // Simulate backend status transition -> paid
+        $invoice->update([
+            'paid_amount' => 240000,
+            'balance' => 0,
+            'payment_status' => 'paid',
+        ]);
+        $this->actingAs($this->student)
+            ->getJson(route('student.campus.invoices.live'))
+            ->assertOk()
+            ->assertJsonPath('invoices.0.payment_status', 'paid')
+            ->assertJsonPath('invoices.0.balance_formatted', 'TZS 0.00')
+            ->assertJsonPath('invoices.0.progress_percent', 100);
+
+        // 2. Payments UI + Search Isolation + Live Status Polling
+        $this->actingAs($this->student)
+            ->get(route('student.payments'))
+            ->assertOk()
+            ->assertSee($f2fCourse->title)
+            ->assertSee($invoice->invoice_number)
+            ->assertSee($payment->transaction_id);
+
+        // Search with other student's txn must return zero leak in table and live JSON endpoint
+        $this->actingAs($this->student)
+            ->get(route('student.payments', ['search' => $otherSecretTxn]))
+            ->assertOk()
+            ->assertSee('Showing 0 of 0 records');
+
+        $this->actingAs($this->student)
+            ->getJson(route('student.payments.live', ['search' => $otherSecretTxn]))
+            ->assertOk()
+            ->assertJsonCount(0, 'payments');
+
+        // Simulate verification & completion update -> live-status reflects immediately
+        $payment->update([
+            'status' => Payment::STATUS_COMPLETED,
+            'verification_status' => 'verified',
+        ]);
+        $this->actingAs($this->student)
+            ->getJson(route('student.payments.live'))
+            ->assertOk()
+            ->assertJsonPath('payments.0.status', 'completed')
+            ->assertJsonPath('payments.0.verification_status', 'verified');
+
+        // 3. Timetable UI + Real DB Fallback Venue & Tutor + Live Status Transitions
+        $this->actingAs($this->student)
+            ->get(route('student.campus.timetable'))
+            ->assertOk()
+            ->assertSee($f2fCourse->title)
+            ->assertSee($this->venue->name)
+            ->assertSee($this->instructor->name)
+            ->assertSee('Awaiting Payment');
+
+        $enrollment->update([
+            'status' => Enrollment::STATUS_APPROVED,
+            'course_assignment_id' => $assignment->id,
+        ]);
+
+        // Transition assignment live status from completed -> active (outside active clock window)
+        $outsideStart = now()->subHours(4)->format('H:i:s');
+        $outsideEnd = now()->subHours(3)->format('H:i:s');
+        if ($outsideStart > $outsideEnd) {
+            $outsideStart = '00:01:00';
+            $outsideEnd = '00:02:00';
+        }
+
+        $assignment->update([
+            'end_date' => now()->addDays(10)->toDateString(),
+            'start_time' => $outsideStart,
+            'end_time' => $outsideEnd,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($this->student)
+            ->getJson(route('student.campus.timetable.live'))
+            ->assertOk()
+            ->assertJsonPath('enrollments.0.live_status_key', 'active')
+            ->assertJsonPath('enrollments.0.venue_name', $this->venue->name)
+            ->assertJsonPath('branchTimetable.0.live_status_key', 'active');
+
+        // Inside live class clock window -> live status resolves dynamically to in_session
+        $assignment->update([
+            'start_time' => now()->subMinutes(10)->format('H:i:s'),
+            'end_time' => now()->addMinutes(20)->format('H:i:s'),
+        ]);
+
+        $this->actingAs($this->student)
+            ->getJson(route('student.campus.timetable.live'))
+            ->assertOk()
+            ->assertJsonPath('enrollments.0.live_status_key', 'in_session')
+            ->assertJsonPath('branchTimetable.0.live_status_key', 'in_session');
+    }
+
+    public function test_student_dashboard_bell_notifications_login_events_and_internal_communication(): void
+    {
+        $f2fCourse = Course::create([
+            'title' => 'Student Dashboard Events Course ' . Str::random(5),
+            'course_type' => 'course',
+            'delivery_mode' => 'face_to_face',
+            'branch_id' => $this->branch->id,
+            'instructor_id' => $this->instructor->id,
+            'pricing_model' => 'paid',
+            'regular_price' => 150000,
+            'status' => 'published',
+        ]);
+        $enrollment = Enrollment::create([
+            'user_id' => $this->student->id,
+            'course_id' => $f2fCourse->id,
+            'branch_id' => $this->branch->id,
+            'venue_id' => $this->venue->id,
+            'status' => Enrollment::STATUS_PENDING,
+        ]);
+
+        $invoice = Invoice::withoutGlobalScope('branch')->create([
+            'invoice_number' => 'INV-EVT-' . Str::random(5),
+            'user_id' => $this->student->id,
+            'enrollment_id' => $enrollment->id,
+            'course_id' => $f2fCourse->id,
+            'branch_id' => $this->branch->id,
+            'total_amount' => 150000,
+            'discount_amount' => 0,
+            'net_amount' => 150000,
+            'paid_amount' => 0,
+            'balance' => 150000,
+            'payment_status' => 'unpaid',
+            'installment_plan' => 'full',
+            'issued_at' => now()->toDateString(),
+        ]);
+
+        // 1. After-login event fires automatic session sign-in + unpaid balance notifications (deduped)
+        \Illuminate\Support\Facades\Event::dispatch(
+            new \Illuminate\Auth\Events\Login('web', $this->student, false)
+        );
+        \Illuminate\Support\Facades\Event::dispatch(
+            new \Illuminate\Auth\Events\Login('web', $this->student, false)
+        );
+
+        $loginNotifTitles = $this->student->fresh()->notifications->pluck('data.title')->all();
+        $this->assertContains('Signed In to OUT LMS', $loginNotifTitles);
+        $this->assertContains('Outstanding Fee Balance', $loginNotifTitles);
+        $this->assertCount(2, $this->student->fresh()->notifications);
+
+        // 2. Internal workflows (control number, verified payment, enrollment activation) dispatch alerts
+        $srs = app(SrsWorkflowService::class);
+        $srs->ensureControlNumber($invoice);
+        $srs->applyPaymentToInvoice($invoice->fresh(), [
+            'amount' => 150000,
+            'payment_method' => 'control_number',
+            'verify_immediately' => true,
+        ]);
+
+        $afterFinanceTitles = $this->student->fresh()->notifications->pluck('data.title')->all();
+        $this->assertContains('Control Number Issued', $afterFinanceTitles);
+        $this->assertContains('Payment Confirmed', $afterFinanceTitles);
+        $this->assertContains('Enrollment Approved', $afterFinanceTitles);
+
+        // 3. Internal direct message dispatches bell alert + live unread message count
+        $chatService = app(\App\Services\ChatService::class);
+        $conversation = $chatService->getOrCreateConversation($this->student->id, $this->instructor->id);
+        $chatService->sendMessage($conversation->id, $this->instructor->id, 'Welcome to our cohort class!');
+
+        $unreadAfterChat = $this->student->fresh()->unreadNotifications()->count();
+        $this->assertGreaterThanOrEqual(6, $unreadAfterChat);
+
+        // 4. Student dashboard renders real-time KPIs, bell dropdown, notifications, inbox & live summary
+        $this->actingAs($this->student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('Unread Alerts')
+            ->assertSee('Instructor Messages')
+            ->assertSee('Recent Notifications')
+            ->assertSee('portalBellDropdown')
+            ->assertSee('portalBellBadge')
+            ->assertSee($invoice->invoice_number)
+            ->assertSee('Welcome to our cohort class!');
+
+        $this->actingAs($this->student)
+            ->getJson(route('student.notifications.feed'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', $unreadAfterChat)
+            ->assertJsonPath('unread_messages', 1);
+
+        $this->actingAs($this->instructor)
+            ->getJson(route('instructor.notifications.feed'))
+            ->assertOk();
+
+        $this->actingAs($this->student)
+            ->getJson(route('student.dashboard.live'))
+            ->assertOk()
+            ->assertJsonPath('stats.unread_notifications', $unreadAfterChat)
+            ->assertJsonPath('stats.unread_messages', 1)
+            ->assertJsonPath('stats.outstanding_balance', 0);
+
+        // 5. Mark-all-read clears unread badge cleanly via AJAX JSON
+        $this->actingAs($this->student)
+            ->getJson(route('student.notifications.readAll'))
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('unread_count', 0);
+
+        $this->assertSame(0, $this->student->fresh()->unreadNotifications()->count());
+
+        // Notifications page renders cleanly without duplicate sidebar
+        $this->actingAs($this->student)
+            ->get(route('student.notifications.index'))
+            ->assertOk()
+            ->assertSee('Notifications &amp; Internal Alerts', false);
+    }
+
+    public function test_completed_direct_checkout_payment_without_invoice_syncs_real_invoice_and_control_number_on_payments_and_campus_invoices(): void
+    {
+        $course = Course::create([
+            'title' => 'Direct Checkout Sync Course ' . Str::random(5),
+            'course_type' => 'course',
+            'delivery_mode' => 'online',
+            'branch_id' => $this->branch->id,
+            'instructor_id' => $this->instructor->id,
+            'pricing_model' => 'paid',
+            'regular_price' => 122500,
+            'status' => 'published',
+        ]);
+
+        $enrollment = Enrollment::create([
+            'user_id' => $this->student->id,
+            'course_id' => $course->id,
+            'branch_id' => $this->branch->id,
+            'status' => Enrollment::STATUS_PENDING,
+        ]);
+
+        // 1. Direct checkout payment created without invoice_id promotes on completion and auto-issues Invoice + Control #
+        $payment = Payment::create([
+            'user_id' => $this->student->id,
+            'enrollment_id' => $enrollment->id,
+            'payment_method' => Payment::PAYMENT_METHOD_PESAPAL,
+            'amount' => 122500,
+            'status' => Payment::STATUS_PENDING,
+            'verification_status' => 'pending',
+            'pesapal_order_tracking_id' => 'TRK-' . Str::random(8),
+        ]);
+
+        $payment->update([
+            'status' => Payment::STATUS_COMPLETED,
+            'verification_status' => 'verified',
+            'pesapal_confirmation_code' => 'CONF-' . Str::random(6),
+        ]);
+
+        $payment = $payment->fresh();
+        $this->assertNotNull($payment->invoice_id);
+
+        $invoice = Invoice::withoutGlobalScope('branch')->findOrFail($payment->invoice_id);
+        $this->assertSame('paid', $invoice->payment_status);
+        $this->assertEquals(122500.0, (float) $invoice->paid_amount);
+        $this->assertEquals(0.0, (float) $invoice->balance);
+        $this->assertStringStartsWith('99104', (string) $invoice->control_number);
+        $this->assertSame(Enrollment::STATUS_APPROVED, $enrollment->fresh()->status);
+
+        // 2. Unlinked completed payment inserted bypassing observers self-heals on /student/campus/invoices
+        $secondCourse = Course::create([
+            'title' => 'Self Heal Checkout Course ' . Str::random(5),
+            'course_type' => 'course',
+            'delivery_mode' => 'online',
+            'branch_id' => $this->branch->id,
+            'instructor_id' => $this->instructor->id,
+            'pricing_model' => 'paid',
+            'regular_price' => 85000,
+            'status' => 'published',
+        ]);
+        $secondEnrollment = Enrollment::create([
+            'user_id' => $this->student->id,
+            'course_id' => $secondCourse->id,
+            'branch_id' => $this->branch->id,
+            'status' => Enrollment::STATUS_APPROVED,
+        ]);
+        $legacyUnlinked = Payment::withoutEvents(fn () => Payment::create([
+            'user_id' => $this->student->id,
+            'enrollment_id' => $secondEnrollment->id,
+            'invoice_id' => null,
+            'payment_method' => Payment::PAYMENT_METHOD_PESAPAL,
+            'amount' => 85000,
+            'status' => Payment::STATUS_COMPLETED,
+            'verification_status' => 'verified',
+            'transaction_id' => 'LEGACY-' . Str::random(6),
+        ]));
+
+        // Visiting /student/campus/invoices reconciles the missing invoice & displays both invoice numbers + control numbers
+        $invoicesResponse = $this->actingAs($this->student)
+            ->get(route('student.campus.invoices.index'));
+        $invoicesResponse->assertOk();
+
+        $legacyUnlinked = $legacyUnlinked->fresh();
+        $this->assertNotNull($legacyUnlinked->invoice_id);
+        $healedInvoice = Invoice::withoutGlobalScope('branch')->findOrFail($legacyUnlinked->invoice_id);
+        $this->assertSame('paid', $healedInvoice->payment_status);
+        $this->assertStringStartsWith('99104', (string) $healedInvoice->control_number);
+
+        $invoicesResponse
+            ->assertSee($invoice->invoice_number)
+            ->assertSee($invoice->control_number)
+            ->assertSee($healedInvoice->invoice_number)
+            ->assertSee($healedInvoice->control_number);
+
+        // Live endpoint + /student/payments page + /student/payments/live endpoint all reflect the real DB invoice & control #
+        $this->actingAs($this->student)
+            ->getJson(route('student.campus.invoices.live'))
+            ->assertOk()
+            ->assertJsonFragment([
+                'invoice_number' => $invoice->invoice_number,
+                'control_number' => $invoice->control_number,
+                'payment_status' => 'paid',
+            ]);
+
+        $this->actingAs($this->student)
+            ->get(route('student.payments'))
+            ->assertOk()
+            ->assertSee($invoice->invoice_number)
+            ->assertSee($invoice->control_number)
+            ->assertSee($healedInvoice->invoice_number)
+            ->assertSee($healedInvoice->control_number);
+
+        $this->actingAs($this->student)
+            ->getJson(route('student.payments.live'))
+            ->assertOk()
+            ->assertJsonFragment([
+                'invoice_number' => $invoice->invoice_number,
+                'control_number' => $invoice->control_number,
+                'status' => Payment::STATUS_COMPLETED,
+            ]);
     }
 }

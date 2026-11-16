@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
  * This controller handles the courses functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class CoursesController extends Controller
 {
@@ -81,6 +82,8 @@ class CoursesController extends Controller
             });
         }
 
+        $usdToTzsRate = usd_to_tzs_rate();
+
         $sort = $request->input('sort', 'newest');
         switch ($sort) {
             case 'popular':
@@ -89,10 +92,10 @@ class CoursesController extends Controller
                 }])->orderByDesc('popular_count');
                 break;
             case 'price_asc':
-                $query->orderByRaw('CASE WHEN pricing_model = "free" THEN 0 ELSE COALESCE(sale_price, regular_price, 0) END ASC');
+                $query->orderByRaw('CASE WHEN pricing_model = "free" THEN 0 ELSE (COALESCE(sale_price, regular_price, 0) * CASE WHEN price_currency = "USD" THEN ? ELSE 1 END) END ASC', [$usdToTzsRate]);
                 break;
             case 'price_desc':
-                $query->orderByRaw('CASE WHEN pricing_model = "free" THEN 0 ELSE COALESCE(sale_price, regular_price, 0) END DESC');
+                $query->orderByRaw('CASE WHEN pricing_model = "free" THEN 0 ELSE (COALESCE(sale_price, regular_price, 0) * CASE WHEN price_currency = "USD" THEN ? ELSE 1 END) END DESC', [$usdToTzsRate]);
                 break;
             case 'rating':
                 $query->withAvg('reviews as avg_rating_sort', 'rating')->orderByDesc('avg_rating_sort');
@@ -331,7 +334,7 @@ class CoursesController extends Controller
                     'title' => $course->title,
                     'category' => $course->category ?: 'General',
                     'instructor' => optional($course->instructor)->name ?: 'Instructor',
-                    'price_label' => $isFree ? 'Free' : currency_format($effectivePrice, 2, 'symbol'),
+                    'price_label' => $isFree ? 'Free' : $course->formatPrice($effectivePrice, 2, 'symbol'),
                     'is_free' => $isFree,
                     'thumbnail' => $course->thumbnail ?: asset('assets/front/img/home-1/courses/courses-01.jpg'),
                     'url' => route('courses.show', $course->id),

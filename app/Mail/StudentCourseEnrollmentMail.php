@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * This mail is sent to the student when they enroll in a course.
  *
  * @package App\Mail
+ * @author Renatus Bernardo
  */
 class StudentCourseEnrollmentMail extends Mailable
 {
@@ -22,12 +23,18 @@ class StudentCourseEnrollmentMail extends Mailable
 
     public Carbon $enrolledAt;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(public Course $course, public User $student, ?Carbon $enrolledAt = null)
     {
         $this->subject('You enrolled in ' . $course->title);
         $this->enrolledAt = $enrolledAt ?? now();
     }
 
+    /**
+     * Build.
+     */
     public function build(): self
     {
         return $this->view('emails.notifications.student-course-enrollment');

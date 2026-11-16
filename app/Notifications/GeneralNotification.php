@@ -8,6 +8,11 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 
+/**
+ * General notification Notification — dispatches multi-channel user alerts.
+ *
+ * @author Renatus Bernardo
+ */
 class GeneralNotification extends Notification
 {
     use Queueable;

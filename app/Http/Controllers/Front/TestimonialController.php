@@ -12,9 +12,13 @@ use Illuminate\Contracts\View\View;
  * This controller handles the testimonial functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class TestimonialController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(): View
     {
         $baseQuery = Review::query()

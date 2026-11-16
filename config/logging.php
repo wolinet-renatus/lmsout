@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for logging.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;

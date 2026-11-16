@@ -15,9 +15,13 @@ use Exception;
  * API endpoint to validate coupons for students.
  *
  * @package App\Http\Controllers\Api
+ * @author Renatus Bernardo
  */
 class ValidateCouponController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private CouponService $couponService)
     {
     }

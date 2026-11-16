@@ -17,21 +17,21 @@
     /* ==========================================================================
        Course Details Redesign (Gradient Hero + Stacked Content Cards + Sticky Sidebar)
        ========================================================================== */
-    .edux-cd-page {
+    .lmsout-cd-page {
         background-color: #f8fafc;
         font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         padding-bottom: 64px;
     }
 
     /* 1. Top Gradient Hero Banner */
-    .edux-cd-hero {
+    .lmsout-cd-hero {
         background: linear-gradient(135deg, var(--theme) 0%, var(--theme-2, #228ddd) 100%);
         padding: 36px 0 40px;
         color: #ffffff;
         position: relative;
         overflow: hidden;
     }
-    .edux-cd-hero__cat-pill {
+    .lmsout-cd-hero__cat-pill {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -45,11 +45,11 @@
         margin-bottom: 12px;
         text-decoration: none;
     }
-    .edux-cd-hero__cat-pill:hover {
+    .lmsout-cd-hero__cat-pill:hover {
         color: #ffffff;
         background: rgba(255, 255, 255, 0.24);
     }
-    .edux-cd-hero__title {
+    .lmsout-cd-hero__title {
         font-size: 28px;
         font-weight: 800;
         color: #ffffff;
@@ -58,40 +58,40 @@
         margin: 0 0 8px;
         max-width: 780px;
     }
-    .edux-cd-hero__subtitle {
+    .lmsout-cd-hero__subtitle {
         font-size: 13.5px;
         color: rgba(255, 255, 255, 0.86);
         line-height: 1.55;
         margin: 0 0 14px;
         max-width: 720px;
     }
-    .edux-cd-hero__meta {
+    .lmsout-cd-hero__meta {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
         gap: 8px;
         margin-bottom: 14px;
     }
-    .edux-cd-hero__rating {
+    .lmsout-cd-hero__rating {
         display: inline-flex;
         align-items: center;
         gap: 3px;
         font-size: 12px;
         margin-right: 4px;
     }
-    .edux-cd-hero__rating .is-gold {
+    .lmsout-cd-hero__rating .is-gold {
         color: #fbbf24;
     }
-    .edux-cd-hero__rating .is-muted {
+    .lmsout-cd-hero__rating .is-muted {
         color: rgba(255, 255, 255, 0.35);
     }
-    .edux-cd-hero__rating-text {
+    .lmsout-cd-hero__rating-text {
         color: #ffffff;
         font-weight: 600;
         margin-left: 4px;
         font-size: 12px;
     }
-    .edux-cd-hero__pill {
+    .lmsout-cd-hero__pill {
         display: inline-flex;
         align-items: center;
         gap: 5px;
@@ -103,21 +103,21 @@
         padding: 3px 10px;
         border-radius: 999px;
     }
-    .edux-cd-hero__author {
+    .lmsout-cd-hero__author {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 12.5px;
         color: rgba(255, 255, 255, 0.9);
     }
-    .edux-cd-hero__author-avatar {
+    .lmsout-cd-hero__author-avatar {
         width: 26px;
         height: 26px;
         border-radius: 50%;
         object-fit: cover;
         border: 1.5px solid rgba(255, 255, 255, 0.8);
     }
-    .edux-cd-hero__author-initials {
+    .lmsout-cd-hero__author-initials {
         width: 26px;
         height: 26px;
         border-radius: 50%;
@@ -130,18 +130,18 @@
         align-items: center;
         justify-content: center;
     }
-    .edux-cd-hero__author strong {
+    .lmsout-cd-hero__author strong {
         color: #ffffff;
         font-weight: 700;
     }
 
     /* 2. Main Body Container */
-    .edux-cd-body {
+    .lmsout-cd-body {
         padding-top: 28px;
     }
 
     /* Video / Thumbnail Preview Card */
-    .edux-cd-video-card {
+    .lmsout-cd-video-card {
         position: relative;
         border-radius: 16px;
         overflow: hidden;
@@ -152,13 +152,13 @@
         max-height: 410px;
         width: 100%;
     }
-    .edux-cd-video-card__img {
+    .lmsout-cd-video-card__img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
     }
-    .edux-cd-video-card__overlay {
+    .lmsout-cd-video-card__overlay {
         position: absolute;
         inset: 0;
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.55) 0%, rgba(15, 23, 42, 0.15) 45%, rgba(15, 23, 42, 0.55) 100%);
@@ -167,13 +167,13 @@
         justify-content: space-between;
         padding: 16px 20px;
     }
-    .edux-cd-video-card__topbar {
+    .lmsout-cd-video-card__topbar {
         display: flex;
         align-items: center;
         gap: 10px;
         color: #ffffff;
     }
-    .edux-cd-video-card__topbar-title {
+    .lmsout-cd-video-card__topbar-title {
         font-size: 13.5px;
         font-weight: 600;
         color: #ffffff;
@@ -182,7 +182,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    .edux-cd-video-card__play-btn {
+    .lmsout-cd-video-card__play-btn {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -202,17 +202,17 @@
         transition: transform 0.2s ease, background-color 0.2s ease;
         text-decoration: none;
     }
-    .edux-cd-video-card__play-btn:hover {
+    .lmsout-cd-video-card__play-btn:hover {
         transform: translate(-50%, -50%) scale(1.07);
         background: var(--theme);
         color: #ffffff;
     }
-    .edux-cd-video-card__bottombar {
+    .lmsout-cd-video-card__bottombar {
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
-    .edux-cd-video-card__watch-pill {
+    .lmsout-cd-video-card__watch-pill {
         margin-left: auto;
         background: rgba(15, 23, 42, 0.82);
         color: #ffffff;
@@ -227,13 +227,13 @@
         backdrop-filter: blur(4px);
         -webkit-backdrop-filter: blur(4px);
     }
-    .edux-cd-video-card__watch-pill:hover {
+    .lmsout-cd-video-card__watch-pill:hover {
         color: #ffffff;
         background: rgba(15, 23, 42, 0.95);
     }
 
     /* Stacked White Content Cards */
-    .edux-cd-card {
+    .lmsout-cd-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 16px;
@@ -241,7 +241,7 @@
         margin-bottom: 18px;
         box-shadow: 0 1px 4px rgba(15, 23, 42, 0.02);
     }
-    .edux-cd-card__header {
+    .lmsout-cd-card__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -249,23 +249,23 @@
         gap: 8px;
         margin-bottom: 14px;
     }
-    .edux-cd-card__title {
+    .lmsout-cd-card__title {
         font-size: 15.5px;
         font-weight: 700;
         color: #0f172a;
         margin: 0 0 14px;
     }
-    .edux-cd-card__header .edux-cd-card__title {
+    .lmsout-cd-card__header .lmsout-cd-card__title {
         margin-bottom: 0;
     }
-    .edux-cd-card__summary-meta {
+    .lmsout-cd-card__summary-meta {
         font-size: 12px;
         color: #64748b;
         font-weight: 500;
     }
 
     /* What you'll learn Grid */
-    .edux-cd-learn-grid {
+    .lmsout-cd-learn-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 10px 20px;
@@ -274,11 +274,11 @@
         margin: 0;
     }
     @media (max-width: 575.98px) {
-        .edux-cd-learn-grid {
+        .lmsout-cd-learn-grid {
             grid-template-columns: 1fr;
         }
     }
-    .edux-cd-learn-grid li {
+    .lmsout-cd-learn-grid li {
         display: flex;
         align-items: flex-start;
         gap: 9px;
@@ -286,7 +286,7 @@
         color: #334155;
         line-height: 1.45;
     }
-    .edux-cd-learn-grid li i {
+    .lmsout-cd-learn-grid li i {
         color: var(--theme);
         font-size: 13.5px;
         margin-top: 2px;
@@ -294,7 +294,7 @@
     }
 
     /* Requirements List */
-    .edux-cd-req-list {
+    .lmsout-cd-req-list {
         list-style: disc;
         padding-left: 18px;
         margin: 0;
@@ -302,35 +302,35 @@
         flex-direction: column;
         gap: 6px;
     }
-    .edux-cd-req-list li {
+    .lmsout-cd-req-list li {
         font-size: 13px;
         color: #334155;
         line-height: 1.5;
     }
 
     /* Description Text */
-    .edux-cd-desc {
+    .lmsout-cd-desc {
         font-size: 13.5px;
         color: #475569;
         line-height: 1.7;
     }
-    .edux-cd-desc p:last-child {
+    .lmsout-cd-desc p:last-child {
         margin-bottom: 0;
     }
 
     /* Course Content Curriculum Accordion */
-    .edux-cd-curriculum {
+    .lmsout-cd-curriculum {
         display: flex;
         flex-direction: column;
         gap: 10px;
     }
-    .edux-cd-section {
+    .lmsout-cd-section {
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         overflow: hidden;
         background: #ffffff;
     }
-    .edux-cd-section__btn {
+    .lmsout-cd-section__btn {
         width: 100%;
         background: #f8fafc;
         border: 0;
@@ -342,15 +342,15 @@
         cursor: pointer;
         transition: background-color 0.15s ease;
     }
-    .edux-cd-section__btn:hover {
+    .lmsout-cd-section__btn:hover {
         background: #f1f5f9;
     }
-    .edux-cd-section__title {
+    .lmsout-cd-section__title {
         font-size: 13px;
         font-weight: 700;
         color: #1e293b;
     }
-    .edux-cd-section__meta {
+    .lmsout-cd-section__meta {
         display: inline-flex;
         align-items: center;
         gap: 12px;
@@ -358,21 +358,21 @@
         color: #64748b;
         font-weight: 500;
     }
-    .edux-cd-section__chevron {
+    .lmsout-cd-section__chevron {
         font-size: 11px;
         color: #64748b;
         transition: transform 0.2s ease;
     }
-    .edux-cd-section__btn[aria-expanded="true"] .edux-cd-section__chevron {
+    .lmsout-cd-section__btn[aria-expanded="true"] .lmsout-cd-section__chevron {
         transform: rotate(180deg);
     }
-    .edux-cd-lessons {
+    .lmsout-cd-lessons {
         list-style: none;
         padding: 0;
         margin: 0;
         border-top: 1px solid #e2e8f0;
     }
-    .edux-cd-lesson-item {
+    .lmsout-cd-lesson-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -382,26 +382,26 @@
         font-size: 12.5px;
         color: #334155;
     }
-    .edux-cd-lesson-item:last-child {
+    .lmsout-cd-lesson-item:last-child {
         border-bottom: 0;
     }
-    .edux-cd-lesson-item__left {
+    .lmsout-cd-lesson-item__left {
         display: flex;
         align-items: center;
         gap: 9px;
         min-width: 0;
     }
-    .edux-cd-lesson-item__icon-play {
+    .lmsout-cd-lesson-item__icon-play {
         color: var(--theme);
         font-size: 13px;
         flex-shrink: 0;
     }
-    .edux-cd-lesson-item__icon-lock {
+    .lmsout-cd-lesson-item__icon-lock {
         color: #94a3b8;
         font-size: 12px;
         flex-shrink: 0;
     }
-    .edux-cd-lesson-item__name {
+    .lmsout-cd-lesson-item__name {
         color: #334155;
         font-weight: 500;
         text-decoration: none;
@@ -409,10 +409,10 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    a.edux-cd-lesson-item__name:hover {
+    a.lmsout-cd-lesson-item__name:hover {
         color: var(--theme);
     }
-    .edux-cd-lesson-item__preview-badge {
+    .lmsout-cd-lesson-item__preview-badge {
         background: #dcfce7;
         color: #15803d;
         font-size: 10px;
@@ -421,7 +421,7 @@
         border-radius: 999px;
         flex-shrink: 0;
     }
-    .edux-cd-lesson-item__duration {
+    .lmsout-cd-lesson-item__duration {
         font-size: 11.5px;
         color: #94a3b8;
         white-space: nowrap;
@@ -429,20 +429,20 @@
     }
 
     /* Quizzes Sub-box inside Course Content */
-    .edux-cd-quiz-box {
+    .lmsout-cd-quiz-box {
         margin-top: 12px;
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         padding: 12px 16px;
         background: #ffffff;
     }
-    .edux-cd-quiz-box__heading {
+    .lmsout-cd-quiz-box__heading {
         font-size: 12.5px;
         font-weight: 700;
         color: #1e293b;
         margin-bottom: 10px;
     }
-    .edux-cd-quiz-item {
+    .lmsout-cd-quiz-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -450,11 +450,11 @@
         padding-top: 8px;
         border-top: 1px solid #f1f5f9;
     }
-    .edux-cd-quiz-item:first-of-type {
+    .lmsout-cd-quiz-item:first-of-type {
         border-top: 0;
         padding-top: 0;
     }
-    .edux-cd-quiz-item__title {
+    .lmsout-cd-quiz-item__title {
         font-size: 12.5px;
         font-weight: 700;
         color: #0f172a;
@@ -462,16 +462,16 @@
         align-items: center;
         gap: 7px;
     }
-    .edux-cd-quiz-item__title i {
+    .lmsout-cd-quiz-item__title i {
         color: var(--theme);
     }
-    .edux-cd-quiz-item__sub {
+    .lmsout-cd-quiz-item__sub {
         font-size: 11px;
         color: #64748b;
         margin-top: 2px;
         padding-left: 20px;
     }
-    .edux-cd-quiz-item__lock {
+    .lmsout-cd-quiz-item__lock {
         font-size: 11px;
         color: #94a3b8;
         white-space: nowrap;
@@ -481,12 +481,12 @@
     }
 
     /* Instructor Card */
-    .edux-cd-instructor {
+    .lmsout-cd-instructor {
         display: flex;
         align-items: flex-start;
         gap: 16px;
     }
-    .edux-cd-instructor__avatar {
+    .lmsout-cd-instructor__avatar {
         width: 56px;
         height: 56px;
         border-radius: 50%;
@@ -495,7 +495,7 @@
         padding: 2px;
         flex-shrink: 0;
     }
-    .edux-cd-instructor__initials {
+    .lmsout-cd-instructor__initials {
         width: 56px;
         height: 56px;
         border-radius: 50%;
@@ -508,7 +508,7 @@
         justify-content: center;
         flex-shrink: 0;
     }
-    .edux-cd-instructor__name {
+    .lmsout-cd-instructor__name {
         font-size: 14.5px;
         font-weight: 700;
         color: var(--theme);
@@ -516,12 +516,12 @@
         text-decoration: none;
         display: inline-block;
     }
-    .edux-cd-instructor__role {
+    .lmsout-cd-instructor__role {
         font-size: 12px;
         color: #64748b;
         margin-bottom: 6px;
     }
-    .edux-cd-instructor__bio {
+    .lmsout-cd-instructor__bio {
         font-size: 12.5px;
         color: #475569;
         line-height: 1.55;
@@ -529,32 +529,32 @@
     }
 
     /* Student Reviews List */
-    .edux-cd-reviews-list {
+    .lmsout-cd-reviews-list {
         display: flex;
         flex-direction: column;
     }
-    .edux-cd-review-item {
+    .lmsout-cd-review-item {
         display: flex;
         align-items: flex-start;
         gap: 12px;
         padding: 14px 0;
         border-bottom: 1px solid #f1f5f9;
     }
-    .edux-cd-review-item:first-child {
+    .lmsout-cd-review-item:first-child {
         padding-top: 2px;
     }
-    .edux-cd-review-item:last-child {
+    .lmsout-cd-review-item:last-child {
         border-bottom: 0;
         padding-bottom: 0;
     }
-    .edux-cd-review-item__avatar {
+    .lmsout-cd-review-item__avatar {
         width: 36px;
         height: 36px;
         border-radius: 50%;
         object-fit: cover;
         flex-shrink: 0;
     }
-    .edux-cd-review-item__initials {
+    .lmsout-cd-review-item__initials {
         width: 36px;
         height: 36px;
         border-radius: 50%;
@@ -566,35 +566,35 @@
         justify-content: center;
         flex-shrink: 0;
     }
-    .edux-cd-review-item__top {
+    .lmsout-cd-review-item__top {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
         gap: 6px;
         margin-bottom: 3px;
     }
-    .edux-cd-review-item__name {
+    .lmsout-cd-review-item__name {
         font-size: 13px;
         font-weight: 700;
         color: #0f172a;
     }
-    .edux-cd-review-item__stars {
+    .lmsout-cd-review-item__stars {
         display: inline-flex;
         align-items: center;
         gap: 1px;
         font-size: 10.5px;
     }
-    .edux-cd-review-item__stars .is-gold {
+    .lmsout-cd-review-item__stars .is-gold {
         color: #f59e0b;
     }
-    .edux-cd-review-item__stars .is-muted {
+    .lmsout-cd-review-item__stars .is-muted {
         color: #e2e8f0;
     }
-    .edux-cd-review-item__date {
+    .lmsout-cd-review-item__date {
         font-size: 11px;
         color: #94a3b8;
     }
-    .edux-cd-review-item__comment {
+    .lmsout-cd-review-item__comment {
         font-size: 12.5px;
         color: #475569;
         line-height: 1.5;
@@ -602,7 +602,7 @@
     }
 
     /* 3. Right Sticky Purchase Sidebar Card */
-    .edux-cd-sidebar {
+    .lmsout-cd-sidebar {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 16px;
@@ -611,28 +611,28 @@
         position: sticky;
         top: 96px;
     }
-    .edux-cd-sidebar__price-row {
+    .lmsout-cd-sidebar__price-row {
         display: flex;
         align-items: baseline;
         gap: 8px;
         margin-bottom: 6px;
     }
-    .edux-cd-sidebar__price {
+    .lmsout-cd-sidebar__price {
         font-size: 26px;
         font-weight: 800;
         color: var(--theme);
         line-height: 1.15;
     }
-    .edux-cd-sidebar__price.is-free {
+    .lmsout-cd-sidebar__price.is-free {
         color: #059669;
     }
-    .edux-cd-sidebar__price-old {
+    .lmsout-cd-sidebar__price-old {
         font-size: 14px;
         color: #94a3b8;
         text-decoration: line-through;
         font-weight: 500;
     }
-    .edux-cd-sidebar__subnote {
+    .lmsout-cd-sidebar__subnote {
         font-size: 11.5px;
         color: #64748b;
         margin-bottom: 14px;
@@ -640,7 +640,7 @@
         align-items: center;
         gap: 5px;
     }
-    .edux-cd-sidebar__btn-primary {
+    .lmsout-cd-sidebar__btn-primary {
         width: 100%;
         height: 42px;
         border-radius: 10px;
@@ -657,11 +657,11 @@
         margin-bottom: 10px;
         transition: opacity 0.15s ease;
     }
-    .edux-cd-sidebar__btn-primary:hover {
+    .lmsout-cd-sidebar__btn-primary:hover {
         opacity: 0.93;
         color: #ffffff;
     }
-    .edux-cd-sidebar__btn-outline {
+    .lmsout-cd-sidebar__btn-outline {
         width: 100%;
         height: 38px;
         border-radius: 10px;
@@ -679,12 +679,12 @@
         cursor: pointer;
         transition: border-color 0.15s ease, background-color 0.15s ease;
     }
-    .edux-cd-sidebar__btn-outline:hover {
+    .lmsout-cd-sidebar__btn-outline:hover {
         border-color: var(--theme);
         background: rgba(1, 59, 166, 0.03);
         color: var(--theme);
     }
-    .edux-cd-sidebar__sub-box {
+    .lmsout-cd-sidebar__sub-box {
         background: rgba(1, 59, 166, 0.06);
         border: 1px solid rgba(1, 59, 166, 0.18);
         border-radius: 10px;
@@ -694,7 +694,7 @@
         line-height: 1.45;
         margin-bottom: 12px;
     }
-    .edux-cd-sidebar__sub-badge {
+    .lmsout-cd-sidebar__sub-badge {
         display: inline-flex;
         align-items: center;
         gap: 4px;
@@ -706,12 +706,12 @@
         border-radius: 999px;
         margin-right: 4px;
     }
-    .edux-cd-sidebar__sub-box a {
+    .lmsout-cd-sidebar__sub-box a {
         color: var(--theme);
         font-weight: 700;
         text-decoration: underline;
     }
-    .edux-cd-sidebar__gift {
+    .lmsout-cd-sidebar__gift {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -721,11 +721,11 @@
         text-decoration: underline;
         margin-bottom: 16px;
     }
-    .edux-cd-sidebar__divider {
+    .lmsout-cd-sidebar__divider {
         border-top: 1px solid #f1f5f9;
         margin: 0 0 14px;
     }
-    .edux-cd-sidebar__includes-title {
+    .lmsout-cd-sidebar__includes-title {
         font-size: 10.5px;
         font-weight: 700;
         letter-spacing: 0.07em;
@@ -733,7 +733,7 @@
         color: #64748b;
         margin-bottom: 10px;
     }
-    .edux-cd-sidebar__includes-list {
+    .lmsout-cd-sidebar__includes-list {
         list-style: none;
         padding: 0;
         margin: 0;
@@ -741,14 +741,14 @@
         flex-direction: column;
         gap: 8px;
     }
-    .edux-cd-sidebar__includes-list li {
+    .lmsout-cd-sidebar__includes-list li {
         display: flex;
         align-items: center;
         gap: 9px;
         font-size: 12.5px;
         color: #475569;
     }
-    .edux-cd-sidebar__includes-list li i {
+    .lmsout-cd-sidebar__includes-list li i {
         width: 16px;
         text-align: center;
         color: #64748b;
@@ -756,10 +756,10 @@
     }
 
     /* 4. Related Courses Section & Cards */
-    .edux-cd-related {
+    .lmsout-cd-related {
         margin-top: 36px;
     }
-    .edux-cd-related__eyebrow {
+    .lmsout-cd-related__eyebrow {
         font-size: 10.5px;
         font-weight: 700;
         letter-spacing: 0.08em;
@@ -767,7 +767,7 @@
         color: var(--theme);
         margin-bottom: 3px;
     }
-    .edux-cd-related__title {
+    .lmsout-cd-related__title {
         font-size: 20px;
         font-weight: 800;
         color: #0f172a;
@@ -775,7 +775,7 @@
     }
 
     /* Course Catalog Card Styles for Related Courses */
-    .edux-catalog-card {
+    .lmsout-catalog-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
@@ -786,27 +786,27 @@
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .edux-catalog-card:hover {
+    .lmsout-catalog-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
     }
-    .edux-catalog-card__thumb {
+    .lmsout-catalog-card__thumb {
         position: relative;
         height: 175px;
         background: #0f172a;
         overflow: hidden;
     }
-    .edux-catalog-card__thumb-link {
+    .lmsout-catalog-card__thumb-link {
         display: block;
         width: 100%;
         height: 100%;
     }
-    .edux-catalog-card__thumb-link img {
+    .lmsout-catalog-card__thumb-link img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-    .edux-catalog-card__badges-tl {
+    .lmsout-catalog-card__badges-tl {
         position: absolute;
         top: 10px;
         left: 10px;
@@ -817,7 +817,7 @@
         z-index: 2;
         pointer-events: none;
     }
-    .edux-catalog-card__badge-cat {
+    .lmsout-catalog-card__badge-cat {
         background: rgba(255, 255, 255, 0.96);
         color: #0f172a;
         font-size: 10.5px;
@@ -825,7 +825,7 @@
         padding: 3px 10px;
         border-radius: 999px;
     }
-    .edux-catalog-card__badge-sub {
+    .lmsout-catalog-card__badge-sub {
         background: var(--theme);
         color: #ffffff;
         font-size: 10px;
@@ -836,13 +836,13 @@
         align-items: center;
         gap: 4px;
     }
-    .edux-catalog-card__badges-tr {
+    .lmsout-catalog-card__badges-tr {
         position: absolute;
         top: 10px;
         right: 10px;
         z-index: 2;
     }
-    .edux-catalog-card__badge-free {
+    .lmsout-catalog-card__badge-free {
         background: #10b981;
         color: #ffffff;
         font-size: 10.5px;
@@ -850,7 +850,7 @@
         padding: 3px 9px;
         border-radius: 999px;
     }
-    .edux-catalog-card__badge-discount {
+    .lmsout-catalog-card__badge-discount {
         background: #ef4444;
         color: #ffffff;
         font-size: 10.5px;
@@ -858,7 +858,7 @@
         padding: 3px 9px;
         border-radius: 999px;
     }
-    .edux-catalog-card__wish-btn {
+    .lmsout-catalog-card__wish-btn {
         position: absolute;
         bottom: 10px;
         left: 10px;
@@ -873,37 +873,37 @@
         font-size: 11px;
         text-decoration: none;
     }
-    .edux-catalog-card__body {
+    .lmsout-catalog-card__body {
         padding: 14px 16px 16px;
         display: flex;
         flex-direction: column;
         flex: 1;
     }
-    .edux-catalog-card__rating-row {
+    .lmsout-catalog-card__rating-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 7px;
     }
-    .edux-catalog-card__stars {
+    .lmsout-catalog-card__stars {
         display: inline-flex;
         align-items: center;
         gap: 2px;
         font-size: 11px;
     }
-    .edux-catalog-card__stars .is-filled { color: #f59e0b; }
-    .edux-catalog-card__stars .is-empty { color: #e2e8f0; }
-    .edux-catalog-card__rating-num {
+    .lmsout-catalog-card__stars .is-filled { color: #f59e0b; }
+    .lmsout-catalog-card__stars .is-empty { color: #e2e8f0; }
+    .lmsout-catalog-card__rating-num {
         font-size: 12px;
         font-weight: 700;
         color: #334155;
         margin-left: 4px;
     }
-    .edux-catalog-card__students {
+    .lmsout-catalog-card__students {
         font-size: 11.5px;
         color: #64748b;
     }
-    .edux-catalog-card__title {
+    .lmsout-catalog-card__title {
         font-size: 14.5px;
         font-weight: 700;
         line-height: 1.38;
@@ -915,23 +915,23 @@
         overflow: hidden;
         min-height: 40px;
     }
-    .edux-catalog-card__title a {
+    .lmsout-catalog-card__title a {
         color: inherit;
         text-decoration: none;
     }
-    .edux-catalog-card__instructor {
+    .lmsout-catalog-card__instructor {
         display: flex;
         align-items: center;
         gap: 7px;
         margin-bottom: 10px;
     }
-    .edux-catalog-card__avatar {
+    .lmsout-catalog-card__avatar {
         width: 20px;
         height: 20px;
         border-radius: 50%;
         object-fit: cover;
     }
-    .edux-catalog-card__avatar-initials {
+    .lmsout-catalog-card__avatar-initials {
         width: 20px;
         height: 20px;
         border-radius: 50%;
@@ -943,11 +943,11 @@
         align-items: center;
         justify-content: center;
     }
-    .edux-catalog-card__instructor-name {
+    .lmsout-catalog-card__instructor-name {
         font-size: 12px;
         color: #64748b;
     }
-    .edux-catalog-card__meta {
+    .lmsout-catalog-card__meta {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -958,38 +958,38 @@
         margin-bottom: 12px;
         border-bottom: 1px solid #f1f5f9;
     }
-    .edux-catalog-card__footer {
+    .lmsout-catalog-card__footer {
         margin-top: auto;
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
         gap: 8px;
     }
-    .edux-catalog-card__sub-note {
+    .lmsout-catalog-card__sub-note {
         font-size: 10.5px;
         font-weight: 600;
         color: #059669;
         margin-bottom: 3px;
     }
-    .edux-catalog-card__price-row {
+    .lmsout-catalog-card__price-row {
         display: flex;
         align-items: baseline;
         gap: 6px;
     }
-    .edux-catalog-card__price {
+    .lmsout-catalog-card__price {
         font-size: 16px;
         font-weight: 800;
         color: #0f172a;
     }
-    .edux-catalog-card__price.is-free {
+    .lmsout-catalog-card__price.is-free {
         color: #059669;
     }
-    .edux-catalog-card__price-old {
+    .lmsout-catalog-card__price-old {
         font-size: 12px;
         color: #94a3b8;
         text-decoration: line-through;
     }
-    .edux-catalog-card__view-btn {
+    .lmsout-catalog-card__view-btn {
         border: 1.5px solid var(--theme);
         background: #ffffff;
         color: var(--theme);
@@ -999,17 +999,17 @@
         font-weight: 600;
         text-decoration: none;
     }
-    .edux-catalog-card__view-btn:hover {
+    .lmsout-catalog-card__view-btn:hover {
         background: var(--theme);
         color: #ffffff;
     }
 
     /* Bottom Newsletter Strip */
-    .edux-newsletter-strip {
+    .lmsout-newsletter-strip {
         background: #0b0f19;
         padding: 36px 0 12px;
     }
-    .edux-newsletter-banner {
+    .lmsout-newsletter-banner {
         background: linear-gradient(135deg, var(--theme) 0%, var(--theme-2, #228ddd) 100%);
         border-radius: 16px;
         padding: 28px 36px;
@@ -1020,25 +1020,25 @@
         gap: 20px;
         box-shadow: 0 12px 30px rgba(1, 59, 166, 0.25);
     }
-    .edux-newsletter-banner__title {
+    .lmsout-newsletter-banner__title {
         font-size: 20px;
         font-weight: 800;
         color: #ffffff;
         margin: 0 0 4px;
     }
-    .edux-newsletter-banner__desc {
+    .lmsout-newsletter-banner__desc {
         font-size: 13px;
         color: rgba(255, 255, 255, 0.85);
         margin: 0;
     }
-    .edux-newsletter-banner__form {
+    .lmsout-newsletter-banner__form {
         display: flex;
         align-items: center;
         gap: 10px;
         flex: 1;
         max-width: 440px;
     }
-    .edux-newsletter-banner__input {
+    .lmsout-newsletter-banner__input {
         flex: 1;
         height: 42px;
         border-radius: 8px;
@@ -1049,7 +1049,7 @@
         background: #ffffff;
         outline: none;
     }
-    .edux-newsletter-banner__btn {
+    .lmsout-newsletter-banner__btn {
         height: 42px;
         padding: 0 20px;
         border-radius: 8px;
@@ -1111,17 +1111,17 @@
         $avatarPalette = ['#013ba6', '#0d9488', '#7c3aed', '#0284c7', '#db2777', '#ea580c'];
     @endphp
 
-    <div class="edux-cd-page">
+    <div class="lmsout-cd-page">
         <!-- 1. Gradient Hero Banner -->
-        <section class="edux-cd-hero">
+        <section class="lmsout-cd-hero">
             <div class="container">
                 @if($course->category)
-                    <a href="{{ route('courses', ['category' => $course->category]) }}" class="edux-cd-hero__cat-pill">
+                    <a href="{{ route('courses', ['category' => $course->category]) }}" class="lmsout-cd-hero__cat-pill">
                         <i class="fa-solid fa-tag"></i> {{ $course->category }}
                     </a>
                 @endif
 
-                <h1 class="edux-cd-hero__title">
+                <h1 class="lmsout-cd-hero__title">
                     {{ $course->title }}
                     @if($course->is_live_course)
                         <span class="badge bg-danger ms-2" style="font-size: 12px; vertical-align: middle;">
@@ -1130,38 +1130,38 @@
                     @endif
                 </h1>
 
-                <p class="edux-cd-hero__subtitle">
+                <p class="lmsout-cd-hero__subtitle">
                     {{ Str::limit(trim(strip_tags($course->description)), 135) }}
                 </p>
 
-                <div class="edux-cd-hero__meta">
-                    <span class="edux-cd-hero__rating">
+                <div class="lmsout-cd-hero__meta">
+                    <span class="lmsout-cd-hero__rating">
                         @for($i = 1; $i <= 5; $i++)
                             <i class="fa-solid fa-star {{ $i <= $roundedRating ? 'is-gold' : 'is-muted' }}"></i>
                         @endfor
-                        <span class="edux-cd-hero__rating-text">
+                        <span class="lmsout-cd-hero__rating-text">
                             {{ number_format($displayRating, 1) }} ({{ $totalReviews }} {{ $totalReviews === 1 ? 'review' : 'reviews' }})
                         </span>
                     </span>
 
-                    <span class="edux-cd-hero__pill">
+                    <span class="lmsout-cd-hero__pill">
                         <i class="fa-solid fa-user-group"></i> {{ $studentsCount }} {{ $studentsCount === 1 ? 'student' : 'students' }}
                     </span>
 
-                    <span class="edux-cd-hero__pill">
+                    <span class="lmsout-cd-hero__pill">
                         <i class="fa-solid fa-signal"></i> {{ ucfirst($course->difficulty ?? 'Beginner') }}
                     </span>
 
-                    <span class="edux-cd-hero__pill">
+                    <span class="lmsout-cd-hero__pill">
                         <i class="fa-solid fa-globe"></i> {{ strtoupper(substr($course->language ?? 'EN', 0, 2)) }}
                     </span>
                 </div>
 
-                <div class="edux-cd-hero__author">
+                <div class="lmsout-cd-hero__author">
                     @if(!empty($course->instructor->avatar))
-                        <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="edux-cd-hero__author-avatar">
+                        <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="lmsout-cd-hero__author-avatar">
                     @else
-                        <span class="edux-cd-hero__author-initials">{{ $instructorInitials ?: 'IN' }}</span>
+                        <span class="lmsout-cd-hero__author-initials">{{ $instructorInitials ?: 'IN' }}</span>
                     @endif
                     <span>Created by <strong>{{ $instructorName }}</strong></span>
                 </div>
@@ -1169,30 +1169,30 @@
         </section>
 
         <!-- 2. Main Two-Column Content Area -->
-        <section class="edux-cd-body">
+        <section class="lmsout-cd-body">
             <div class="container">
                 <div class="row g-4">
                     <!-- Left Column: Video Preview + Stacked Content Cards -->
                     <div class="col-lg-8">
                         <!-- Video / Thumbnail Preview Card -->
-                        <div class="edux-cd-video-card">
-                            <img src="{{ $course->thumbnail }}" alt="{{ $course->title }}" class="edux-cd-video-card__img">
-                            <div class="edux-cd-video-card__overlay">
-                                <div class="edux-cd-video-card__topbar">
+                        <div class="lmsout-cd-video-card">
+                            <img src="{{ $course->thumbnail }}" alt="{{ $course->title }}" class="lmsout-cd-video-card__img">
+                            <div class="lmsout-cd-video-card__overlay">
+                                <div class="lmsout-cd-video-card__topbar">
                                     @if(!empty($course->instructor->avatar))
-                                        <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="edux-cd-hero__author-avatar">
+                                        <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="lmsout-cd-hero__author-avatar">
                                     @else
-                                        <span class="edux-cd-hero__author-initials">{{ $instructorInitials ?: 'IN' }}</span>
+                                        <span class="lmsout-cd-hero__author-initials">{{ $instructorInitials ?: 'IN' }}</span>
                                     @endif
-                                    <span class="edux-cd-video-card__topbar-title">{{ $course->title }} — Course Overview</span>
+                                    <span class="lmsout-cd-video-card__topbar-title">{{ $course->title }} — Course Overview</span>
                                 </div>
 
                                 @if($course->intro_video)
-                                    <a href="javascript:void(0)" class="edux-cd-video-card__play-btn intro-video-play-btn" data-intro-video="{{ asset('storage/' . $course->intro_video) }}" aria-label="Play Intro Video">
+                                    <a href="javascript:void(0)" class="lmsout-cd-video-card__play-btn intro-video-play-btn" data-intro-video="{{ asset('storage/' . $course->intro_video) }}" aria-label="Play Intro Video">
                                         <i class="fa-solid fa-play"></i>
                                     </a>
                                 @elseif($firstPreviewLesson)
-                                    <a href="javascript:void(0)" class="edux-cd-video-card__play-btn lesson-preview-play"
+                                    <a href="javascript:void(0)" class="lmsout-cd-video-card__play-btn lesson-preview-play"
                                        data-video-type="{{ $firstPreviewLesson->video_type }}"
                                        data-video-url="{{ $firstPreviewLesson->video_type === 'url' ? $firstPreviewLesson->video_url : asset('storage/' . $firstPreviewLesson->video_path) }}"
                                        data-lesson-title="{{ $firstPreviewLesson->title }}"
@@ -1200,13 +1200,13 @@
                                         <i class="fa-solid fa-play"></i>
                                     </a>
                                 @else
-                                    <a href="#courseContentCard" class="edux-cd-video-card__play-btn" aria-label="View Curriculum">
+                                    <a href="#courseContentCard" class="lmsout-cd-video-card__play-btn" aria-label="View Curriculum">
                                         <i class="fa-solid fa-play"></i>
                                     </a>
                                 @endif
 
-                                <div class="edux-cd-video-card__bottombar">
-                                    <a href="#courseContentCard" class="edux-cd-video-card__watch-pill">
+                                <div class="lmsout-cd-video-card__bottombar">
+                                    <a href="#courseContentCard" class="lmsout-cd-video-card__watch-pill">
                                         <span>Watch Preview</span>
                                         <i class="fa-brands fa-youtube text-danger"></i>
                                     </a>
@@ -1215,9 +1215,9 @@
                         </div>
 
                         <!-- Card: What you'll learn -->
-                        <div class="edux-cd-card">
-                            <h2 class="edux-cd-card__title">{{ __('frontend.what_learn') }}</h2>
-                            <ul class="edux-cd-learn-grid">
+                        <div class="lmsout-cd-card">
+                            <h2 class="lmsout-cd-card__title">{{ __('frontend.what_learn') }}</h2>
+                            <ul class="lmsout-cd-learn-grid">
                                 @foreach($objectivesList as $objective)
                                     <li>
                                         <i class="fa-solid fa-circle-check"></i>
@@ -1228,9 +1228,9 @@
                         </div>
 
                         <!-- Card: Requirements -->
-                        <div class="edux-cd-card">
-                            <h2 class="edux-cd-card__title">{{ __('frontend.requirements') }}</h2>
-                            <ul class="edux-cd-req-list">
+                        <div class="lmsout-cd-card">
+                            <h2 class="lmsout-cd-card__title">{{ __('frontend.requirements') }}</h2>
+                            <ul class="lmsout-cd-req-list">
                                 @foreach($requirementsList as $req)
                                     <li>{{ $req }}</li>
                                 @endforeach
@@ -1238,72 +1238,72 @@
                         </div>
 
                         <!-- Card: Description -->
-                        <div class="edux-cd-card">
-                            <h2 class="edux-cd-card__title">{{ __('frontend.description') }}</h2>
-                            <div class="edux-cd-desc">
+                        <div class="lmsout-cd-card">
+                            <h2 class="lmsout-cd-card__title">{{ __('frontend.description') }}</h2>
+                            <div class="lmsout-cd-desc">
                                 {!! $course->description ?? '<p>' . __('frontend.no_description') . '</p>' !!}
                             </div>
                         </div>
 
                         <!-- Card: Course Content -->
-                        <div class="edux-cd-card" id="courseContentCard">
-                            <div class="edux-cd-card__header">
-                                <h2 class="edux-cd-card__title">Course Content</h2>
-                                <span class="edux-cd-card__summary-meta">
+                        <div class="lmsout-cd-card" id="courseContentCard">
+                            <div class="lmsout-cd-card__header">
+                                <h2 class="lmsout-cd-card__title">Course Content</h2>
+                                <span class="lmsout-cd-card__summary-meta">
                                     {{ $course->topics->count() }} {{ $course->topics->count() === 1 ? 'section' : 'sections' }} &bull; {{ $lessonCount }} {{ $lessonCount === 1 ? 'lesson' : 'lessons' }} &bull; {{ $formattedDuration }}
                                 </span>
                             </div>
 
                             @if($course->topics->count() > 0)
-                                <div class="edux-cd-curriculum" id="courseCurriculumAccordion">
+                                <div class="lmsout-cd-curriculum" id="courseCurriculumAccordion">
                                     @foreach($course->topics as $topicIndex => $topic)
-                                        <div class="edux-cd-section">
-                                            <button class="edux-cd-section__btn {{ $topicIndex === 0 ? '' : 'collapsed' }}"
+                                        <div class="lmsout-cd-section">
+                                            <button class="lmsout-cd-section__btn {{ $topicIndex === 0 ? '' : 'collapsed' }}"
                                                     type="button"
                                                     data-bs-toggle="collapse"
                                                     data-bs-target="#cdTopicCollapse{{ $topic->id }}"
                                                     aria-expanded="{{ $topicIndex === 0 ? 'true' : 'false' }}"
                                                     aria-controls="cdTopicCollapse{{ $topic->id }}">
-                                                <span class="edux-cd-section__title">{{ $topic->title }}</span>
-                                                <span class="edux-cd-section__meta">
+                                                <span class="lmsout-cd-section__title">{{ $topic->title }}</span>
+                                                <span class="lmsout-cd-section__meta">
                                                     <span>{{ $topic->lessons->count() }} {{ $topic->lessons->count() === 1 ? 'lesson' : 'lessons' }}</span>
-                                                    <i class="fa-solid fa-chevron-down edux-cd-section__chevron"></i>
+                                                    <i class="fa-solid fa-chevron-down lmsout-cd-section__chevron"></i>
                                                 </span>
                                             </button>
 
                                             <div id="cdTopicCollapse{{ $topic->id }}" class="collapse {{ $topicIndex === 0 ? 'show' : '' }}">
-                                                <ul class="edux-cd-lessons">
+                                                <ul class="lmsout-cd-lessons">
                                                     @foreach($topic->lessons as $lessonIdx => $lesson)
                                                         @php
                                                             $canPlayPreview = $lesson->is_preview && (($lesson->video_type === 'url' && $lesson->video_url) || ($lesson->video_type === 'upload' && $lesson->video_path));
                                                             $lessonMins = (int) ($lesson->duration ?: 15);
                                                         @endphp
-                                                        <li class="edux-cd-lesson-item">
-                                                            <div class="edux-cd-lesson-item__left">
+                                                        <li class="lmsout-cd-lesson-item">
+                                                            <div class="lmsout-cd-lesson-item__left">
                                                                 @if($lesson->is_preview || $lessonIdx === 0)
-                                                                    <i class="fa-regular fa-circle-play edux-cd-lesson-item__icon-play"></i>
+                                                                    <i class="fa-regular fa-circle-play lmsout-cd-lesson-item__icon-play"></i>
                                                                 @else
-                                                                    <i class="fa-solid fa-lock edux-cd-lesson-item__icon-lock"></i>
+                                                                    <i class="fa-solid fa-lock lmsout-cd-lesson-item__icon-lock"></i>
                                                                 @endif
 
                                                                 @if($canPlayPreview)
                                                                     <a href="javascript:void(0)"
-                                                                       class="edux-cd-lesson-item__name lesson-preview-play"
+                                                                       class="lmsout-cd-lesson-item__name lesson-preview-play"
                                                                        data-video-type="{{ $lesson->video_type }}"
                                                                        data-video-url="{{ $lesson->video_type === 'url' ? $lesson->video_url : asset('storage/' . $lesson->video_path) }}"
                                                                        data-lesson-title="{{ $lesson->title }}">
                                                                         {{ $lesson->title }}
                                                                     </a>
                                                                 @else
-                                                                    <span class="edux-cd-lesson-item__name">{{ $lesson->title }}</span>
+                                                                    <span class="lmsout-cd-lesson-item__name">{{ $lesson->title }}</span>
                                                                 @endif
 
                                                                 @if($lesson->is_preview || $lessonIdx === 0)
-                                                                    <span class="edux-cd-lesson-item__preview-badge">{{ __('frontend.preview') }}</span>
+                                                                    <span class="lmsout-cd-lesson-item__preview-badge">{{ __('frontend.preview') }}</span>
                                                                 @endif
                                                             </div>
 
-                                                            <span class="edux-cd-lesson-item__duration">{{ $lessonMins }}m</span>
+                                                            <span class="lmsout-cd-lesson-item__duration">{{ $lessonMins }}m</span>
                                                         </li>
                                                     @endforeach
                                                 </ul>
@@ -1314,20 +1314,20 @@
 
                                 <!-- Quizzes Box inside Course Content -->
                                 @if($allQuizzes->count() > 0)
-                                    <div class="edux-cd-quiz-box">
-                                        <div class="edux-cd-quiz-box__heading">Quizzes ({{ $allQuizzes->count() }})</div>
+                                    <div class="lmsout-cd-quiz-box">
+                                        <div class="lmsout-cd-quiz-box__heading">Quizzes ({{ $allQuizzes->count() }})</div>
                                         @foreach($allQuizzes as $quiz)
-                                            <div class="edux-cd-quiz-item">
+                                            <div class="lmsout-cd-quiz-item">
                                                 <div>
-                                                    <div class="edux-cd-quiz-item__title">
+                                                    <div class="lmsout-cd-quiz-item__title">
                                                         <i class="fa-regular fa-circle-question"></i>
                                                         <span>{{ $course->title }} — {{ $quiz->title }}</span>
                                                     </div>
-                                                    <div class="edux-cd-quiz-item__sub">
+                                                    <div class="lmsout-cd-quiz-item__sub">
                                                         Passing score: {{ $quiz->passing_score ?? 70 }}% &bull; {{ $quiz->questions ? $quiz->questions->count() : 5 }} questions
                                                     </div>
                                                 </div>
-                                                <span class="edux-cd-quiz-item__lock">
+                                                <span class="lmsout-cd-quiz-item__lock">
                                                     <i class="fa-solid fa-lock"></i> Enroll to unlock
                                                 </span>
                                             </div>
@@ -1340,23 +1340,23 @@
                         </div>
 
                         <!-- Card: Instructor -->
-                        <div class="edux-cd-card">
-                            <h2 class="edux-cd-card__title">{{ __('frontend.instructor') }}</h2>
+                        <div class="lmsout-cd-card">
+                            <h2 class="lmsout-cd-card__title">{{ __('frontend.instructor') }}</h2>
                             @if($course->instructor)
-                                <div class="edux-cd-instructor">
+                                <div class="lmsout-cd-instructor">
                                     @if(!empty($course->instructor->avatar))
-                                        <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="edux-cd-instructor__avatar">
+                                        <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="lmsout-cd-instructor__avatar">
                                     @else
-                                        <span class="edux-cd-instructor__initials">{{ $instructorInitials ?: 'IN' }}</span>
+                                        <span class="lmsout-cd-instructor__initials">{{ $instructorInitials ?: 'IN' }}</span>
                                     @endif
                                     <div>
-                                        <a href="{{ route('instructors.show', $course->instructor->id) }}" class="edux-cd-instructor__name">
+                                        <a href="{{ route('instructors.show', $course->instructor->id) }}" class="lmsout-cd-instructor__name">
                                             {{ $instructorName }}
                                         </a>
-                                        <div class="edux-cd-instructor__role">
+                                        <div class="lmsout-cd-instructor__role">
                                             {{ $course->instructor->specialization ?? 'Senior Instructor & Subject Matter Expert' }}
                                         </div>
-                                        <p class="edux-cd-instructor__bio">
+                                        <p class="lmsout-cd-instructor__bio">
                                             {{ $course->instructor->bio ?: __('frontend.instr_fallback_bio') }}
                                         </p>
                                     </div>
@@ -1367,11 +1367,11 @@
                         </div>
 
                         <!-- Card: Student Reviews -->
-                        <div class="edux-cd-card">
-                            <h2 class="edux-cd-card__title">Student Reviews</h2>
+                        <div class="lmsout-cd-card">
+                            <h2 class="lmsout-cd-card__title">Student Reviews</h2>
 
                             @if($totalReviews > 0)
-                                <div class="edux-cd-reviews-list">
+                                <div class="lmsout-cd-reviews-list">
                                     @foreach($reviews as $revIdx => $review)
                                         @php
                                             $revUserName = $review->user->name ?? 'Student';
@@ -1382,26 +1382,26 @@
                                                 ->implode('');
                                             $bgColor = $avatarPalette[$revIdx % count($avatarPalette)];
                                         @endphp
-                                        <div class="edux-cd-review-item">
+                                        <div class="lmsout-cd-review-item">
                                             @if(!empty($review->user->avatar))
-                                                <img src="{{ $review->user->profile_photo_url }}" alt="{{ $revUserName }}" class="edux-cd-review-item__avatar">
+                                                <img src="{{ $review->user->profile_photo_url }}" alt="{{ $revUserName }}" class="lmsout-cd-review-item__avatar">
                                             @else
-                                                <span class="edux-cd-review-item__initials" style="background: {{ $bgColor }};">
+                                                <span class="lmsout-cd-review-item__initials" style="background: {{ $bgColor }};">
                                                     {{ $revInitials ?: 'ST' }}
                                                 </span>
                                             @endif
                                             <div class="flex-grow-1">
-                                                <div class="edux-cd-review-item__top">
-                                                    <span class="edux-cd-review-item__name">{{ $revUserName }}</span>
-                                                    <span class="edux-cd-review-item__stars">
+                                                <div class="lmsout-cd-review-item__top">
+                                                    <span class="lmsout-cd-review-item__name">{{ $revUserName }}</span>
+                                                    <span class="lmsout-cd-review-item__stars">
                                                         @for($s = 1; $s <= 5; $s++)
                                                             <i class="fa-solid fa-star {{ $s <= $review->rating ? 'is-gold' : 'is-muted' }}"></i>
                                                         @endfor
                                                     </span>
-                                                    <span class="edux-cd-review-item__date">{{ $review->created_at->diffForHumans() }}</span>
+                                                    <span class="lmsout-cd-review-item__date">{{ $review->created_at->diffForHumans() }}</span>
                                                 </div>
                                                 @if($review->comment)
-                                                    <p class="edux-cd-review-item__comment">{{ $review->comment }}</p>
+                                                    <p class="lmsout-cd-review-item__comment">{{ $review->comment }}</p>
                                                 @endif
 
                                                 @if($review->replies && $review->replies->where('is_instructor', true)->count() > 0)
@@ -1441,7 +1441,7 @@
                                         <div class="mb-3">
                                             <textarea name="comment" id="comment" class="form-control form-control-sm" rows="3" placeholder="{{ __('frontend.share_experience') }}"></textarea>
                                         </div>
-                                        <button type="submit" class="edux-cd-sidebar__btn-primary" style="width: auto; padding: 0 20px; height: 38px;">
+                                        <button type="submit" class="lmsout-cd-sidebar__btn-primary" style="width: auto; padding: 0 20px; height: 38px;">
                                             <i class="fa-solid fa-paper-plane"></i> {{ __('frontend.submit_review') }}
                                         </button>
                                     </form>
@@ -1463,7 +1463,7 @@
                                         <div class="mb-3">
                                             <textarea name="comment" id="comment" class="form-control form-control-sm" rows="3">{{ $userReview->comment }}</textarea>
                                         </div>
-                                        <button type="submit" class="edux-cd-sidebar__btn-primary" style="width: auto; padding: 0 20px; height: 38px;">
+                                        <button type="submit" class="lmsout-cd-sidebar__btn-primary" style="width: auto; padding: 0 20px; height: 38px;">
                                             <i class="fa-solid fa-save"></i> {{ __('frontend.update_review') }}
                                         </button>
                                     </form>
@@ -1474,19 +1474,19 @@
 
                     <!-- Right Column: Sticky Purchase & Includes Sidebar -->
                     <div class="col-lg-4">
-                        <aside class="edux-cd-sidebar">
-                            <div class="edux-cd-sidebar__price-row">
+                        <aside class="lmsout-cd-sidebar">
+                            <div class="lmsout-cd-sidebar__price-row">
                                 @if($isFree)
-                                    <span class="edux-cd-sidebar__price is-free">{{ __('frontend.free') }}</span>
+                                    <span class="lmsout-cd-sidebar__price is-free">{{ __('frontend.free') }}</span>
                                 @elseif($hasDiscount)
-                                    <span class="edux-cd-sidebar__price">{{ currency_format($course->sale_price, 2, 'symbol') }}</span>
-                                    <span class="edux-cd-sidebar__price-old">{{ currency_format($course->regular_price, 2, 'symbol') }}</span>
+                                    <span class="lmsout-cd-sidebar__price">{{ $course->formatPrice($course->sale_price, 2, 'symbol') }}</span>
+                                    <span class="lmsout-cd-sidebar__price-old">{{ $course->formatPrice($course->regular_price, 2, 'symbol') }}</span>
                                 @else
-                                    <span class="edux-cd-sidebar__price">{{ currency_format($course->regular_price, 2, 'symbol') }}</span>
+                                    <span class="lmsout-cd-sidebar__price">{{ $course->formatPrice($course->regular_price, 2, 'symbol') }}</span>
                                 @endif
                             </div>
 
-                            <div class="edux-cd-sidebar__subnote">
+                            <div class="lmsout-cd-sidebar__subnote">
                                 <i class="fa-solid fa-shield-halved"></i>
                                 @if ($course->requiresApplicantForm())
                                     <span>{{ $course->isHybrid() ? 'Hybrid' : 'Face-to-Face' }} Campus &bull; Offline Control No. or Online Pay</span>
@@ -1496,38 +1496,38 @@
                             </div>
 
                             @if($isEnrolled)
-                                <a href="{{ route('student.courses.access', $course->id) }}" class="edux-cd-sidebar__btn-primary" style="background: #10b981;">
+                                <a href="{{ route('student.courses.access', $course->id) }}" class="lmsout-cd-sidebar__btn-primary" style="background: #10b981;">
                                     <i class="fa-solid fa-circle-check"></i> {{ __('frontend.already_enrolled') }}
                                 </a>
                             @elseif($course->requiresApplicantForm())
-                                <a href="{{ route('courses.apply', $course->id) }}" class="edux-cd-sidebar__btn-primary">
+                                <a href="{{ route('courses.apply', $course->id) }}" class="lmsout-cd-sidebar__btn-primary">
                                     <i class="fa-solid fa-file-signature"></i>
                                     Apply Now (Campus Form)
                                 </a>
                             @elseif(auth()->check())
-                                <a href="{{ route('courses.checkout', $course->id) }}" class="edux-cd-sidebar__btn-primary">
+                                <a href="{{ route('courses.checkout', $course->id) }}" class="lmsout-cd-sidebar__btn-primary">
                                     <i class="fa-solid fa-bag-shopping"></i>
                                     {{ $isFree ? __('frontend.enroll_now') : 'Enroll / Pay Online' }}
                                 </a>
                             @else
-                                <a href="{{ route('login') }}" class="edux-cd-sidebar__btn-primary">
+                                <a href="{{ route('login') }}" class="lmsout-cd-sidebar__btn-primary">
                                     <i class="fa-solid fa-bag-shopping"></i>
                                     {{ $isFree ? __('frontend.enroll_now') : 'Enroll / Pay Online' }}
                                 </a>
                             @endif
 
-                            <button type="button" class="edux-cd-sidebar__btn-outline" onclick="ToastMagic?.info('Added to your wishlist!');">
+                            <button type="button" class="lmsout-cd-sidebar__btn-outline" onclick="ToastMagic?.info('Added to your wishlist!');">
                                 <i class="fa-regular fa-heart"></i> Add to Wishlist
                             </button>
 
-                            <a href="{{ auth()->check() ? route('courses.checkout', $course->id) : route('login') }}" class="edux-cd-sidebar__gift">
+                            <a href="{{ auth()->check() ? route('courses.checkout', $course->id) : route('login') }}" class="lmsout-cd-sidebar__gift">
                                 <i class="fa-solid fa-gift"></i> Gift this course to a friend
                             </a>
 
-                            <div class="edux-cd-sidebar__divider"></div>
+                            <div class="lmsout-cd-sidebar__divider"></div>
 
-                            <div class="edux-cd-sidebar__includes-title">THIS COURSE INCLUDES</div>
-                            <ul class="edux-cd-sidebar__includes-list">
+                            <div class="lmsout-cd-sidebar__includes-title">THIS COURSE INCLUDES</div>
+                            <ul class="lmsout-cd-sidebar__includes-list">
                                 @if($course->requiresApplicantForm())
                                     <li>
                                         <i class="fa-solid fa-chalkboard-user"></i>
@@ -1578,9 +1578,9 @@
                                         ->get();
                                 @endphp
                                 @if($upcomingCohorts->isNotEmpty())
-                                    <div class="edux-cd-sidebar__divider"></div>
-                                    <div class="edux-cd-sidebar__includes-title">UPCOMING COHORTS</div>
-                                    <ul class="edux-cd-sidebar__includes-list">
+                                    <div class="lmsout-cd-sidebar__divider"></div>
+                                    <div class="lmsout-cd-sidebar__includes-title">UPCOMING COHORTS</div>
+                                    <ul class="lmsout-cd-sidebar__includes-list">
                                         @foreach($upcomingCohorts as $cohort)
                                             <li>
                                                 <i class="fa-regular fa-calendar"></i>
@@ -1600,9 +1600,9 @@
 
                 <!-- 3. Related Courses Section -->
                 @if(isset($relatedCourses) && $relatedCourses->count() > 0)
-                    <div class="edux-cd-related">
-                        <div class="edux-cd-related__eyebrow">MORE LIKE THIS</div>
-                        <h2 class="edux-cd-related__title">Related Courses</h2>
+                    <div class="lmsout-cd-related">
+                        <div class="lmsout-cd-related__eyebrow">MORE LIKE THIS</div>
+                        <h2 class="lmsout-cd-related__title">Related Courses</h2>
                         <div class="row g-4">
                             @include('courses.partials.course-list', ['courses' => $relatedCourses])
                         </div>

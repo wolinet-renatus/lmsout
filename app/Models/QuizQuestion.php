@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents a question for a quiz.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class QuizQuestion extends Model
 {

@@ -16,9 +16,13 @@ use Illuminate\Http\Request;
  *
  * Manages incoming Student & Instructor support tickets, priority filters,
  * file attachments, and admin replies.
+ * @author Renatus Bernardo
  */
 class SupportTicketController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View
     {
         $status   = $request->query('status', '');
@@ -60,6 +64,9 @@ class SupportTicketController extends Controller
         return view('admin.tickets.index', compact('tickets', 'stats', 'status', 'priority', 'role', 'search'));
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(SupportTicket $ticket): View
     {
         $ticket->load(['user', 'messages.user', 'messages.attachments']);
@@ -67,6 +74,9 @@ class SupportTicketController extends Controller
         return view('admin.tickets.show', compact('ticket'));
     }
 
+    /**
+     * Reply.
+     */
     public function reply(Request $request, SupportTicket $ticket): RedirectResponse
     {
         $validated = $request->validate([
@@ -110,6 +120,9 @@ class SupportTicketController extends Controller
         return redirect()->route('admin.tickets.show', $ticket);
     }
 
+    /**
+     * Update status.
+     */
     public function updateStatus(Request $request, SupportTicket $ticket): RedirectResponse
     {
         $validated = $request->validate([
@@ -128,6 +141,9 @@ class SupportTicketController extends Controller
         return back();
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(SupportTicket $ticket): RedirectResponse
     {
         $num = $ticket->ticket_number;

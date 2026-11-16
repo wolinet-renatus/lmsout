@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         lessonSelect.innerHTML = '<option value="">Loading lessons...</option>';
 
-        fetch(`/instructor/live-classes/lessons?course_id=${courseId}`)
+        fetch(`{{ route('instructor.live-classes.lessons') }}?course_id=${courseId}`)
             .then(res => res.json())
             .then(data => {
                 let html = '<option value="">-- Choose Live Lesson (or leave unlinked) --</option>';

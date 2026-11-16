@@ -65,11 +65,22 @@
                                                         <div class="form-group">
                                                             <label
                                                                 class="text-uppercase small font-weight-bold">{{ str_replace('_', ' ', $key) }}</label>
-                                                            <input type="text" name="credentials[{{ $key }}]"
-                                                                value="{{ $credentials[$key] ?? '' }}" class="form-control"
-                                                                placeholder="Enter {{ $key }}">
+                                                            @if ($key === 'mode')
+                                                                @php($modeValue = strtolower((string) ($credentials[$key] ?? 'sandbox')))
+                                                                <select name="credentials[mode]" class="form-control">
+                                                                    <option value="sandbox" {{ $modeValue !== 'live' ? 'selected' : '' }}>Sandbox (Testing)</option>
+                                                                    <option value="live" {{ $modeValue === 'live' ? 'selected' : '' }}>Live (Production)</option>
+                                                                </select>
+                                                                <small class="form-text text-muted">Choose sandbox for testing or live for production transactions.</small>
+                                                            @else
+                                                                <input type="text" name="credentials[{{ $key }}]"
+                                                                    value="{{ $credentials[$key] ?? '' }}" class="form-control"
+                                                                    placeholder="Enter {{ str_replace('_', ' ', $key) }}">
+                                                                @if ($key === 'ipn_id')
+                                                                    <small class="form-text text-muted">Optional IPN Notification UUID; left blank, LMS will auto-register via Pesapal API 3.0.</small>
+                                                                @endif
+                                                            @endif
                                                         </div>
-                                                        <small class="text-muted">Mode= live/sandbox</small>
                                                     @empty
                                                         <div class="form-group">
                                                             <label
@@ -78,6 +89,12 @@
                                                                 class="form-control" placeholder="Enter credential value">
                                                         </div>
                                                     @endforelse
+                                                    @if ($gateway->identifier === 'pesapal')
+                                                        <div class="alert alert-light border small mb-0">
+                                                            <div><strong>Callback URL:</strong> <code>{{ route('payment.pesapal.callback') }}</code></div>
+                                                            <div><strong>IPN Listener URL:</strong> <code>{{ route('payment.pesapal.ipn') }}</code></div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             @else
                                                 <div class="form-group">

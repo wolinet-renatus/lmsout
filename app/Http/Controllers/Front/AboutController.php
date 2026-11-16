@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
  * This controller handles the about page functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class AboutController extends Controller
 {

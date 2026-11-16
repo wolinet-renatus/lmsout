@@ -10,12 +10,18 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Check Approved Instructor Middleware
  *
- * This middleware checks if the user is an approved instructor.
+ * Ensures only approved instructors (or an impersonating administrator)
+ * can access instructor portal capabilities; pending applicants are routed
+ * to the awaiting-approval notice page.
  *
  * @package App\Http\Middleware
+ * @author Renatus Bernardo
  */
 class CheckApprovedInstructor
 {
+    /**
+     * Verify instructor role and approval state before allowing route access.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check()) {

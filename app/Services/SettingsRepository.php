@@ -14,9 +14,13 @@ use Throwable;
  * This repository is responsible for managing the platform settings.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class SettingsRepository
 {
+    /**
+     * All.
+     */
     public function all()
     {
         return PlatformSetting::all()->mapWithKeys(function (PlatformSetting $setting) {
@@ -24,6 +28,9 @@ class SettingsRepository
         })->toArray();
     }
 
+    /**
+     * Get.
+     */
     public function get(string $key, $default = null)
     {
         [$baseKey, $nested] = $this->splitKey($key);
@@ -43,6 +50,9 @@ class SettingsRepository
         return $data ?? $default;
     }
 
+    /**
+     * For group.
+     */
     public function forGroup(string $group): array
     {
         return PlatformSetting::where('group', $group)
@@ -52,6 +62,9 @@ class SettingsRepository
             })->toArray();
     }
 
+    /**
+     * Set.
+     */
     public function set(string $key, $value, string $group, string $type = 'string', bool $encrypted = false): PlatformSetting
     {
         $payload = $encrypted
@@ -69,6 +82,9 @@ class SettingsRepository
         );
     }
 
+    /**
+     * Update group.
+     */
     public function updateGroup(string $group, array $values): void
     {
         foreach ($values as $key => $config) {
@@ -80,6 +96,9 @@ class SettingsRepository
         }
     }
 
+    /**
+     * Decode payload.
+     */
     protected function decodePayload(PlatformSetting $setting)
     {
         if ($setting->is_encrypted) {
@@ -105,6 +124,9 @@ class SettingsRepository
         return $setting->payload['data'] ?? null;
     }
 
+    /**
+     * Encrypt payload.
+     */
     protected function encryptPayload($value): string
     {
         $json = json_encode($value);
@@ -112,6 +134,9 @@ class SettingsRepository
         return Crypt::encryptString($json ?: 'null');
     }
 
+    /**
+     * Split key.
+     */
     protected function splitKey(string $key): array
     {
         if (str_contains($key, '.')) {

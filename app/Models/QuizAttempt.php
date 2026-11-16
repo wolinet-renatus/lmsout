@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents an attempt at a quiz.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class QuizAttempt extends Model
 {
@@ -42,26 +43,41 @@ class QuizAttempt extends Model
         'paper_question_ids' => 'array',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Quiz.
+     */
     public function quiz(): BelongsTo
     {
         return $this->belongsTo(Quiz::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Enrollment.
+     */
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(Enrollment::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Answers.
+     */
     public function answers(): HasMany
     {
         return $this->hasMany(QuizAttemptAnswer::class);
     }
 
+    /**
+     * Calculate score.
+     */
     public function calculateScore(): int
     {
         $totalQuestions = $this->quiz->questions()->count();
@@ -73,6 +89,9 @@ class QuizAttempt extends Model
         return (int) round(($correctAnswers / $totalQuestions) * 100);
     }
 
+    /**
+     * Check condition: Is passed.
+     */
     public function isPassed(): bool
     {
         return $this->score >= $this->quiz->passing_score;

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for fortify.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Laravel\Fortify\Features;
 
 return [

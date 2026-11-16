@@ -10,6 +10,11 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Earnings controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class EarningsController extends Controller
 {
     /**
@@ -195,7 +200,7 @@ class EarningsController extends Controller
         $currency          = currency_code();
 
         $validated = $request->validate([
-            'method'         => 'required|in:bank_transfer,paypal,stripe',
+            'method'         => 'required|in:bank_transfer,paypal,stripe,pesapal',
             'amount'         => ['required', 'numeric', 'min:' . $minimumWithdrawal],
             'method_details' => 'nullable|string|max:500',
             'notes'          => 'nullable|string|max:1000',

@@ -17,8 +17,16 @@ use App\Services\SrsWorkflowService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Campus controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class CampusController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         private CampusApplicationService $applications,
         private SrsWorkflowService $srs,
@@ -26,6 +34,9 @@ class CampusController extends Controller
     ) {
     }
 
+    /**
+     * Meta.
+     */
     public function meta(): JsonResponse
     {
         return response()->json([
@@ -43,6 +54,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Branches.
+     */
     public function branches(): JsonResponse
     {
         return response()->json([
@@ -51,6 +65,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Venues by branch.
+     */
     public function venuesByBranch(Branch $branch): JsonResponse
     {
         return response()->json([
@@ -63,6 +80,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Course fee.
+     */
     public function courseFee(Course $course): JsonResponse
     {
         $weeks = 0;
@@ -87,6 +107,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Apply.
+     */
     public function apply(Request $request, Course $course): JsonResponse
     {
         if ($course->isOnline()) {
@@ -127,6 +150,9 @@ class CampusController extends Controller
         ], 201);
     }
 
+    /**
+     * Verify invoice.
+     */
     public function verifyInvoice(string $number): JsonResponse
     {
         $invoice = Invoice::withoutGlobalScope('branch')
@@ -147,6 +173,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Invoices.
+     */
     public function invoices(Request $request): JsonResponse
     {
         $invoices = Invoice::withoutGlobalScope('branch')
@@ -161,6 +190,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Generate control number.
+     */
     public function generateControlNumber(Request $request, Invoice $invoice): JsonResponse
     {
         abort_unless((int) $invoice->user_id === (int) $request->user()->id, 403);
@@ -173,6 +205,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Upload receipt.
+     */
     public function uploadReceipt(Request $request, Invoice $invoice): JsonResponse
     {
         abort_unless((int) $invoice->user_id === (int) $request->user()->id, 403);
@@ -206,6 +241,9 @@ class CampusController extends Controller
         ], 201);
     }
 
+    /**
+     * Unenroll.
+     */
     public function unenroll(Request $request, Enrollment $enrollment): JsonResponse
     {
         abort_unless((int) $enrollment->user_id === (int) $request->user()->id, 403);
@@ -230,6 +268,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Attendance.
+     */
     public function attendance(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -254,6 +295,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Check in.
+     */
     public function checkIn(Request $request): JsonResponse
     {
         $data = $request->validate(['token' => ['required', 'string', 'max:120']]);

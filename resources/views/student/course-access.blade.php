@@ -143,17 +143,15 @@
                 </button>
                 <div class="course-header-item-info">
                     @if ($currentItemType === 'lesson')
-                        <i class="fas fa-play-circle course-header-play-icon"></i>
+                        <i id="current-item-icon" class="fas fa-play-circle course-header-play-icon"></i>
                     @elseif($currentItemType === 'quiz')
-                        <i class="fas fa-question-circle course-header-play-icon"></i>
+                        <i id="current-item-icon" class="fas fa-question-circle course-header-play-icon"></i>
                     @else
-                        <i class="fas fa-file-alt course-header-play-icon"></i>
+                        <i id="current-item-icon" class="fas fa-file-alt course-header-play-icon"></i>
                     @endif
                     <span id="current-item-title"
                         class="course-header-title">{{ $currentItem->title ?? __('student.loading') }}</span>
-                    @if ($currentItemDurationFormatted)
-                        <span class="course-header-duration">({{ $currentItemDurationFormatted }} min)</span>
-                    @endif
+                    <span id="current-item-duration" class="course-header-duration" style="{{ $currentItemDurationFormatted ? '' : 'display:none;' }}">{{ $currentItemDurationFormatted ? '(' . $currentItemDurationFormatted . ' min)' : '' }}</span>
                 </div>
             </div>
             
@@ -164,7 +162,16 @@
                 </ul>
             </div>
 
-            <div class="course-header-right">
+            <div class="course-header-right d-flex align-items-center gap-3">
+                @php
+                    $summary = $progressSummary ?? ['completed_items' => 0, 'total_items' => 0, 'percentage' => 0];
+                @endphp
+                <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(255, 255, 255, 0.12); min-width: 170px;">
+                    <div class="progress flex-grow-1" style="height: 6px; width: 72px; background: rgba(255,255,255,0.2);">
+                        <div id="course-progress-bar" class="progress-bar bg-success" role="progressbar" style="width: {{ $summary['percentage'] }}%;" aria-valuenow="{{ $summary['percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span id="course-progress-text" class="small text-white fw-semibold" style="white-space: nowrap;">{{ $summary['completed_items'] }}/{{ $summary['total_items'] }} ({{ $summary['percentage'] }}%)</span>
+                </div>
                 <a href="{{ route('student.my-courses') }}" class="course-header-link">
                     <i class="fas fa-arrow-left"></i> {{ __('student.go_to_course_home') }}
                 </a>
@@ -252,17 +259,20 @@
             const courseId = {{ $course->id }};
             let currentItemId = {{ $currentItem->id ?? 0 }};
             let currentItemType = '{{ $currentItemType }}';
+            let currentNavigation = @json($navigation ?? []);
             let videoPlayer = null;
             
             function switchTab(tab) {
                 if (tab === 'learning') {
                     $('#forum-view-wrapper').hide();
                     $('#learning-view-wrapper').css('display', 'flex');
+                    $('.floating-navigation-buttons').show();
                     $('#tab-forum').removeClass('active');
                     $('#tab-learning').addClass('active');
                 } else if (tab === 'forum') {
                     $('#learning-view-wrapper').hide();
                     $('#forum-view-wrapper').show();
+                    $('.floating-navigation-buttons').hide();
                     $('#tab-learning').removeClass('active');
                     $('#tab-forum').addClass('active');
                     // Trigger discussions loading

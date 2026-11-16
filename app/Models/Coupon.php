@@ -13,6 +13,7 @@ use Carbon\Carbon;
  * This model represents a discount coupon.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Coupon extends Model
 {

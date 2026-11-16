@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * This model handles the newsletter subscriber functionality.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class NewsletterSubscriber extends Model
 {

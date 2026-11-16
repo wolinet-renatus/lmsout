@@ -11,9 +11,15 @@ use Illuminate\Support\Collection;
 /**
  * Shared filter normalization, date window resolution, and collection pagination
  * for portal dashboards.
+ *
+ * @package App\Support
+ * @author Renatus Bernardo
  */
 class DashboardFilters
 {
+    /**
+     * Extract and sanitize search, date range, status, and page-size parameters.
+     */
     public static function fromRequest(Request $request, int $defaultPerPage = 5): array
     {
         $dateRange = strtolower($request->string('date_range')->trim()->value() ?: 'all');
@@ -48,6 +54,9 @@ class DashboardFilters
         };
     }
 
+    /**
+     * Paginate an in-memory collection using an independent named query parameter.
+     */
     public static function paginateCollection(Collection $items, int $perPage, string $pageName): LengthAwarePaginator
     {
         $page = Paginator::resolveCurrentPage($pageName);

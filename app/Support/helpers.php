@@ -7,12 +7,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Helper functions for the platform.
+ * Global helper functions for settings, currency/tax formatting, branding, and validation.
  *
  * @package App\Support
  * @author Wolinet
+ * @author Renatus Bernardo
  */
 if (!function_exists('settings')) {
+    /**
+     * Settings.
+     */
     function settings(?string $key = null, $default = null)
     {
         /** @var SettingsRepository $repository */
@@ -26,13 +30,131 @@ if (!function_exists('settings')) {
     }
 }
 
+if (!function_exists('normalize_currency_code')) {
+    /**
+     * Normalize currency aliases (e.g., TSH -> TZS, $ -> USD).
+     */
+    function normalize_currency_code(?string $code, ?string $fallback = null): string
+    {
+        $normalized = strtoupper(trim((string) $code));
+
+        return match ($normalized) {
+            '', 'DEFAULT' => strtoupper(trim((string) ($fallback ?? config('app.currency', 'TZS')))),
+            'TSH', 'TZSH' => 'TZS',
+            '$', 'US$', 'DOLLAR' => 'USD',
+            default => $normalized,
+        };
+    }
+}
+
+if (!function_exists('base_currency_code')) {
+    /**
+     * Get the platform's configured storage/base currency code.
+     */
+    function base_currency_code(): string
+    {
+        return normalize_currency_code(settings('platform.general.default_currency', config('app.currency', 'TZS')), 'TZS');
+    }
+}
+
+if (!function_exists('usd_to_tzs_rate')) {
+    /**
+     * Get the configured exchange rate for 1 USD in TZS (default: 2500).
+     */
+    function usd_to_tzs_rate(): float
+    {
+        $rate = (float) settings('platform.general.usd_to_tzs_rate', 2500);
+
+        return $rate > 0 ? $rate : 2500.0;
+    }
+}
+
+if (!function_exists('supported_switch_currencies')) {
+    /**
+     * Return currencies available in UI quick switchers.
+     *
+     * @return array<string, string>
+     */
+    function supported_switch_currencies(): array
+    {
+        $options = [
+            'TZS' => 'TSH (TZS)',
+            'USD' => 'USD ($)',
+        ];
+
+        $base = base_currency_code();
+        if (! isset($options[$base])) {
+            $options[$base] = $base;
+        }
+
+        return $options;
+    }
+}
+
+if (!function_exists('active_currency_code')) {
+    /**
+     * Resolve the active display currency code from query, session, or platform default.
+     */
+    function active_currency_code(): string
+    {
+        $supported = supported_switch_currencies();
+
+        if (app()->bound('request')) {
+            $reqCurrency = request()->query('currency');
+            if ($reqCurrency !== null && $reqCurrency !== '') {
+                $normalized = normalize_currency_code((string) $reqCurrency);
+                if (isset($supported[$normalized])) {
+                    return $normalized;
+                }
+            }
+        }
+
+        if (app()->bound('session.store') && session()->has('active_currency')) {
+            $normalized = normalize_currency_code((string) session('active_currency'));
+            if (isset($supported[$normalized])) {
+                return $normalized;
+            }
+        }
+
+        return base_currency_code();
+    }
+}
+
+if (!function_exists('convert_currency')) {
+    /**
+     * Convert an amount between supported currencies using the configured USD <-> TZS exchange rate.
+     */
+    function convert_currency($amount, ?string $fromCurrency = null, ?string $toCurrency = null): float
+    {
+        $numericAmount = (float) $amount;
+        $from = normalize_currency_code($fromCurrency, base_currency_code());
+        $to = normalize_currency_code($toCurrency, active_currency_code());
+
+        if ($from === $to) {
+            return round($numericAmount, 2);
+        }
+
+        $rate = usd_to_tzs_rate();
+
+        if ($from === 'USD' && $to === 'TZS') {
+            return round($numericAmount * $rate, 2);
+        }
+
+        if ($from === 'TZS' && $to === 'USD') {
+            return round($numericAmount / $rate, 2);
+        }
+
+        return round($numericAmount, 2);
+    }
+}
+
 if (!function_exists('currency_code')) {
     /**
-     * Get the globally configured currency code.
+     * Get the active display currency code.
      */
     function currency_code(): string
     {
-        return settings('platform.general.default_currency', config('app.currency', 'USD'));
+        return active_currency_code();
     }
 }
 
@@ -42,16 +164,17 @@ if (!function_exists('currency_symbol')) {
      */
     function currency_symbol(?string $code = null): string
     {
-        $code = strtoupper($code ?? currency_code());
+        $code = normalize_currency_code($code ?? currency_code());
 
         $map = [
             'USD' => '$',
+            'TZS' => 'TZS ',
             'EUR' => '€',
             'GBP' => '£',
             'JPY' => '¥',
             'BDT' => '৳',
             'INR' => '₹',
-            'PKR' => 'Rs',
+            'PKR' => '₨',
             'AUD' => 'A$',
             'CAD' => 'C$',
             'SGD' => 'S$',
@@ -66,14 +189,16 @@ if (!function_exists('currency_symbol')) {
             'GHS' => '₵',
             'KES' => 'KSh',
             'UGX' => 'USh',
-            'PKR' => '₨',
         ];
 
-        return $map[$code] ?? $code;
+        return $map[$code] ?? ($code . ' ');
     }
 }
 
 if (!function_exists('tax_enabled')) {
+    /**
+     * Tax enabled.
+     */
     function tax_enabled(): bool
     {
         return (bool) settings('platform.tax.enabled', false);
@@ -81,6 +206,9 @@ if (!function_exists('tax_enabled')) {
 }
 
 if (!function_exists('tax_name')) {
+    /**
+     * Tax name.
+     */
     function tax_name(): string
     {
         return settings('platform.tax.name', 'VAT');
@@ -88,6 +216,9 @@ if (!function_exists('tax_name')) {
 }
 
 if (!function_exists('tax_rate')) {
+    /**
+     * Tax rate.
+     */
     function tax_rate(): float
     {
         return (float) settings('platform.tax.rate', 0.0);
@@ -95,6 +226,9 @@ if (!function_exists('tax_rate')) {
 }
 
 if (!function_exists('tax_number')) {
+    /**
+     * Tax number.
+     */
     function tax_number(): string
     {
         return settings('platform.tax.number', '');
@@ -102,6 +236,9 @@ if (!function_exists('tax_number')) {
 }
 
 if (!function_exists('calculate_tax')) {
+    /**
+     * Calculate tax.
+     */
     function calculate_tax($subtotal): float
     {
         if (!tax_enabled()) {
@@ -114,25 +251,30 @@ if (!function_exists('calculate_tax')) {
 
 if (!function_exists('currency_format')) {
     /**
-     * Format an amount using the configured currency.
+     * Format an amount using the active display currency and exchange rate conversion.
      *
      * @param float|int|string $amount
      * @param int $decimals
      * @param string $style 'code', 'symbol', or 'none'
+     * @param string|null $sourceCurrency Currency in which $amount is stored (defaults to platform base currency)
+     * @param string|null $targetCurrency Display currency override (defaults to active currency)
+     * @param bool $convert Whether to convert from $sourceCurrency to $targetCurrency
      */
-    function currency_format($amount, int $decimals = 2, string $style = 'code'): string
+    function currency_format($amount, int $decimals = 2, string $style = 'code', ?string $sourceCurrency = null, ?string $targetCurrency = null, bool $convert = true): string
     {
-        $amount = (float) $amount;
-        $formatted = number_format(abs($amount), $decimals, '.', ',');
-        $sign = $amount < 0 ? '-' : '';
+        $targetCode = normalize_currency_code($targetCurrency, currency_code());
+        $numericAmount = $convert
+            ? convert_currency($amount, $sourceCurrency ?? base_currency_code(), $targetCode)
+            : (float) $amount;
 
-        $code = currency_code();
-        $symbol = currency_symbol($code);
+        $formatted = number_format(abs($numericAmount), $decimals, '.', ',');
+        $sign = $numericAmount < 0 ? '-' : '';
+        $symbol = currency_symbol($targetCode);
 
         return match ($style) {
             'symbol' => $sign . $symbol . $formatted,
             'none' => $sign . $formatted,
-            default => $sign . $code . ' ' . $formatted,
+            default => $sign . $targetCode . ' ' . $formatted,
         };
     }
 }
@@ -276,7 +418,10 @@ if (!function_exists('ensure_storage_link')) {
     {
         $link = public_path('storage');
 
-        if (file_exists($link) && !is_link($link)) {
+        // Remove stale directories, files, or dangling symlinks left from another server path.
+        if (is_link($link) && !file_exists($link)) {
+            @unlink($link);
+        } elseif (file_exists($link) && !is_link($link)) {
             if (is_dir($link)) {
                 @rmdir($link);
             } else {
@@ -285,7 +430,7 @@ if (!function_exists('ensure_storage_link')) {
         }
 
         if (!file_exists($link)) {
-            \Illuminate\Support\Facades\Artisan::call('storage:link');
+            \Illuminate\Support\Facades\Artisan::call('storage:link', ['--relative' => true]);
         }
     }
 }
@@ -470,5 +615,68 @@ if (!function_exists('getEducationLevelLabel')) {
             'other' => 'Other',
             default => $level ? ucwords(str_replace('_', ' ', $level)) : 'Not Specified',
         };
+    }
+}
+
+if (!function_exists('resolve_app_url')) {
+    /**
+     * Resolve relative paths and stale local/legacy subdirectory URLs dynamically
+     * against the active HTTP request root so links never break across deployments.
+     */
+    function resolve_app_url(?string $rawUrl, string $fallback = '#'): string
+    {
+        $rawUrl = $rawUrl !== null ? trim($rawUrl) : '';
+        if ($rawUrl === '') {
+            return $fallback;
+        }
+
+        if (
+            $rawUrl === '#'
+            || str_starts_with($rawUrl, '#')
+            || str_starts_with($rawUrl, 'mailto:')
+            || str_starts_with($rawUrl, 'tel:')
+            || str_starts_with($rawUrl, 'javascript:')
+        ) {
+            return $rawUrl;
+        }
+
+        if (!preg_match('#^https?://#i', $rawUrl)) {
+            $path = '/' . ltrim($rawUrl, '/');
+            $path = preg_replace('#^/(?:edux(?:/public)?|lmsout(?:/public)?|public)(?=/|$)#i', '', $path) ?: '/';
+
+            return url($path);
+        }
+
+        $parsed = parse_url($rawUrl);
+        if (!$parsed || empty($parsed['host'])) {
+            return $rawUrl;
+        }
+
+        $host = strtolower($parsed['host']);
+        $requestHost = (!app()->runningInConsole() && app()->bound('request'))
+            ? strtolower((string) request()->getHost())
+            : '';
+
+        $path = $parsed['path'] ?? '/';
+        $hasLegacyPrefix = (bool) preg_match('#^/(?:edux(?:/public)?|lmsout(?:/public)?|public)(?=/|$)#i', $path);
+        $isLocalHost = in_array($host, ['localhost', '127.0.0.1', '::1'], true)
+            || ($requestHost !== '' && $host === $requestHost);
+
+        if (!$isLocalHost && !$hasLegacyPrefix) {
+            return $rawUrl;
+        }
+
+        $cleanPath = preg_replace('#^/(?:edux(?:/public)?|lmsout(?:/public)?|public)(?=/|$)#i', '', $path);
+        $cleanPath = '/' . ltrim((string) $cleanPath, '/');
+
+        $resolved = url($cleanPath);
+        if (!empty($parsed['query'])) {
+            $resolved .= '?' . $parsed['query'];
+        }
+        if (!empty($parsed['fragment'])) {
+            $resolved .= '#' . $parsed['fragment'];
+        }
+
+        return $resolved;
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
  * This service is responsible for managing payment gateways.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class PaymentGatewayService
 {
@@ -19,17 +20,15 @@ class PaymentGatewayService
     protected const CACHE_TTL = 300;
 
     protected array $fallbackCredentials = [
-        'razorpay' => ['key' => 'RAZORPAY_KEY', 'secret' => 'RAZORPAY_SECRET'],
         'stripe' => ['key' => 'STRIPE_KEY', 'secret' => 'STRIPE_SECRET'],
-        'paystack' => ['public_key' => 'PAYSTACK_PUBLIC_KEY', 'secret_key' => 'PAYSTACK_SECRET_KEY'],
         'flutterwave' => ['public_key' => 'FLUTTERWAVE_PUBLIC_KEY', 'secret_key' => 'FLUTTERWAVE_SECRET_KEY'],
         'paypal' => ['client_id' => 'PAYPAL_CLIENT_ID', 'client_secret' => 'PAYPAL_CLIENT_SECRET', 'mode' => 'PAYPAL_MODE'],
-        'sslcommerz' => ['store_id' => 'SSLCOMMERZ_STORE_ID', 'store_password' => 'SSLCOMMERZ_STORE_PASSWORD', 'mode' => 'SSLCOMMERZ_MODE'],
-        'mollie' => ['api_key' => 'MOLLIE_KEY'],
-        'bkash' => ['app_key' => 'BKASH_APP_KEY', 'app_secret' => 'BKASH_APP_SECRET', 'username' => 'BKASH_USERNAME', 'password' => 'BKASH_PASSWORD', 'mode' => 'BKASH_MODE'],
-        'xpay'  => ['store_id' => 'XPAY_STORE_ID', 'api_key' => 'XPAY_API_KEY', 'mode' => 'XPAY_MODE'],
+        'pesapal' => ['consumer_key' => 'PESAPAL_CONSUMER_KEY', 'consumer_secret' => 'PESAPAL_CONSUMER_SECRET', 'ipn_id' => 'PESAPAL_IPN_ID', 'mode' => 'PESAPAL_MODE'],
     ];
 
+    /**
+     * All.
+     */
     public function all(): Collection
     {
         return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
@@ -37,21 +36,33 @@ class PaymentGatewayService
         });
     }
 
+    /**
+     * Online gateways.
+     */
     public function onlineGateways(): Collection
     {
         return $this->all()->where('type', 'online')->where('is_enabled', true);
     }
 
+    /**
+     * Offline gateway.
+     */
     public function offlineGateway(): ?PaymentGatewaySetting
     {
         return $this->all()->firstWhere('identifier', 'offline');
     }
 
+    /**
+     * Offline instructions.
+     */
     public function offlineInstructions(): ?string
     {
         return optional($this->offlineGateway())->offline_instructions;
     }
 
+    /**
+     * Check condition: Is enabled.
+     */
     public function isEnabled(string $identifier): bool
     {
         $gateway = $this->gateway($identifier);
@@ -59,11 +70,17 @@ class PaymentGatewayService
         return $gateway ? $gateway->is_enabled : false;
     }
 
+    /**
+     * Gateway.
+     */
     public function gateway(string $identifier): ?PaymentGatewaySetting
     {
         return $this->all()->firstWhere('identifier', $identifier);
     }
 
+    /**
+     * Credentials for.
+     */
     public function credentialsFor(string $identifier): array
     {
         $gateway = $this->gateway($identifier);
@@ -79,6 +96,9 @@ class PaymentGatewayService
         return array_merge($fallback, $credentials);
     }
 
+    /**
+     * Refresh cache.
+     */
     public function refreshCache(): void
     {
         Cache::forget(self::CACHE_KEY);

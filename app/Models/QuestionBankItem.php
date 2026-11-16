@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Question bank item Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class QuestionBankItem extends Model
 {
     protected $fillable = [
@@ -24,6 +29,9 @@ class QuestionBankItem extends Model
         'marks' => 'integer',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for Bank.
+     */
     public function bank(): BelongsTo
     {
         return $this->belongsTo(QuestionBank::class, 'question_bank_id');

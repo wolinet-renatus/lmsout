@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Validator;
  * This controller handles the settings functionality.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class SettingsController extends Controller
 {
@@ -28,6 +29,9 @@ class SettingsController extends Controller
 
     protected NotificationPreferenceService $notificationPreferenceService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(FileUploadService $fileUploadService, NotificationPreferenceService $notificationPreferenceService)
     {
         $this->fileUploadService = $fileUploadService;
@@ -130,6 +134,9 @@ class SettingsController extends Controller
         return redirect()->route('student.settings');
     }
 
+    /**
+     * Update notifications.
+     */
     public function updateNotifications(Request $request)
     {
         $user = $this->currentUser();
@@ -148,6 +155,9 @@ class SettingsController extends Controller
         return redirect()->route('student.settings');
     }
 
+    /**
+     * Resolve notification preferences.
+     */
     private function resolveNotificationPreferences(User $user): array
     {
         $existing = $user->notificationSettings?->preferences ?? [];
@@ -155,6 +165,9 @@ class SettingsController extends Controller
         return $this->notificationPreferenceService->mergeForUser($user, $existing);
     }
 
+    /**
+     * Store notification preferences.
+     */
     private function storeNotificationPreferences(User $user, array $updates): void
     {
         $settings = $user->notificationSettings ?: new UserNotificationSetting(['user_id' => $user->id]);
@@ -167,6 +180,9 @@ class SettingsController extends Controller
         $settings->save();
     }
 
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

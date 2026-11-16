@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Authentication & Security Routes
+ *
+ * Defines login, OTP verification, password reset, email verification,
+ * and SRS-mandated forced password change endpoints.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;

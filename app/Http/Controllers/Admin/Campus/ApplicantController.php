@@ -15,13 +15,20 @@ use Illuminate\Http\Request;
 
 /**
  * Registrar desk for Face-to-Face / Hybrid intake using the SCMS Applicants Form as-is.
+ * @author Renatus Bernardo
  */
 class ApplicantController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private CampusApplicationService $applications)
     {
     }
 
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $applicants = Applicant::with(['branch:id,name', 'enrollments.course:id,title', 'invoices:id,applicant_id,invoice_number,control_number,payment_status,balance'])
@@ -40,11 +47,17 @@ class ApplicantController extends Controller
         return view('admin.campus.applicants.index', compact('applicants', 'branches'));
     }
 
+    /**
+     * Show the form for creating a new resource record.
+     */
     public function create()
     {
         return view('admin.campus.applicants.create', $this->formData());
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         $data = $request->validate(CampusApplicationService::rules(false));
@@ -69,6 +82,9 @@ class ApplicantController extends Controller
         return redirect()->route('admin.campus.invoices.show', $result['invoice']);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Applicant $applicant)
     {
         $applicant->load(['user', 'branch', 'country', 'enrollments.course', 'enrollments.venue', 'invoices.paymentSchedules', 'payments']);

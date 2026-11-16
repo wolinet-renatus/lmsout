@@ -19,9 +19,13 @@ use Illuminate\Support\Str;
  * This controller handles the instructor functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class InstructorController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View
     {
         $query = User::query()
@@ -81,6 +85,9 @@ class InstructorController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Request $request, User $instructor): View
     {
         abort_unless($instructor->role === 'instructor' && $instructor->is_approved, 404);
@@ -154,6 +161,9 @@ class InstructorController extends Controller
         ]);
     }
 
+    /**
+     * Format rating.
+     */
     private function formatRating(?float $value): ?float
     {
         if ($value === null) {
@@ -163,6 +173,9 @@ class InstructorController extends Controller
         return round($value, 1);
     }
 
+    /**
+     * Resolve media.
+     */
     private function resolveMedia(?string $path, string $fallback): string
     {
         if (blank($path)) {

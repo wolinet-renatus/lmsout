@@ -9,8 +9,16 @@ use App\Models\CommunityVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Community controller — handles student campus portal workflows and learning progress.
+ *
+ * @author Renatus Bernardo
+ */
 class CommunityController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -99,6 +107,9 @@ class CommunityController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show($id)
     {
         $user = Auth::user();
@@ -141,6 +152,9 @@ class CommunityController extends Controller
         ]);
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -162,6 +176,9 @@ class CommunityController extends Controller
             ->with('success', 'Question posted successfully');
     }
 
+    /**
+     * Store answer.
+     */
     public function storeAnswer(Request $request, $questionId)
     {
         $request->validate([
@@ -179,6 +196,9 @@ class CommunityController extends Controller
         return redirect()->back()->with('success', 'Answer posted successfully');
     }
 
+    /**
+     * Mark answer accepted.
+     */
     public function markAnswerAccepted($id)
     {
         $answer = CommunityAnswer::with('question')->findOrFail($id);
@@ -195,6 +215,9 @@ class CommunityController extends Controller
         return redirect()->back()->with('success', 'Answer marked as accepted');
     }
 
+    /**
+     * Vote.
+     */
     public function vote(Request $request, $type, $id)
     {
         $request->validate([

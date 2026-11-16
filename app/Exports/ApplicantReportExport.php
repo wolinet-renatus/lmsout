@@ -8,17 +8,31 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
+/**
+ * Applicant report export — formats structured spreadsheet/CSV export datasets.
+ *
+ * @author Renatus Bernardo
+ */
 class ApplicantReportExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private Collection $applicants)
     {
     }
 
+    /**
+     * Collection.
+     */
     public function collection(): Collection
     {
         return $this->applicants;
     }
 
+    /**
+     * Headings.
+     */
     public function headings(): array
     {
         return [
@@ -40,6 +54,9 @@ class ApplicantReportExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
+    /**
+     * Map.
+     */
     public function map($applicant): array
     {
         $invoices = $applicant->invoices ?? collect();

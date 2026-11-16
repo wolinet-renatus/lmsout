@@ -14,9 +14,13 @@ use Illuminate\Support\Facades\Password;
  * This controller handles the forgot password functionality.
  *
  * @package App\Http\Controllers\Auth
+ * @author Renatus Bernardo
  */
 class ForgotPasswordController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private RecaptchaService $recaptcha)
     {
     }

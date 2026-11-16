@@ -13,6 +13,11 @@ use Illuminate\Support\Str;
 use App\Models\CourseCategory;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Course controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class CourseController extends Controller
 {
     /**
@@ -77,6 +82,9 @@ class CourseController extends Controller
         return response()->json($courses);
     }
 
+    /**
+     * Categories.
+     */
     public function categories()
     {
         $categories = CourseCategory::select('id', 'name', 'slug', 'icon')->get();

@@ -9,10 +9,20 @@ use App\Models\Enrollment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
+/**
+ * Chat service — encapsulates domain business logic and transactional operations.
+ *
+ * @author Renatus Bernardo
+ */
 class ChatService
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private SettingsRepository $settings)
     {
     }
@@ -132,7 +142,30 @@ class ChatService
             ->update(['last_message_at' => now()]);
 
         // Reload with relations
-        return $message->load(['sender:id,name,profile_photo', 'attachments']);
+        $loaded = $message->load(['sender:id,name,profile_photo', 'attachments']);
+
+        // Notify the recipient in portal bell notifications
+        $conversation = Conversation::with(['student', 'instructor'])->find($conversationId);
+        if ($conversation) {
+            $isStudentSender = (int) $conversation->student_id === $senderId;
+            $recipient = $isStudentSender ? $conversation->instructor : $conversation->student;
+            $senderName = $loaded->sender?->name ?? ($isStudentSender ? 'Student' : 'Instructor');
+            $preview = filled($body)
+                ? Str::limit(trim((string) $body), 90)
+                : 'Sent file attachment(s) in your conversation.';
+            $targetRoute = $isStudentSender ? 'instructor.messages.show' : 'student.messages.show';
+            $url = Route::has($targetRoute) ? route($targetRoute, $conversationId) : null;
+
+            app(PortalNotificationService::class)->notifyUser(
+                $recipient,
+                "New Message from {$senderName}",
+                $preview,
+                'info',
+                $url
+            );
+        }
+
+        return $loaded;
     }
 
     /**
@@ -238,6 +271,9 @@ class ChatService
 
     // ── Private Helpers ──
 
+    /**
+     * Fetch new messages.
+     */
     private function fetchNewMessages(int $conversationId, int $userId, int $lastMessageId): Collection
     {
         return ChatMessage::where('conversation_id', $conversationId)
@@ -247,6 +283,9 @@ class ChatService
             ->get();
     }
 
+    /**
+     * Store attachments.
+     */
     private function storeAttachments(ChatMessage $message, array $files): void
     {
         foreach ($files as $file) {

@@ -17,6 +17,7 @@ use Illuminate\Validation\Rule;
  * This controller handles the management of menu items.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class MenuItemController extends Controller
 {

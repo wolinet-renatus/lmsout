@@ -9,8 +9,16 @@ use App\Services\NotificationPreferenceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Profile controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         private NotificationPreferenceService $notificationPreferenceService
     ) {

@@ -10,14 +10,21 @@ use Illuminate\Foundation\Http\FormRequest;
  * This request handles the contact form validation.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class ContactRequest extends FormRequest
 {
+    /**
+     * Determine whether the current user is authorized to perform this request.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Define the validation rules applied to the incoming request.
+     */
     public function rules(): array
     {
         return [
@@ -29,6 +36,9 @@ class ContactRequest extends FormRequest
         ];
     }
 
+    /**
+     * Define custom validation error messages for the request.
+     */
     public function messages(): array
     {
         return [

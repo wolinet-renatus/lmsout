@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents a quiz for a course.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Quiz extends Model
 {
@@ -41,6 +42,9 @@ class Quiz extends Model
         'order' => 'integer',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for Question bank.
+     */
     public function questionBank(): BelongsTo
     {
         return $this->belongsTo(QuestionBank::class);

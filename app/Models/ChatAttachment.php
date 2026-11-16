@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Chat attachment Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class ChatAttachment extends Model
 {
     protected $fillable = [
@@ -21,6 +26,9 @@ class ChatAttachment extends Model
 
     protected $appends = ['url', 'is_image', 'formatted_size'];
 
+    /**
+     * Eloquent belongsTo relationship for Message.
+     */
     public function message(): BelongsTo
     {
         return $this->belongsTo(ChatMessage::class, 'chat_message_id');

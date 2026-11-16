@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents a review for a course.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Review extends Model
 {

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for queue.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
 
     /*

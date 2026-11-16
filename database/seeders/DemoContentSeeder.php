@@ -23,8 +23,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * Demo content seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class DemoContentSeeder extends Seeder
 {
+    /**
+     * Execute the database seeder.
+     */
     public function run(): void
     {
         // 1. Course Categories (6 rich categories)

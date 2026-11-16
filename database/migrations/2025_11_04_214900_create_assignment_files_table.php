@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: create assignment files table.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

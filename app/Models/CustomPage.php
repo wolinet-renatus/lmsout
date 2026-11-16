@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * This model represents a custom page.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class CustomPage extends Model
 {
@@ -23,11 +24,17 @@ class CustomPage extends Model
         'content',
     ];
 
+    /**
+     * Get route key name.
+     */
     public function getRouteKeyName(): string
     {
         return 'slug';
     }
 
+    /**
+     * Query scope to filter records by Slug.
+     */
     public function scopeSlug($query, string $slug)
     {
         return $query->where('slug', $slug);

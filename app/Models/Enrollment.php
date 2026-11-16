@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents an enrollment for a course.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Enrollment extends Model
 {
@@ -44,6 +45,9 @@ class Enrollment extends Model
         'legacy_scms_id',
     ];
 
+    /**
+     * Booted.
+     */
     protected static function booted()
     {
         static::updated(function ($enrollment) {
@@ -100,11 +104,17 @@ class Enrollment extends Model
         'certificate_issued_at' => 'datetime',
     ];
 
+    /**
+     * Query scope to filter records by Completed.
+     */
     public function scopeCompleted(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_COMPLETED);
     }
 
+    /**
+     * Accessor for computed Certificate number attribute.
+     */
     public function getCertificateNumberAttribute(): ?string
     {
         if (! $this->id || ! $this->user_id || ! $this->course_id) {
@@ -118,6 +128,9 @@ class Enrollment extends Model
         );
     }
 
+    /**
+     * Accessor for computed Completion date attribute.
+     */
     public function getCompletionDateAttribute(): ?string
     {
         return $this->updated_at?->format('M d, Y');
@@ -128,86 +141,137 @@ class Enrollment extends Model
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELLED = 'cancelled';
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Course.
+     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Payment.
+     */
     public function payment(): BelongsTo
     {
         return $this->belongsTo(Payment::class);
     }
 
+    /**
+     * Check condition: Is pending.
+     */
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
     }
 
+    /**
+     * Eloquent hasMany relationship for Is approved.
+     */
     public function isApproved(): bool
     {
         return $this->status === self::STATUS_APPROVED;
     }
 
+    /**
+     * Eloquent hasMany relationship for Is completed.
+     */
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_COMPLETED;
     }
 
+    /**
+     * Eloquent hasMany relationship for Lesson progress.
+     */
     public function lessonProgress(): HasMany
     {
         return $this->hasMany(LessonProgress::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Quiz attempts.
+     */
     public function quizAttempts(): HasMany
     {
         return $this->hasMany(QuizAttempt::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Assignment submissions.
+     */
     public function assignmentSubmissions(): HasMany
     {
         return $this->hasMany(AssignmentSubmission::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Applicant.
+     */
     public function applicant(): BelongsTo
     {
         return $this->belongsTo(Applicant::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Branch.
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Venue.
+     */
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Course assignment.
+     */
     public function courseAssignment(): BelongsTo
     {
         return $this->belongsTo(CourseAssignment::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Invoice.
+     */
     public function invoice(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Invoice::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Attendance records.
+     */
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Certificate issuer.
+     */
     public function certificateIssuer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'certificate_issued_by');
     }
 
+    /**
+     * Check condition: Is face to face or hybrid.
+     */
     public function isFaceToFaceOrHybrid(): bool
     {
         return in_array($this->delivery_mode ?? $this->course?->delivery_mode ?? 'online', ['face_to_face', 'hybrid'], true);

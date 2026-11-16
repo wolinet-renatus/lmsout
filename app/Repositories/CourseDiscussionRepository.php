@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
  * Handles database operations for course discussions and replies.
  *
  * @package App\Repositories
+ * @author Renatus Bernardo
  */
 class CourseDiscussionRepository
 {

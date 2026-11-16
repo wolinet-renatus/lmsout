@@ -9,8 +9,16 @@ use App\Models\User;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 
+/**
+ * Bundle controller — handles administrative portal workflows and governance.
+ *
+ * @author Renatus Bernardo
+ */
 class BundleController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index()
     {
         $query = Bundle::with(['vendor', 'courses', 'bundleEnrollments']);
@@ -30,12 +38,18 @@ class BundleController extends Controller
         return view('admin.bundles.index', compact('bundles', 'pendingCount'));
     }
 
+    /**
+     * Show the form for creating a new resource record.
+     */
     public function create()
     {
         $courses = Course::where('status', 'published')->get();
         return view('admin.bundles.create', compact('courses'));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -69,12 +83,18 @@ class BundleController extends Controller
         return redirect()->route('admin.bundles.index');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Bundle $bundle)
     {
         $courses = Course::where('status', 'published')->get();
         return view('admin.bundles.edit', compact('bundle', 'courses'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, Bundle $bundle)
     {
         $request->validate([
@@ -105,6 +125,9 @@ class BundleController extends Controller
         return redirect()->route('admin.bundles.index');
     }
 
+    /**
+     * Approve.
+     */
     public function approve(Bundle $bundle)
     {
         $bundle->update(['approval_status' => 'approved']);
@@ -112,6 +135,9 @@ class BundleController extends Controller
         return back();
     }
 
+    /**
+     * Reject.
+     */
     public function reject(Bundle $bundle)
     {
         $bundle->update(['approval_status' => 'rejected']);
@@ -119,6 +145,9 @@ class BundleController extends Controller
         return back();
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(Bundle $bundle)
     {
         $bundle->delete();

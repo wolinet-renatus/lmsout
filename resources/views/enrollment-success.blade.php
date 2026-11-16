@@ -9,6 +9,11 @@
 @endsection
 
 @section('content')
+    <script>
+        if (window.top && window.top !== window.self) {
+            window.top.location.href = window.location.href;
+        }
+    </script>
     <!-- Success Section Start -->
     <section class="mhq-hero-section fix mhq-hero-1 bg-cover py-2 hero-bg-default">
         <div class="hero-shape-1 float-bob-x">

@@ -20,11 +20,15 @@ use App\Services\NotificationPreferenceService;
  * This controller handles the settings functionality for the API.
  *
  * @package App\Http\Controllers\Api\Instructor
+ * @author Renatus Bernardo
  */
 class SettingsController extends Controller
 {
     protected $fileUploadService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(FileUploadService $fileUploadService, private NotificationPreferenceService $notificationPreferenceService)
     {
         $this->fileUploadService = $fileUploadService;
@@ -246,6 +250,9 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * Resolve notification preferences.
+     */
     private function resolveNotificationPreferences(User $user): array
     {
         $existing = $user->notificationSettings?->preferences ?? [];
@@ -253,6 +260,9 @@ class SettingsController extends Controller
         return $this->notificationPreferenceService->mergeForUser($user, $existing);
     }
 
+    /**
+     * Store notification preferences.
+     */
     private function storeNotificationPreferences(User $user, array $updates): void
     {
         $settings = $user->notificationSettings ?: new UserNotificationSetting(['user_id' => $user->id]);

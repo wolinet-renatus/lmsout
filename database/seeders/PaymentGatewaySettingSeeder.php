@@ -5,20 +5,19 @@ namespace Database\Seeders;
 use App\Models\PaymentGatewaySetting;
 use Illuminate\Database\Seeder;
 
+/**
+ * Payment gateway setting seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class PaymentGatewaySettingSeeder extends Seeder
 {
+    /**
+     * Execute the database seeder.
+     */
     public function run(): void
     {
         $gateways = [
-            [
-                'identifier' => 'razorpay',
-                'name' => 'Razorpay',
-                'type' => 'online',
-                'credentials' => [
-                    'key' => env('RAZORPAY_KEY'),
-                    'secret' => env('RAZORPAY_SECRET'),
-                ],
-            ],
             [
                 'identifier' => 'stripe',
                 'name' => 'Stripe',
@@ -26,15 +25,6 @@ class PaymentGatewaySettingSeeder extends Seeder
                 'credentials' => [
                     'key' => env('STRIPE_KEY'),
                     'secret' => env('STRIPE_SECRET'),
-                ],
-            ],
-            [
-                'identifier' => 'paystack',
-                'name' => 'Paystack',
-                'type' => 'online',
-                'credentials' => [
-                    'public_key' => env('PAYSTACK_PUBLIC_KEY'),
-                    'secret_key' => env('PAYSTACK_SECRET_KEY'),
                 ],
             ],
             [
@@ -57,21 +47,14 @@ class PaymentGatewaySettingSeeder extends Seeder
                 ],
             ],
             [
-                'identifier' => 'sslcommerz',
-                'name' => 'SSLCommerz',
+                'identifier' => 'pesapal',
+                'name' => 'Pesapal',
                 'type' => 'online',
                 'credentials' => [
-                    'store_id' => env('SSLCOMMERZ_STORE_ID'),
-                    'store_password' => env('SSLCOMMERZ_STORE_PASSWORD'),
-                    'mode' => env('SSLCOMMERZ_MODE', 'sandbox'),
-                ],
-            ],
-            [
-                'identifier' => 'mollie',
-                'name' => 'Mollie',
-                'type' => 'online',
-                'credentials' => [
-                    'api_key' => env('MOLLIE_KEY'),
+                    'consumer_key' => env('PESAPAL_CONSUMER_KEY', 'ngW+UEcnDhltUc5fxPfrCD987xMh3Lx8'),
+                    'consumer_secret' => env('PESAPAL_CONSUMER_SECRET', 'q27RChYs5UkypdcNYKzuUw460Dg='),
+                    'ipn_id' => env('PESAPAL_IPN_ID', ''),
+                    'mode' => env('PESAPAL_MODE', 'sandbox'),
                 ],
             ],
             [

@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\HabitLog;
 
+/**
+ * Habit Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class Habit extends Model
 {
     protected $fillable = [
@@ -19,11 +24,17 @@ class Habit extends Model
         'is_active' => 'boolean',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Logs.
+     */
     public function logs()
     {
         return $this->hasMany(HabitLog::class);

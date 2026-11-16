@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Notification template Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class NotificationTemplate extends Model
 {
     use HasFactory;

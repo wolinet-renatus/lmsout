@@ -9,8 +9,10 @@ use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Invoice;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
+use App\Models\Payment;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizAttemptAnswer;
@@ -29,20 +31,27 @@ use Illuminate\Support\Facades\Auth;
  * This controller handles the student course functionality.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class StudentCourseController extends Controller
 {
     protected $fileUploadService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(FileUploadService $fileUploadService)
     {
         $this->fileUploadService = $fileUploadService;
     }
 
-    public function show($courseId)
+    /**
+     * Display the specified resource details.
+     */
+    public function show(Request $request, $courseId)
     {
         $user = $this->currentUser();
-        
+
         $enrollment = Enrollment::where('user_id', $user->id)
             ->where('course_id', $courseId)
             ->whereIn('status', ['approved', 'completed'])
@@ -61,24 +70,6 @@ class StudentCourseController extends Controller
             $enrollment->refresh();
         }
 
-        $firstLesson = $course->topics->flatMap->lessons->sortBy('order')->first();
-        $firstQuiz = $course->topics->flatMap->quizzes->sortBy('order')->first();
-        $firstAssignment = $course->topics->flatMap->assignments->sortBy('order')->first();
-        
-        $firstQuizPassed = false;
-        if ($firstQuiz) {
-            $firstQuizAttempt = QuizAttempt::where('user_id', $user->id)
-                ->where('quiz_id', $firstQuiz->id)
-                ->where('enrollment_id', $enrollment->id)
-                ->where('passed', true)
-                ->latest()
-                ->first();
-            $firstQuizPassed = $firstQuizAttempt !== null;
-        }
-        
-        $currentItem = $firstLesson ?? $firstQuiz ?? $firstAssignment;
-        $currentItemType = $firstLesson ? 'lesson' : ($firstQuiz ? 'quiz' : 'assignment');
-
         $userProgress = $user->lessonProgress()
             ->where('enrollment_id', $enrollment->id)
             ->get()
@@ -86,6 +77,8 @@ class StudentCourseController extends Controller
 
         $userQuizAttempts = $user->quizAttempts()
             ->where('enrollment_id', $enrollment->id)
+            ->orderBy('passed', 'asc')
+            ->orderBy('id', 'asc')
             ->get()
             ->keyBy('quiz_id');
 
@@ -96,57 +89,113 @@ class StudentCourseController extends Controller
 
         $accessibleItems = [];
         $allItems = $this->getAllCourseItems($course);
-        foreach ($allItems as $index => $item) {
-            $accessibleItems[$item['type'] . '_' . $item['id']] = $this->isItemAccessible($user, $enrollment, $courseId, $item['type'], $item['id']);
+        $paidInFull = $this->isCoursePaidInFull($user, $enrollment, $course);
+        foreach ($allItems as $item) {
+            $accessibleItems[$item['type'] . '_' . $item['id']] = $this->isItemAccessible($user, $enrollment, $courseId, $item['type'], $item['id'], $course, $paidInFull);
+        }
+
+        // Resolve requested item (?item_type=...&item_id=...) if accessible, else resume at first incomplete accessible item.
+        $currentItem = null;
+        $currentItemType = 'lesson';
+
+        $requestedType = $request->query('item_type');
+        $requestedId = $request->integer('item_id');
+        if ($requestedType && $requestedId && ($accessibleItems[$requestedType . '_' . $requestedId] ?? false)) {
+            $currentItem = $this->findCourseItemModel($course, $requestedType, $requestedId);
+            if ($currentItem) {
+                $currentItemType = $requestedType;
+            }
+        }
+
+        if (! $currentItem) {
+            foreach ($allItems as $item) {
+                $isItemAccessible = $accessibleItems[$item['type'] . '_' . $item['id']] ?? false;
+                $isDone = $this->isItemCompletedFromCollections($item['type'], $item['id'], $userProgress, $userQuizAttempts, $userAssignmentSubmissions);
+                if ($isItemAccessible && ! $isDone) {
+                    $currentItem = $this->findCourseItemModel($course, $item['type'], $item['id']);
+                    if ($currentItem) {
+                        $currentItemType = $item['type'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (! $currentItem && $allItems->isNotEmpty()) {
+            $fallbackItem = $allItems->first();
+            $currentItem = $this->findCourseItemModel($course, $fallbackItem['type'], $fallbackItem['id']);
+            $currentItemType = $fallbackItem['type'];
+        }
+
+        // Ensure an initial LessonProgress row exists when opening on a lesson so immediate Mark Complete succeeds.
+        if ($currentItemType === 'lesson' && $currentItem instanceof Lesson) {
+            $initialProgress = LessonProgress::firstOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'lesson_id' => $currentItem->id,
+                    'enrollment_id' => $enrollment->id,
+                ],
+                [
+                    'is_completed' => false,
+                    'progress_percentage' => 0,
+                    'last_accessed_at' => now(),
+                ]
+            );
+            $userProgress[$currentItem->id] = $initialProgress;
         }
 
         $topicsData = [];
         foreach ($course->topics as $index => $topic) {
             $progressStats = $topic->getProgressStats($userProgress, $userQuizAttempts, $userAssignmentSubmissions);
-            
+
             $itemsData = [];
-            
+
             foreach ($topic->lessons as $lesson) {
                 $progress = $userProgress[$lesson->id] ?? null;
                 $itemsData[] = [
                     'id' => $lesson->id,
                     'type' => 'lesson',
+                    'order' => $lesson->order ?? 0,
                     'title' => $lesson->title,
                     'duration_formatted' => $lesson->formatted_duration,
                     'is_completed' => $progress && $progress->is_completed,
-                    'is_active' => $currentItemType === 'lesson' && $currentItem->id == $lesson->id,
+                    'is_active' => $currentItemType === 'lesson' && $currentItem && $currentItem->id == $lesson->id,
                     'is_accessible' => $accessibleItems['lesson_' . $lesson->id] ?? false,
                     'is_live' => (bool) $lesson->is_live,
                     'live_status' => $lesson->liveClass?->status,
                 ];
             }
-            
+
             foreach ($topic->quizzes as $quiz) {
                 $attempt = $userQuizAttempts[$quiz->id] ?? null;
                 $itemsData[] = [
                     'id' => $quiz->id,
                     'type' => 'quiz',
+                    'order' => $quiz->order ?? 0,
                     'title' => $quiz->title,
                     'duration_formatted' => '',
                     'is_completed' => $attempt && $attempt->passed,
-                    'is_active' => $currentItemType === 'quiz' && $currentItem->id == $quiz->id,
+                    'is_active' => $currentItemType === 'quiz' && $currentItem && $currentItem->id == $quiz->id,
                     'is_accessible' => $accessibleItems['quiz_' . $quiz->id] ?? false,
                 ];
             }
-            
+
             foreach ($topic->assignments as $assignment) {
                 $submission = $userAssignmentSubmissions[$assignment->id] ?? null;
                 $itemsData[] = [
                     'id' => $assignment->id,
                     'type' => 'assignment',
+                    'order' => $assignment->order ?? 0,
                     'title' => $assignment->title,
                     'duration_formatted' => '',
                     'is_completed' => $submission !== null,
-                    'is_active' => $currentItemType === 'assignment' && $currentItem->id == $assignment->id,
+                    'is_active' => $currentItemType === 'assignment' && $currentItem && $currentItem->id == $assignment->id,
                     'is_accessible' => $accessibleItems['assignment_' . $assignment->id] ?? false,
                 ];
             }
-            
+
+            usort($itemsData, fn ($a, $b) => ($a['order'] <=> $b['order']));
+
             $topicsData[] = [
                 'topic' => $topic,
                 'index' => $index,
@@ -159,7 +208,7 @@ class StudentCourseController extends Controller
         $initialLessonVideoData = null;
         $initialQuizPassed = false;
         $initialQuizResultsData = null;
-        
+
         if ($currentItemType === 'lesson' && $currentItem instanceof Lesson) {
             $currentItemDurationFormatted = $currentItem->formatted_duration;
             $initialLessonVideoData = $this->prepareLessonVideoData($currentItem);
@@ -170,6 +219,11 @@ class StudentCourseController extends Controller
                 $initialQuizResultsData = $this->prepareQuizResultsData($quizAttempt->load('answers.question'), $currentItem);
             }
         }
+
+        $progressSummary = $this->buildProgressSummary($allItems, $userProgress, $userQuizAttempts, $userAssignmentSubmissions);
+        $navigation = $currentItem
+            ? $this->buildNavigationState($user, $enrollment, $courseId, $allItems, $currentItemType, $currentItem->id)
+            : ['has_previous' => false, 'has_next' => false, 'next_accessible' => false, 'previous_item' => null, 'next_item' => null];
 
         return view('student.course-access', compact(
             'course',
@@ -185,10 +239,15 @@ class StudentCourseController extends Controller
             'initialLessonVideoData',
             'initialQuizPassed',
             'initialQuizResultsData',
-            'isCompleted'
+            'isCompleted',
+            'progressSummary',
+            'navigation'
         ));
     }
 
+    /**
+     * Load lesson.
+     */
     public function loadLesson(Request $request)
     {
         $user = $this->currentUser();
@@ -230,7 +289,8 @@ class StudentCourseController extends Controller
         $progress->update(['last_accessed_at' => now()]);
 
         $videoData = $this->prepareLessonVideoData($lesson);
-        
+        $navigation = $this->buildNavigationState($user, $enrollment, $courseId, null, 'lesson', $lesson->id);
+
         $html = view('student.course-access.partials.lesson-content', [
             'lesson' => $lesson,
             'progress' => $progress,
@@ -244,9 +304,13 @@ class StudentCourseController extends Controller
             'type' => 'lesson',
             'title' => $lesson->title,
             'duration' => $lesson->duration,
+            'navigation' => $navigation,
         ]);
     }
 
+    /**
+     * Load quiz.
+     */
     public function loadQuiz(Request $request, $courseId, $quizId)
     {
         $user = $this->currentUser();
@@ -297,6 +361,7 @@ class StudentCourseController extends Controller
                 'title' => $quiz->title,
                 'is_completed' => true,
                 'attempt_id' => $previousAttempt->id,
+                'navigation' => $this->buildNavigationState($user, $enrollment, $courseId, null, 'quiz', $quiz->id),
             ]);
         }
 
@@ -309,9 +374,13 @@ class StudentCourseController extends Controller
             'type' => 'quiz',
             'title' => $quiz->title,
             'is_completed' => false,
+            'navigation' => $this->buildNavigationState($user, $enrollment, $courseId, null, 'quiz', $quiz->id),
         ]);
     }
 
+    /**
+     * Load assignment.
+     */
     public function loadAssignment(Request $request, $courseId, $assignmentId)
     {
         $user = $this->currentUser();
@@ -385,9 +454,13 @@ class StudentCourseController extends Controller
             'assignment_id' => $assignment->id,
             'type' => 'assignment',
             'title' => $assignment->title,
+            'navigation' => $this->buildNavigationState($user, $enrollment, $courseId, null, 'assignment', $assignment->id),
         ]);
     }
 
+    /**
+     * Mark complete.
+     */
     public function markComplete(Request $request)
     {
         $user = $this->currentUser();
@@ -399,33 +472,43 @@ class StudentCourseController extends Controller
             ->whereIn('status', ['approved', 'completed'])
             ->firstOrFail();
 
-        $progress = LessonProgress::where('user_id', $user->id)
-            ->where('lesson_id', $lessonId)
-            ->where('enrollment_id', $enrollment->id)
-            ->firstOrFail();
+        $lesson = Lesson::with('topic')->findOrFail($lessonId);
+        if (! $lesson->topic || (int) $lesson->topic->course_id !== (int) $courseId) {
+            return response()->json(['success' => false, 'message' => 'Lesson does not belong to this course.'], 403);
+        }
+
+        $progress = LessonProgress::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'lesson_id' => $lessonId,
+                'enrollment_id' => $enrollment->id,
+            ],
+            [
+                'is_completed' => false,
+                'progress_percentage' => 0,
+                'last_accessed_at' => now(),
+            ]
+        );
 
         $progress->markComplete();
 
         $course = Course::with(['topics.lessons', 'topics.quizzes', 'topics.assignments'])->findOrFail($courseId);
         $courseCompleted = $this->checkAndUpdateCourseCompletion($user, $enrollment, $course);
-        
+
         $allItems = $this->getAllCourseItems($course);
-        
+
         $currentIndex = $allItems->search(function($item) use ($lessonId) {
             return $item['type'] === 'lesson' && $item['id'] == $lessonId;
         });
 
         $nextItem = null;
         if (!$courseCompleted && $currentIndex !== false && $currentIndex < $allItems->count() - 1) {
-            for ($i = $currentIndex + 1; $i < $allItems->count(); $i++) {
-                $potentialNext = $allItems[$i];
-                if ($this->isItemAccessible($user, $enrollment, $courseId, $potentialNext['type'], $potentialNext['id'])) {
-                    $nextItem = [
-                        'item_id' => $potentialNext['id'],
-                        'type' => $potentialNext['type'],
-                    ];
-                    break;
-                }
+            $potentialNext = $allItems[$currentIndex + 1];
+            if ($this->isItemAccessible($user, $enrollment, $courseId, $potentialNext['type'], $potentialNext['id'])) {
+                $nextItem = [
+                    'item_id' => $potentialNext['id'],
+                    'type' => $potentialNext['type'],
+                ];
             }
         }
 
@@ -434,9 +517,13 @@ class StudentCourseController extends Controller
             'message' => 'Lesson marked as complete',
             'next_item' => $nextItem,
             'course_completed' => $courseCompleted,
+            'navigation' => $this->buildNavigationState($user, $enrollment, $courseId, $allItems, 'lesson', $lessonId),
         ]);
     }
 
+    /**
+     * Update progress.
+     */
     public function updateProgress(Request $request)
     {
         $user = $this->currentUser();
@@ -474,6 +561,9 @@ class StudentCourseController extends Controller
         ]);
     }
 
+    /**
+     * Submit quiz.
+     */
     public function submitQuiz(SubmitQuizRequest $request)
     {
         $user = $this->currentUser();
@@ -535,31 +625,46 @@ class StudentCourseController extends Controller
 
             DB::commit();
 
+            $course = Course::with(['topics.lessons', 'topics.quizzes', 'topics.assignments'])->findOrFail($enrollment->course_id);
+            $allItems = $this->getAllCourseItems($course);
             $courseCompleted = false;
             $nextItem = null;
+
             if ($passed) {
-                $course = Course::with(['topics.lessons', 'topics.quizzes', 'topics.assignments'])->findOrFail($enrollment->course_id);
                 $courseCompleted = $this->checkAndUpdateCourseCompletion($user, $enrollment, $course);
-                
-                $allItems = $this->getAllCourseItems($course);
-                
-                $currentIndex = $allItems->search(function($item) use ($quizId) {
+
+                $currentIndex = $allItems->search(function ($item) use ($quizId) {
                     return $item['type'] === 'quiz' && $item['id'] == $quizId;
                 });
 
                 if (!$courseCompleted && $currentIndex !== false && $currentIndex < $allItems->count() - 1) {
-                    for ($i = $currentIndex + 1; $i < $allItems->count(); $i++) {
-                        $potentialNext = $allItems[$i];
-                        if ($this->isItemAccessible($user, $enrollment, $enrollment->course_id, $potentialNext['type'], $potentialNext['id'])) {
-                            $nextItem = [
-                                'item_id' => $potentialNext['id'],
-                                'type' => $potentialNext['type'],
-                            ];
-                            break;
-                        }
+                    $potentialNext = $allItems[$currentIndex + 1];
+                    if ($this->isItemAccessible($user, $enrollment, $enrollment->course_id, $potentialNext['type'], $potentialNext['id'])) {
+                        $nextItem = [
+                            'item_id' => $potentialNext['id'],
+                            'type' => $potentialNext['type'],
+                        ];
                     }
                 }
             }
+
+            $userProgress = $user->lessonProgress()
+                ->where('enrollment_id', $enrollment->id)
+                ->get()
+                ->keyBy('lesson_id');
+
+            $userQuizAttempts = $user->quizAttempts()
+                ->where('enrollment_id', $enrollment->id)
+                ->orderBy('passed', 'asc')
+                ->orderBy('id', 'asc')
+                ->get()
+                ->keyBy('quiz_id');
+
+            $userAssignmentSubmissions = $user->assignmentSubmissions()
+                ->where('enrollment_id', $enrollment->id)
+                ->orderBy('id', 'asc')
+                ->get()
+                ->keyBy('assignment_id');
 
             $resultsData = $this->prepareQuizResultsData($attempt->load('answers.question'), $quiz);
             $html = view('student.course-access.partials.quiz-results', $resultsData)->render();
@@ -574,6 +679,8 @@ class StudentCourseController extends Controller
                 'attempt_id' => $attempt->id,
                 'next_item' => $nextItem,
                 'course_completed' => $courseCompleted,
+                'navigation' => $this->buildNavigationState($user, $enrollment, $enrollment->course_id, $allItems, 'quiz', (int) $quizId),
+                'progress_summary' => $this->buildProgressSummary($allItems, $userProgress, $userQuizAttempts, $userAssignmentSubmissions),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -584,6 +691,9 @@ class StudentCourseController extends Controller
         }
     }
 
+    /**
+     * Submit assignment.
+     */
     public function submitAssignment(SubmitAssignmentRequest $request)
     {
         $user = $this->currentUser();
@@ -628,17 +738,32 @@ class StudentCourseController extends Controller
 
             $nextItem = null;
             if (!$courseCompleted && $currentIndex !== false && $currentIndex < $allItems->count() - 1) {
-                for ($i = $currentIndex + 1; $i < $allItems->count(); $i++) {
-                    $potentialNext = $allItems[$i];
-                    if ($this->isItemAccessible($user, $enrollment, $enrollment->course_id, $potentialNext['type'], $potentialNext['id'])) {
-                        $nextItem = [
-                            'item_id' => $potentialNext['id'],
-                            'type' => $potentialNext['type'],
-                        ];
-                        break;
-                    }
+                $potentialNext = $allItems[$currentIndex + 1];
+                if ($this->isItemAccessible($user, $enrollment, $enrollment->course_id, $potentialNext['type'], $potentialNext['id'])) {
+                    $nextItem = [
+                        'item_id' => $potentialNext['id'],
+                        'type' => $potentialNext['type'],
+                    ];
                 }
             }
+
+            $userProgress = $user->lessonProgress()
+                ->where('enrollment_id', $enrollment->id)
+                ->get()
+                ->keyBy('lesson_id');
+
+            $userQuizAttempts = $user->quizAttempts()
+                ->where('enrollment_id', $enrollment->id)
+                ->orderBy('passed', 'asc')
+                ->orderBy('id', 'asc')
+                ->get()
+                ->keyBy('quiz_id');
+
+            $userAssignmentSubmissions = $user->assignmentSubmissions()
+                ->where('enrollment_id', $enrollment->id)
+                ->orderBy('id', 'asc')
+                ->get()
+                ->keyBy('assignment_id');
 
             $html = view('student.course-access.partials.assignment-submission', [
                 'submission' => $submission->load('files'),
@@ -650,6 +775,8 @@ class StudentCourseController extends Controller
                 'html' => $html,
                 'next_item' => $nextItem,
                 'course_completed' => $courseCompleted,
+                'navigation' => $this->buildNavigationState($user, $enrollment, $enrollment->course_id, $allItems, 'assignment', (int) $assignmentId),
+                'progress_summary' => $this->buildProgressSummary($allItems, $userProgress, $userQuizAttempts, $userAssignmentSubmissions),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -660,6 +787,9 @@ class StudentCourseController extends Controller
         }
     }
 
+    /**
+     * Get next item.
+     */
     public function getNextItem(Request $request, $courseId, $itemId)
     {
         $type = $request->input('type', 'lesson');
@@ -681,28 +811,39 @@ class StudentCourseController extends Controller
         if ($currentIndex === false) {
             return response()->json([
                 'success' => false,
+                'reason' => 'not_found',
                 'message' => 'Current item not found',
             ]);
         }
 
-        for ($i = $currentIndex + 1; $i < $allItems->count(); $i++) {
-            $nextItem = $allItems[$i];
-            
-            if ($this->isItemAccessible($user, $enrollment, $courseId, $nextItem['type'], $nextItem['id'])) {
-                return response()->json([
-                    'success' => true,
-                    'item_id' => $nextItem['id'],
-                    'type' => $nextItem['type'],
-                ]);
-            }
+        if ($currentIndex >= $allItems->count() - 1) {
+            return response()->json([
+                'success' => false,
+                'reason' => 'end',
+                'message' => 'You have reached the last item in this course.',
+            ]);
+        }
+
+        $nextItem = $allItems[$currentIndex + 1];
+
+        if (!$this->isItemAccessible($user, $enrollment, $courseId, $nextItem['type'], $nextItem['id'])) {
+            return response()->json([
+                'success' => false,
+                'reason' => 'locked',
+                'message' => 'Complete the current item first to unlock the next item.',
+            ]);
         }
 
         return response()->json([
-            'success' => false,
-            'message' => 'No next accessible item found',
+            'success' => true,
+            'item_id' => $nextItem['id'],
+            'type' => $nextItem['type'],
         ]);
     }
 
+    /**
+     * Get previous item.
+     */
     public function getPreviousItem(Request $request, $courseId, $itemId)
     {
         $type = $request->input('type', 'lesson');
@@ -724,7 +865,8 @@ class StudentCourseController extends Controller
         if ($currentIndex === false || $currentIndex === 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'No previous item found',
+                'reason' => 'start',
+                'message' => 'You are on the first item of this course.',
             ]);
         }
 
@@ -736,6 +878,9 @@ class StudentCourseController extends Controller
         ]);
     }
 
+    /**
+     * View quiz results.
+     */
     public function viewQuizResults($courseId, $attemptId)
     {
         $user = $this->currentUser();
@@ -878,12 +1023,21 @@ class StudentCourseController extends Controller
         return $videoData;
     }
 
-    public function viewAssignmentSubmission($submissionId)
+    /**
+     * View assignment submission.
+     */
+    public function viewAssignmentSubmission($courseId, $submissionId)
     {
         $user = $this->currentUser();
-        
+
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('course_id', $courseId)
+            ->whereIn('status', ['approved', 'completed'])
+            ->firstOrFail();
+
         $submission = AssignmentSubmission::with('files')
             ->where('user_id', $user->id)
+            ->where('enrollment_id', $enrollment->id)
             ->findOrFail($submissionId);
 
         $html = view('student.course-access.partials.assignment-submission', [
@@ -896,6 +1050,9 @@ class StudentCourseController extends Controller
         ]);
     }
 
+    /**
+     * Search content.
+     */
     public function searchContent(Request $request, $courseId)
     {
         $user = $this->currentUser();
@@ -952,9 +1109,46 @@ class StudentCourseController extends Controller
     }
 
     /**
-     * Check if an item is accessible (all previous items are completed or student already reached/passed)
+     * Check whether the enrolled student has settled payment in full for this course.
      */
-    private function isItemAccessible($user, $enrollment, $courseId, $type, $itemId)
+    private function isCoursePaidInFull(User $user, Enrollment $enrollment, Course $course): bool
+    {
+        $invoices = Invoice::withoutGlobalScope('branch')
+            ->where('payment_status', '!=', 'cancelled')
+            ->where(function ($query) use ($user, $enrollment, $course): void {
+                $query->where('enrollment_id', $enrollment->id)
+                    ->orWhere(function ($q) use ($user, $course): void {
+                        $q->where('user_id', $user->id)
+                            ->where('course_id', $course->id);
+                    });
+            })
+            ->get();
+
+        if ($invoices->isNotEmpty()) {
+            $hasOutstandingBalance = $invoices->contains(function (Invoice $invoice): bool {
+                return (float) $invoice->balance > 0.01
+                    || in_array($invoice->payment_status, ['unpaid', 'partial'], true);
+            });
+
+            return ! $hasOutstandingBalance
+                && $invoices->contains(fn (Invoice $invoice): bool => $invoice->payment_status === 'paid');
+        }
+
+        return Payment::withoutGlobalScope('branch')
+            ->where('user_id', $user->id)
+            ->where('status', Payment::STATUS_COMPLETED)
+            ->where(function ($query) use ($enrollment, $course): void {
+                $query->where('enrollment_id', $enrollment->id)
+                    ->when($enrollment->payment_id, fn ($q) => $q->orWhere('id', $enrollment->payment_id))
+                    ->orWhereHas('bundle.courses', fn ($bq) => $bq->where('courses.id', $course->id));
+            })
+            ->exists();
+    }
+
+    /**
+     * Check if an item is accessible (course paid in full, completed, or all previous items completed).
+     */
+    private function isItemAccessible($user, $enrollment, $courseId, $type, $itemId, ?Course $course = null, ?bool $paidInFull = null)
     {
         // 1. If course is already marked completed, all items remain unlocked
         if ($enrollment->status === Enrollment::STATUS_COMPLETED) {
@@ -966,34 +1160,42 @@ class StudentCourseController extends Controller
             return true;
         }
 
-        $course = Course::with(['topics.lessons', 'topics.quizzes', 'topics.assignments'])->findOrFail($courseId);
-        
+        $course = $course ?? Course::with(['topics.lessons', 'topics.quizzes', 'topics.assignments'])->findOrFail($courseId);
         $allItems = $this->getAllCourseItems($course);
-        
-        $currentIndex = $allItems->search(function($item) use ($type, $itemId) {
+
+        $currentIndex = $allItems->search(function ($item) use ($type, $itemId) {
             return $item['type'] === $type && $item['id'] == $itemId;
         });
-        
-        if ($currentIndex === 0 || $currentIndex === false) {
-            return $currentIndex !== false;
+
+        if ($currentIndex === false) {
+            return false;
         }
 
-        // 3. If student already completed any subsequent item in the curriculum, this item must not be locked
+        // 3. When the entire course fee has been paid in full, unlock all modules and items freely
+        if ($paidInFull ?? $this->isCoursePaidInFull($user, $enrollment, $course)) {
+            return true;
+        }
+
+        if ($currentIndex === 0) {
+            return true;
+        }
+
+        // 4. If student already completed any subsequent item in the curriculum, this item must not be locked
         for ($k = $currentIndex + 1; $k < $allItems->count(); $k++) {
             $futureItem = $allItems[$k];
             if ($this->isItemCompleted($user, $enrollment, $futureItem['type'], $futureItem['id'])) {
                 return true;
             }
         }
-        
+
         for ($i = 0; $i < $currentIndex; $i++) {
             $previousItem = $allItems[$i];
-            
-            if (!$this->isItemCompleted($user, $enrollment, $previousItem['type'], $previousItem['id'])) {
+
+            if (! $this->isItemCompleted($user, $enrollment, $previousItem['type'], $previousItem['id'])) {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -1042,17 +1244,19 @@ class StudentCourseController extends Controller
     /**
      * Refresh sidebar with updated accessibility data
      */
-    public function refreshSidebar($courseId)
+    public function refreshSidebar(Request $request, $courseId)
     {
         $user = $this->currentUser();
-        
+        $activeType = $request->query('active_type');
+        $activeId = (int) $request->query('active_id');
+
         $enrollment = Enrollment::where('user_id', $user->id)
             ->where('course_id', $courseId)
             ->whereIn('status', ['approved', 'completed'])
             ->firstOrFail();
 
         $course = Course::with([
-            'topics.lessons',
+            'topics.lessons.liveClass',
             'topics.quizzes.questions',
             'topics.assignments.files',
             'instructor'
@@ -1065,65 +1269,76 @@ class StudentCourseController extends Controller
 
         $userQuizAttempts = $user->quizAttempts()
             ->where('enrollment_id', $enrollment->id)
+            ->orderBy('passed', 'asc')
+            ->orderBy('id', 'asc')
             ->get()
             ->keyBy('quiz_id');
 
         $userAssignmentSubmissions = $user->assignmentSubmissions()
             ->where('enrollment_id', $enrollment->id)
+            ->orderBy('id', 'asc')
             ->get()
             ->keyBy('assignment_id');
 
         $accessibleItems = [];
         $allItems = $this->getAllCourseItems($course);
-        foreach ($allItems as $index => $item) {
-            $accessibleItems[$item['type'] . '_' . $item['id']] = $this->isItemAccessible($user, $enrollment, $courseId, $item['type'], $item['id']);
+        $paidInFull = $this->isCoursePaidInFull($user, $enrollment, $course);
+        foreach ($allItems as $item) {
+            $accessibleItems[$item['type'] . '_' . $item['id']] = $this->isItemAccessible($user, $enrollment, $courseId, $item['type'], $item['id'], $course, $paidInFull);
         }
 
         $topicsData = [];
         foreach ($course->topics as $index => $topic) {
             $progressStats = $topic->getProgressStats($userProgress, $userQuizAttempts, $userAssignmentSubmissions);
-            
+
             $itemsData = [];
-            
+
             foreach ($topic->lessons as $lesson) {
                 $progress = $userProgress[$lesson->id] ?? null;
                 $itemsData[] = [
                     'id' => $lesson->id,
                     'type' => 'lesson',
+                    'order' => $lesson->order ?? 0,
                     'title' => $lesson->title,
                     'duration_formatted' => $lesson->formatted_duration,
                     'is_completed' => $progress && $progress->is_completed,
-                    'is_active' => false,
+                    'is_active' => $activeType === 'lesson' && (int) $lesson->id === $activeId,
                     'is_accessible' => $accessibleItems['lesson_' . $lesson->id] ?? false,
+                    'is_live' => (bool) $lesson->is_live,
+                    'live_status' => ($lesson->is_live && $lesson->liveClass) ? $lesson->liveClass->status : null,
                 ];
             }
-            
+
             foreach ($topic->quizzes as $quiz) {
                 $attempt = $userQuizAttempts[$quiz->id] ?? null;
                 $itemsData[] = [
                     'id' => $quiz->id,
                     'type' => 'quiz',
+                    'order' => $quiz->order ?? 0,
                     'title' => $quiz->title,
                     'duration_formatted' => '',
                     'is_completed' => $attempt && $attempt->passed,
-                    'is_active' => false,
+                    'is_active' => $activeType === 'quiz' && (int) $quiz->id === $activeId,
                     'is_accessible' => $accessibleItems['quiz_' . $quiz->id] ?? false,
                 ];
             }
-            
+
             foreach ($topic->assignments as $assignment) {
                 $submission = $userAssignmentSubmissions[$assignment->id] ?? null;
                 $itemsData[] = [
                     'id' => $assignment->id,
                     'type' => 'assignment',
+                    'order' => $assignment->order ?? 0,
                     'title' => $assignment->title,
                     'duration_formatted' => '',
                     'is_completed' => $submission !== null,
-                    'is_active' => false,
+                    'is_active' => $activeType === 'assignment' && (int) $assignment->id === $activeId,
                     'is_accessible' => $accessibleItems['assignment_' . $assignment->id] ?? false,
                 ];
             }
-            
+
+            usort($itemsData, fn ($a, $b) => ($a['order'] <=> $b['order']));
+
             $topicsData[] = [
                 'topic' => $topic,
                 'index' => $index,
@@ -1141,6 +1356,7 @@ class StudentCourseController extends Controller
             'success' => true,
             'html' => $html,
             'accessibleItems' => $accessibleItems,
+            'progress_summary' => $this->buildProgressSummary($allItems, $userProgress, $userQuizAttempts, $userAssignmentSubmissions),
         ]);
     }
 
@@ -1182,6 +1398,9 @@ class StudentCourseController extends Controller
         return false;
     }
 
+    /**
+     * Check condition: Is item completed.
+     */
     private function isItemCompleted($user, $enrollment, $type, $itemId)
     {
         if ($type === 'lesson') {
@@ -1301,6 +1520,9 @@ class StudentCourseController extends Controller
         return $pdf->download($filename);
     }
 
+    /**
+     * Certificate background base64.
+     */
     private function certificateBackgroundBase64(): ?string
     {
         $path = public_path('assets/front/img/certificate.png');
@@ -1312,6 +1534,108 @@ class StudentCourseController extends Controller
         return base64_encode(file_get_contents($path));
     }
 
+    /**
+     * Find a course item model (lesson, quiz, assignment) from loaded course relations.
+     */
+    private function findCourseItemModel(Course $course, string $type, int $itemId)
+    {
+        foreach ($course->topics as $topic) {
+            if ($type === 'lesson') {
+                $match = $topic->lessons->firstWhere('id', $itemId);
+                if ($match) {
+                    return $match;
+                }
+            } elseif ($type === 'quiz') {
+                $match = $topic->quizzes->firstWhere('id', $itemId);
+                if ($match) {
+                    return $match;
+                }
+            } elseif ($type === 'assignment') {
+                $match = $topic->assignments->firstWhere('id', $itemId);
+                if ($match) {
+                    return $match;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine whether an item is completed using already-fetched progress collections.
+     */
+    private function isItemCompletedFromCollections(string $type, int $itemId, $userProgress, $userQuizAttempts, $userAssignmentSubmissions): bool
+    {
+        if ($type === 'lesson') {
+            $progress = $userProgress[$itemId] ?? null;
+            return (bool) ($progress && $progress->is_completed);
+        }
+
+        if ($type === 'quiz') {
+            $attempt = $userQuizAttempts[$itemId] ?? null;
+            return (bool) ($attempt && $attempt->passed);
+        }
+
+        if ($type === 'assignment') {
+            return isset($userAssignmentSubmissions[$itemId]);
+        }
+
+        return false;
+    }
+
+    /**
+     * Build course completion summary counts and percentage.
+     */
+    private function buildProgressSummary($allItems, $userProgress, $userQuizAttempts, $userAssignmentSubmissions): array
+    {
+        $total = $allItems->count();
+        $completed = 0;
+
+        foreach ($allItems as $item) {
+            if ($this->isItemCompletedFromCollections($item['type'], (int) $item['id'], $userProgress, $userQuizAttempts, $userAssignmentSubmissions)) {
+                $completed++;
+            }
+        }
+
+        return [
+            'total_items' => $total,
+            'completed_items' => $completed,
+            'percentage' => $total > 0 ? (int) round(($completed / $total) * 100) : 0,
+        ];
+    }
+
+    /**
+     * Build previous/next button state for the active curriculum item.
+     */
+    private function buildNavigationState($user, $enrollment, $courseId, $allItems, string $currentType, int $currentId): array
+    {
+        $course = null;
+        if (! $allItems) {
+            $course = Course::with(['topics.lessons', 'topics.quizzes', 'topics.assignments'])->findOrFail($courseId);
+            $allItems = $this->getAllCourseItems($course);
+        }
+
+        $currentIndex = $allItems->search(function ($item) use ($currentType, $currentId) {
+            return $item['type'] === $currentType && (int) $item['id'] === $currentId;
+        });
+
+        $previousItem = ($currentIndex !== false && $currentIndex > 0) ? $allItems[$currentIndex - 1] : null;
+        $nextItem = ($currentIndex !== false && $currentIndex < $allItems->count() - 1) ? $allItems[$currentIndex + 1] : null;
+
+        return [
+            'has_previous' => $previousItem !== null,
+            'has_next' => $nextItem !== null,
+            'next_accessible' => $nextItem !== null
+                ? $this->isItemAccessible($user, $enrollment, $courseId, $nextItem['type'], $nextItem['id'], $course)
+                : false,
+            'previous_item' => $previousItem ? ['type' => $previousItem['type'], 'id' => $previousItem['id']] : null,
+            'next_item' => $nextItem ? ['type' => $nextItem['type'], 'id' => $nextItem['id']] : null,
+        ];
+    }
+
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

@@ -7,6 +7,11 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Payment controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class PaymentController extends Controller
 {
     /**
@@ -34,7 +39,12 @@ class PaymentController extends Controller
                 'amount' => $payment->amount,
                 'status' => $payment->status,
                 'payment_method' => $payment->payment_method,
-                'transaction_id' => $payment->transaction_id ?? $payment->razorpay_payment_id ?? $payment->stripe_payment_intent_id ?? $payment->paypal_payment_id,
+                'transaction_id' => $payment->transaction_id
+                    ?? $payment->pesapal_confirmation_code
+                    ?? $payment->pesapal_order_tracking_id
+                    ?? $payment->flutterwave_transaction_id
+                    ?? $payment->stripe_payment_intent_id
+                    ?? $payment->paypal_payment_id,
                 'created_at' => $payment->created_at->toIso8601String(),
                 'course_title' => $payment->enrollment && $payment->enrollment->course ? $payment->enrollment->course->title : 'Deleted Course',
                 'receipt_url' => $payment->receipt_url,

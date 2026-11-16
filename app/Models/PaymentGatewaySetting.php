@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * This model represents a setting for a payment gateway.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class PaymentGatewaySetting extends Model
 {

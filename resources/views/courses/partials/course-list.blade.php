@@ -31,65 +31,65 @@
                 ->implode('');
         @endphp
         <div class="{{ $colClass ?? 'col-xl-4 col-md-6' }}">
-            <div class="edux-catalog-card">
-                <div class="edux-catalog-card__thumb">
-                    <a href="{{ route('courses.show', $course->id) }}" class="edux-catalog-card__thumb-link">
+            <div class="lmsout-catalog-card">
+                <div class="lmsout-catalog-card__thumb">
+                    <a href="{{ route('courses.show', $course->id) }}" class="lmsout-catalog-card__thumb-link">
                         <img src="{{ $course->thumbnail }}" alt="{{ $course->title }}" loading="lazy">
                     </a>
 
-                    <div class="edux-catalog-card__badges-tl">
+                    <div class="lmsout-catalog-card__badges-tl">
                         @if($course->category)
-                            <span class="edux-catalog-card__badge-cat">{{ $course->category }}</span>
+                            <span class="lmsout-catalog-card__badge-cat">{{ $course->category }}</span>
                         @endif
                         @if($course->isFaceToFace())
-                            <span class="edux-catalog-card__badge-cat" style="background:#013BA6;color:#fff;">Face-to-Face</span>
+                            <span class="lmsout-catalog-card__badge-cat" style="background:#013BA6;color:#fff;">Face-to-Face</span>
                         @elseif($course->isHybrid())
-                            <span class="edux-catalog-card__badge-cat" style="background:#228DDD;color:#fff;">Hybrid</span>
+                            <span class="lmsout-catalog-card__badge-cat" style="background:#228DDD;color:#fff;">Hybrid</span>
                         @endif
                     </div>
 
-                    <div class="edux-catalog-card__badges-tr">
+                    <div class="lmsout-catalog-card__badges-tr">
                         @if($isFree)
-                            <span class="edux-catalog-card__badge-free">{{ __('frontend.free') }}</span>
+                            <span class="lmsout-catalog-card__badge-free">{{ __('frontend.free') }}</span>
                         @elseif($hasDiscount)
-                            <span class="edux-catalog-card__badge-discount">-{{ $discountPercent }}%</span>
+                            <span class="lmsout-catalog-card__badge-discount">-{{ $discountPercent }}%</span>
                         @elseif($course->is_live_course)
-                            <span class="edux-catalog-card__badge-discount">Live</span>
+                            <span class="lmsout-catalog-card__badge-discount">Live</span>
                         @endif
                     </div>
 
-                    <a href="{{ route('courses.show', $course->id) }}" class="edux-catalog-card__wish-btn" title="{{ $course->title }}">
+                    <a href="{{ route('courses.show', $course->id) }}" class="lmsout-catalog-card__wish-btn" title="{{ $course->title }}">
                         <i class="fa-solid fa-heart"></i>
                     </a>
                 </div>
 
-                <div class="edux-catalog-card__body">
-                    <div class="edux-catalog-card__rating-row">
-                        <div class="edux-catalog-card__stars">
+                <div class="lmsout-catalog-card__body">
+                    <div class="lmsout-catalog-card__rating-row">
+                        <div class="lmsout-catalog-card__stars">
                             @for($i = 1; $i <= 5; $i++)
                                 <i class="fa-solid fa-star {{ $i <= $roundedStars ? 'is-filled' : 'is-empty' }}"></i>
                             @endfor
-                            <span class="edux-catalog-card__rating-num">{{ number_format($avgRating, 1) }}</span>
+                            <span class="lmsout-catalog-card__rating-num">{{ number_format($avgRating, 1) }}</span>
                         </div>
-                        <span class="edux-catalog-card__students">
+                        <span class="lmsout-catalog-card__students">
                             {{ $studentsCount }} {{ $studentsCount === 1 ? 'student' : 'students' }}
                         </span>
                     </div>
 
-                    <h4 class="edux-catalog-card__title">
+                    <h4 class="lmsout-catalog-card__title">
                         <a href="{{ route('courses.show', $course->id) }}">{{ $course->title }}</a>
                     </h4>
 
-                    <div class="edux-catalog-card__instructor">
+                    <div class="lmsout-catalog-card__instructor">
                         @if(!empty($course->instructor->avatar))
-                            <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="edux-catalog-card__avatar">
+                            <img src="{{ $course->instructor->profile_photo_url }}" alt="{{ $instructorName }}" class="lmsout-catalog-card__avatar">
                         @else
-                            <span class="edux-catalog-card__avatar-initials">{{ $initials ?: 'IN' }}</span>
+                            <span class="lmsout-catalog-card__avatar-initials">{{ $initials ?: 'IN' }}</span>
                         @endif
-                        <span class="edux-catalog-card__instructor-name">{{ $instructorName }}</span>
+                        <span class="lmsout-catalog-card__instructor-name">{{ $instructorName }}</span>
                     </div>
 
-                    <div class="edux-catalog-card__meta">
+                    <div class="lmsout-catalog-card__meta">
                         <span><i class="fa-regular fa-circle-play"></i> {{ $lessonCount }} {{ $lessonCount === 1 ? 'lesson' : 'lessons' }}</span>
                         <span><i class="fa-regular fa-clock"></i> {{ $course->duration_label ?: $durationText }}</span>
                         @if($course->requiresApplicantForm() && $course->defaultBranch)
@@ -99,26 +99,26 @@
                         @endif
                     </div>
 
-                    <div class="edux-catalog-card__footer">
-                        <div class="edux-catalog-card__pricing">
-                            <div class="edux-catalog-card__price-row">
+                    <div class="lmsout-catalog-card__footer">
+                        <div class="lmsout-catalog-card__pricing">
+                            <div class="lmsout-catalog-card__price-row">
                                 @if($isFree)
-                                    <span class="edux-catalog-card__price is-free">{{ __('frontend.free') }}</span>
+                                    <span class="lmsout-catalog-card__price is-free">{{ __('frontend.free') }}</span>
                                 @elseif($hasDiscount)
-                                    <span class="edux-catalog-card__price">{{ currency_format($course->sale_price, 2, 'symbol') }}</span>
-                                    <span class="edux-catalog-card__price-old">{{ currency_format($course->regular_price, 2, 'symbol') }}</span>
+                                    <span class="lmsout-catalog-card__price">{{ $course->formatPrice($course->sale_price, 2, 'symbol') }}</span>
+                                    <span class="lmsout-catalog-card__price-old">{{ $course->formatPrice($course->regular_price, 2, 'symbol') }}</span>
                                 @else
-                                    <span class="edux-catalog-card__price">{{ currency_format($course->regular_price, 2, 'symbol') }}</span>
+                                    <span class="lmsout-catalog-card__price">{{ $course->formatPrice($course->regular_price, 2, 'symbol') }}</span>
                                 @endif
                             </div>
                         </div>
 
                         @if($course->requiresApplicantForm())
-                            <a href="{{ route('courses.apply', $course->id) }}" class="edux-catalog-card__view-btn">
+                            <a href="{{ route('courses.apply', $course->id) }}" class="lmsout-catalog-card__view-btn">
                                 Apply
                             </a>
                         @else
-                            <a href="{{ route('courses.show', $course->id) }}" class="edux-catalog-card__view-btn">
+                            <a href="{{ route('courses.show', $course->id) }}" class="lmsout-catalog-card__view-btn">
                                 View
                             </a>
                         @endif
@@ -129,7 +129,7 @@
     @endforeach
 @else
     <div class="col-12">
-        <div class="edux-catalog-empty text-center py-5">
+        <div class="lmsout-catalog-empty text-center py-5">
             <div class="mb-3">
                 <i class="fa-regular fa-folder-open fa-3x text-muted"></i>
             </div>

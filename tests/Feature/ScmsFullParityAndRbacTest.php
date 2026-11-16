@@ -22,6 +22,11 @@ use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
 use Tests\TestCase;
 
+/**
+ * Scms full parity and rbac test — verifies platform security, RBAC isolation, and workflow integrity.
+ *
+ * @author Renatus Bernardo
+ */
 class ScmsFullParityAndRbacTest extends TestCase
 {
     use DatabaseTransactions;
@@ -52,6 +57,9 @@ class ScmsFullParityAndRbacTest extends TestCase
 
     private User $student;
 
+    /**
+     * Set up.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -91,6 +99,9 @@ class ScmsFullParityAndRbacTest extends TestCase
         ]);
     }
 
+    /**
+     * Make user.
+     */
     private function makeUser(string $role, string $spatieRole, ?int $branchId = null): User
     {
         $user = User::create([
@@ -108,6 +119,9 @@ class ScmsFullParityAndRbacTest extends TestCase
         return $user;
     }
 
+    /**
+     * Test rbac enforcement and branch isolation across all scms roles.
+     */
     public function test_rbac_enforcement_and_branch_isolation_across_all_scms_roles(): void
     {
         // Branch manager can manage applicants & center reports, NOT staff/settings/audit-logs
@@ -169,6 +183,9 @@ class ScmsFullParityAndRbacTest extends TestCase
         $this->assertNotContains('Secret ArushaApplicant', $visibleNames);
     }
 
+    /**
+     * Test idle timeout strong password and unified login redirects.
+     */
     public function test_idle_timeout_strong_password_and_unified_login_redirects(): void
     {
         // Unified login redirects per portal role
@@ -210,6 +227,9 @@ class ScmsFullParityAndRbacTest extends TestCase
             ->assertRedirect(route('student.dashboard'));
     }
 
+    /**
+     * Test reports analytics schedules receipts search help and portals.
+     */
     public function test_reports_analytics_schedules_receipts_search_help_and_portals(): void
     {
         $assignment = CourseAssignment::withoutGlobalScope('branch')->create([
@@ -332,6 +352,9 @@ class ScmsFullParityAndRbacTest extends TestCase
         $this->get(route('student.help.index'))->assertOk();
     }
 
+    /**
+     * Test demo login page lists all lsmout roles and enforces rbac isolation.
+     */
     public function test_demo_login_page_lists_all_lsmout_roles_and_enforces_rbac_isolation(): void
     {
         $this->seed(\Database\Seeders\AdminSeeder::class);
@@ -380,6 +403,9 @@ class ScmsFullParityAndRbacTest extends TestCase
         $this->actingAs($director)->get(route('admin.audit-logs.index'))->assertOk();
     }
 
+    /**
+     * Test role specific dashboards dynamic sidebar and model branch isolation.
+     */
     public function test_role_specific_dashboards_dynamic_sidebar_and_model_branch_isolation(): void
     {
         $this->seed(\Database\Seeders\AdminSeeder::class);
@@ -506,6 +532,9 @@ class ScmsFullParityAndRbacTest extends TestCase
         $this->actingAs($student)->get(route('admin.dashboard'))->assertStatus(403);
     }
 
+    /**
+     * Test admin profile photo upload supports auto resize and removal.
+     */
     public function test_admin_profile_photo_upload_supports_auto_resize_and_removal(): void
     {
         \Illuminate\Support\Facades\Storage::fake('public');
@@ -569,6 +598,9 @@ class ScmsFullParityAndRbacTest extends TestCase
         \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($secondPath);
     }
 
+    /**
+     * Test dashboard supports filters card pagination and enforces branch isolation.
+     */
     public function test_dashboard_supports_filters_card_pagination_and_enforces_branch_isolation(): void
     {
         // Create 7 venues in branchA so default per_page=5 paginates onto page 2
@@ -621,6 +653,9 @@ class ScmsFullParityAndRbacTest extends TestCase
             ->assertDontSee('HQ Seminar Hall 01');
     }
 
+    /**
+     * Test student and instructor dashboards have clean grouped sidebars filters and pagination.
+     */
     public function test_student_and_instructor_dashboards_have_clean_grouped_sidebars_filters_and_pagination(): void
     {
         // Ensure 7 instructor courses exist so default per_page=5 paginates onto courses_page=2
@@ -678,5 +713,125 @@ class ScmsFullParityAndRbacTest extends TestCase
             ->get(route('instructor.dashboard', ['per_page' => 5, 'courses_page' => 2]))
             ->assertOk()
             ->assertSee('Portal Paginated Course');
+    }
+
+    public function test_admin_students_directory_supports_realtime_search_filters_min_six_pagination_and_exports(): void
+    {
+        $course = Course::create([
+            'instructor_id' => $this->instructor->id,
+            'branch_id' => $this->branchA->id,
+            'title' => 'Directory Filtered Course ' . Str::random(5),
+            'slug' => 'dir-filtered-course-' . Str::random(6),
+            'status' => 'published',
+            'pricing_model' => 'paid',
+            'regular_price' => 95000,
+            'delivery_mode' => 'online',
+        ]);
+
+        // Create 8 test students so default pagination (6 per page) produces multiple pages even on empty DB
+        $targetStudent = null;
+        $blockedStudent = null;
+        for ($i = 1; $i <= 8; $i++) {
+            $u = User::create([
+                'name' => sprintf('DirStudent %02d', $i),
+                'email' => 'dir-student-' . $i . '-' . Str::random(5) . '@out.ac.tz',
+                'phone' => '+2557120000' . str_pad((string) $i, 2, '0', STR_PAD_LEFT),
+                'registration_number' => 'OUT-REG-' . $i . '-' . Str::random(4),
+                'password' => Hash::make('Secret@123'),
+                'role' => 'student',
+                'branch_id' => $i <= 6 ? $this->branchA->id : $this->branchB->id,
+                'is_approved' => $i !== 7,
+                'is_blocked' => $i === 8,
+                'password_changed_at' => now(),
+            ]);
+            if ($i === 1) {
+                $targetStudent = $u;
+                Enrollment::withoutGlobalScope('branch')->create([
+                    'user_id' => $u->id,
+                    'course_id' => $course->id,
+                    'branch_id' => $this->branchA->id,
+                    'delivery_mode' => 'online',
+                    'status' => Enrollment::STATUS_COMPLETED,
+                    'enrolled_at' => now(),
+                ]);
+                Payment::create([
+                    'user_id' => $u->id,
+                    'payment_method' => Payment::PAYMENT_METHOD_PESAPAL,
+                    'amount' => 95000,
+                    'status' => Payment::STATUS_COMPLETED,
+                    'verification_status' => 'verified',
+                ]);
+            }
+            if ($i === 8) {
+                $blockedStudent = $u;
+            }
+        }
+
+        // 1. Index renders KPI strip, live search/filter bar, export buttons, and clamps per_page < 6 up to 6
+        $this->actingAs($this->superAdmin)
+            ->get(route('admin.students.index', ['per_page' => 2]))
+            ->assertOk()
+            ->assertSee('Students Directory')
+            ->assertSee('Matching Students')
+            ->assertSee('students-live-indicator')
+            ->assertSee('(6 per page)')
+            ->assertSee('page=2');
+
+        // 2. Real-time AJAX search by registration number or course title returns clean JSON + partial HTML
+        $ajaxRes = $this->actingAs($this->superAdmin)
+            ->getJson(route('admin.students.index', [
+                'search' => $targetStudent->registration_number,
+                'ajax' => 1,
+            ]), ['X-Requested-With' => 'XMLHttpRequest']);
+
+        $ajaxRes->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('summary.total_matching', 1)
+            ->assertJsonPath('per_page', 6);
+        $this->assertStringContainsString($targetStudent->name, $ajaxRes->json('html'));
+        $this->assertStringNotContainsString($blockedStudent->name, $ajaxRes->json('html'));
+
+        // 3. Filters: blocked account & completed course filter work accurately
+        $blockedRes = $this->actingAs($this->superAdmin)
+            ->getJson(route('admin.students.index', [
+                'account_status' => 'blocked',
+                'search' => $blockedStudent->email,
+                'ajax' => 1,
+            ]), ['X-Requested-With' => 'XMLHttpRequest']);
+        $blockedRes->assertOk()->assertJsonPath('summary.total_matching', 1);
+        $this->assertStringContainsString($blockedStudent->name, $blockedRes->json('html'));
+
+        $completedCourseRes = $this->actingAs($this->superAdmin)
+            ->getJson(route('admin.students.index', [
+                'course_id' => $course->id,
+                'enrollment_status' => 'completed',
+                'ajax' => 1,
+            ]), ['X-Requested-With' => 'XMLHttpRequest']);
+        $completedCourseRes->assertOk()->assertJsonPath('summary.total_matching', 1);
+        $this->assertStringContainsString($targetStudent->name, $completedCourseRes->json('html'));
+
+        // 4. Branch-scoped staff sees only students in their own branch
+        $branchRes = $this->actingAs($this->branchManager)
+            ->getJson(route('admin.students.index', [
+                'search' => $blockedStudent->email,
+                'ajax' => 1,
+            ]), ['X-Requested-With' => 'XMLHttpRequest']);
+        $branchRes->assertOk()->assertJsonPath('summary.total_matching', 0);
+
+        // 5. Exports (CSV, Excel, PDF) succeed and apply filters
+        $csvRes = $this->actingAs($this->superAdmin)
+            ->get(route('admin.students.export', ['format' => 'csv', 'search' => $targetStudent->registration_number]));
+        $csvRes->assertOk();
+        $this->assertStringContainsString('.csv', (string) $csvRes->headers->get('content-disposition'));
+
+        $xlsxRes = $this->actingAs($this->superAdmin)
+            ->get(route('admin.students.export', ['format' => 'excel', 'course_id' => $course->id]));
+        $xlsxRes->assertOk();
+        $this->assertStringContainsString('.xlsx', (string) $xlsxRes->headers->get('content-disposition'));
+
+        $pdfRes = $this->actingAs($this->superAdmin)
+            ->get(route('admin.students.index', ['export' => 'pdf', 'search' => $targetStudent->registration_number]));
+        $pdfRes->assertOk();
+        $this->assertStringContainsString('.pdf', (string) $pdfRes->headers->get('content-disposition'));
     }
 }

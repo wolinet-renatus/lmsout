@@ -17,9 +17,13 @@ use Illuminate\Support\Facades\Mail;
  * This controller handles the newsletter management functionality.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class NewsletterController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(): View
     {
         $subscribers = NewsletterSubscriber::latest()->paginate(20);
@@ -27,6 +31,9 @@ class NewsletterController extends Controller
         return view('admin.newsletter.index', compact('subscribers'));
     }
 
+    /**
+     * Send.
+     */
     public function send(Request $request): RedirectResponse
     {
         $data = $request->validate([

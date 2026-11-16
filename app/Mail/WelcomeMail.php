@@ -13,16 +13,23 @@ use Illuminate\Queue\SerializesModels;
  * This mail is sent to the user when they register.
  *
  * @package App\Mail
+ * @author Renatus Bernardo
  */
 class WelcomeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(public User $user)
     {
         $this->subject('Welcome to ' . config('app.name'));
     }
 
+    /**
+     * Build.
+     */
     public function build(): self
     {
         return $this->view('emails.auth.welcome');

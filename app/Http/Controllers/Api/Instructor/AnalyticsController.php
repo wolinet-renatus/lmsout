@@ -11,8 +11,16 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Analytics controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class AnalyticsController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $user = $request->user();

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents an answer to a question in a quiz attempt.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class QuizAttemptAnswer extends Model
 {
@@ -26,11 +27,17 @@ class QuizAttemptAnswer extends Model
         'is_correct' => 'boolean',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for Quiz attempt.
+     */
     public function quizAttempt(): BelongsTo
     {
         return $this->belongsTo(QuizAttempt::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Question.
+     */
     public function question(): BelongsTo
     {
         return $this->belongsTo(QuizQuestion::class, 'question_id');

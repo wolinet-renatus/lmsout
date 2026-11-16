@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 
 /**
  * SRS account controls merged into existing user management (block/unblock, unlock, force reset).
+ * @author Renatus Bernardo
  */
 class UserSecurityController extends Controller
 {
+    /**
+     * Block.
+     */
     public function block(Request $request, User $user)
     {
         if ($user->id === $request->user()->id) {
@@ -32,6 +36,9 @@ class UserSecurityController extends Controller
         return back();
     }
 
+    /**
+     * Unblock.
+     */
     public function unblock(User $user)
     {
         $user->forceFill([
@@ -48,6 +55,9 @@ class UserSecurityController extends Controller
         return back();
     }
 
+    /**
+     * Force reset.
+     */
     public function forceReset(User $user)
     {
         $user->forceFill(['force_password_reset' => true])->save();

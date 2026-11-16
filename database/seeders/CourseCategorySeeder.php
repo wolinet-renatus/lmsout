@@ -7,6 +7,11 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
+/**
+ * Course category seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class CourseCategorySeeder extends Seeder
 {
     /**

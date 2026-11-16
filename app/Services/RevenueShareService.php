@@ -13,13 +13,20 @@ use Illuminate\Support\Facades\Log;
  * Logs per-instructor payout breakdown into payments.notes as parseable JSON for audit trail.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class RevenueShareService
 {
+    /**
+     * Inject SettingsRepository for platform revenue split configuration.
+     */
     public function __construct(private SettingsRepository $settingsRepository)
     {
     }
 
+    /**
+     * Retrieve configured platform commission mode ('percentage'|'fixed') and value.
+     */
     public function settings(): array
     {
         return $this->settingsRepository->get('revenue.distribution', [
@@ -28,6 +35,9 @@ class RevenueShareService
         ]);
     }
 
+    /**
+     * Split a gross payment amount into platform commission and instructor earning pool.
+     */
     public function calculate(float $amount): array
     {
         $settings = $this->settings();
@@ -61,6 +71,9 @@ class RevenueShareService
         ];
     }
 
+    /**
+     * Process revenue share splits and credit instructor wallet balances atomically.
+     */
     public function process(Payment $payment, bool $force = false): Payment
     {
         if (!$force && $payment->commission_processed) {

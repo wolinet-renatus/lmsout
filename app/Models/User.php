@@ -19,6 +19,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
  * This model represents a user.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -128,11 +129,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'average_rating',
     ];
 
+    /**
+     * Accessor for computed Courses count attribute.
+     */
     public function getCoursesCountAttribute()
     {
         return $this->courses()->where('status', 'published')->count();
     }
 
+    /**
+     * Accessor for computed Average rating attribute.
+     */
     public function getAverageRatingAttribute()
     {
         return round($this->courses()->withAvg('reviews', 'rating')->get()->avg('reviews_avg_rating') ?? 0.0, 1);
@@ -382,26 +389,41 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Review::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Account deletion requests.
+     */
     public function accountDeletionRequests(): HasMany
     {
         return $this->hasMany(AccountDeletionRequest::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Notification settings.
+     */
     public function notificationSettings(): HasOne
     {
         return $this->hasOne(UserNotificationSetting::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Instructor withdrawals.
+     */
     public function instructorWithdrawals(): HasMany
     {
         return $this->hasMany(InstructorWithdrawal::class, 'instructor_id');
     }
 
+    /**
+     * Eloquent hasMany relationship for Community questions.
+     */
     public function communityQuestions(): HasMany
     {
         return $this->hasMany(CommunityQuestion::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Community answers.
+     */
     public function communityAnswers(): HasMany
     {
         return $this->hasMany(CommunityAnswer::class);
@@ -423,26 +445,41 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Conversation::class, 'instructor_id');
     }
 
+    /**
+     * Eloquent belongsTo relationship for Branch.
+     */
     public function branch(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Applicant.
+     */
     public function applicant(): HasOne
     {
         return $this->hasOne(Applicant::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Invoices.
+     */
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Course assignments.
+     */
     public function courseAssignments(): HasMany
     {
         return $this->hasMany(CourseAssignment::class, 'instructor_id');
     }
 
+    /**
+     * Eloquent hasMany relationship for Attendance records.
+     */
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);

@@ -2,27 +2,27 @@
 
 @section('content')
     <!-- Gradient Hero Header -->
-    <section class="edux-page-hero">
+    <section class="lmsout-page-hero">
         <div class="container">
-            <span class="edux-page-hero__eyebrow">
+            <span class="lmsout-page-hero__eyebrow">
                 <i class="fa-regular fa-envelope"></i> {{ $heroSettings['eyebrow'] ?? __('frontend.need_any_help') }}
             </span>
-            <h1 class="edux-page-hero__title">
+            <h1 class="lmsout-page-hero__title">
                 {{ $heroSettings['heading'] ?? __('frontend.get_in_touch') }}
             </h1>
-            <p class="edux-page-hero__desc">
+            <p class="lmsout-page-hero__desc">
                 {{ $heroSettings['description'] ?? 'Have questions about admissions, courses, examinations, or regional centers? Reach out to The Open University of Tanzania team.' }}
             </p>
         </div>
     </section>
 
-    <section class="edux-page-wrap">
+    <section class="lmsout-page-wrap">
         <div class="container">
             <div class="row g-4">
                 <!-- Left Column: Official Contact Information & Shortcuts -->
                 <div class="col-lg-5">
-                    <div class="edux-surface-card">
-                        <div class="edux-inner-header__eyebrow">OFFICIAL HEADQUARTERS</div>
+                    <div class="lmsout-surface-card">
+                        <div class="lmsout-inner-header__eyebrow">OFFICIAL HEADQUARTERS</div>
                         <h3 class="fw-bold mb-3" style="font-size: 20px; color: #0f172a;">
                             The Open University of Tanzania
                         </h3>
@@ -67,10 +67,10 @@
                                 Quick University Portals
                             </div>
                             <div class="d-flex flex-wrap gap-2">
-                                <a href="https://armis.out.ac.tz/login" target="_blank" rel="noopener" class="edux-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">ARMIS</a>
-                                <a href="https://admission.out.ac.tz/" target="_blank" rel="noopener" class="edux-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">Undergraduate Admission</a>
-                                <a href="https://pgoa.out.ac.tz/" target="_blank" rel="noopener" class="edux-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">Postgraduate Admission</a>
-                                <a href="https://student.out.ac.tz/" target="_blank" rel="noopener" class="edux-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">Student Mail</a>
+                                <a href="https://armis.out.ac.tz/login" target="_blank" rel="noopener" class="lmsout-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">ARMIS</a>
+                                <a href="https://admission.out.ac.tz/" target="_blank" rel="noopener" class="lmsout-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">Undergraduate Admission</a>
+                                <a href="https://pgoa.out.ac.tz/" target="_blank" rel="noopener" class="lmsout-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">Postgraduate Admission</a>
+                                <a href="https://student.out.ac.tz/" target="_blank" rel="noopener" class="lmsout-btn-outline" style="height: 32px; font-size: 11.5px; padding: 0 12px;">Student Mail</a>
                             </div>
                         </div>
                     </div>
@@ -78,8 +78,8 @@
 
                 <!-- Right Column: Contact Form Card -->
                 <div class="col-lg-7">
-                    <div class="edux-surface-card">
-                        <div class="edux-inner-header__eyebrow">SEND AN INQUIRY</div>
+                    <div class="lmsout-surface-card">
+                        <div class="lmsout-inner-header__eyebrow">SEND AN INQUIRY</div>
                         <h3 class="fw-bold mb-3" style="font-size: 20px; color: #0f172a;">
                             {{ __('frontend.send_message') }}
                         </h3>
@@ -106,27 +106,27 @@
                             @csrf
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="name" class="edux-form-label">{{ __('frontend.your_name') }} <span class="text-danger">*</span></label>
-                                    <input type="text" name="name" id="name" class="edux-form-input" placeholder="{{ __('frontend.your_name') }}" value="{{ old('name', optional(auth()->user())->name) }}" required>
+                                    <label for="name" class="lmsout-form-label">{{ __('frontend.your_name') }} <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" id="name" class="lmsout-form-input" placeholder="{{ __('frontend.your_name') }}" value="{{ old('name', optional(auth()->user())->name) }}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="email" class="edux-form-label">{{ __('frontend.your_email') }} <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" id="email" class="edux-form-input" placeholder="{{ __('frontend.your_email') }}" value="{{ old('email', optional(auth()->user())->email) }}" required>
+                                    <label for="email" class="lmsout-form-label">{{ __('frontend.your_email') }} <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" id="email" class="lmsout-form-input" placeholder="{{ __('frontend.your_email') }}" value="{{ old('email', optional(auth()->user())->email) }}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="phone" class="edux-form-label">{{ __('frontend.phone_number') }}</label>
-                                    <input type="text" name="phone" id="phone" class="edux-form-input" placeholder="+255 ..." value="{{ old('phone') }}">
+                                    <label for="phone" class="lmsout-form-label">{{ __('frontend.phone_number') }}</label>
+                                    <input type="text" name="phone" id="phone" class="lmsout-form-input" placeholder="+255 ..." value="{{ old('phone') }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="subject" class="edux-form-label">{{ __('frontend.subject') }} <span class="text-danger">*</span></label>
-                                    <input type="text" name="subject" id="subject" class="edux-form-input" placeholder="{{ __('frontend.subject') }}" value="{{ old('subject') }}" required>
+                                    <label for="subject" class="lmsout-form-label">{{ __('frontend.subject') }} <span class="text-danger">*</span></label>
+                                    <input type="text" name="subject" id="subject" class="lmsout-form-input" placeholder="{{ __('frontend.subject') }}" value="{{ old('subject') }}" required>
                                 </div>
                                 <div class="col-12">
-                                    <label for="message" class="edux-form-label">{{ __('frontend.message_here') }} <span class="text-danger">*</span></label>
-                                    <textarea name="message" id="message" class="edux-form-textarea" placeholder="{{ __('frontend.message_here') }}" rows="5" required>{{ old('message') }}</textarea>
+                                    <label for="message" class="lmsout-form-label">{{ __('frontend.message_here') }} <span class="text-danger">*</span></label>
+                                    <textarea name="message" id="message" class="lmsout-form-textarea" placeholder="{{ __('frontend.message_here') }}" rows="5" required>{{ old('message') }}</textarea>
                                 </div>
                                 <div class="col-12 pt-1">
-                                    <button type="submit" class="edux-btn-primary">
+                                    <button type="submit" class="lmsout-btn-primary">
                                         <span>{{ $formSettings['submit_label'] ?? __('frontend.send_message') }}</span>
                                         <i class="fa-solid fa-paper-plane"></i>
                                     </button>
@@ -142,7 +142,7 @@
             </div>
 
             @if (!empty($mapSettings['embed_url']))
-                <div class="edux-surface-card p-2 mt-4 overflow-hidden">
+                <div class="lmsout-surface-card p-2 mt-4 overflow-hidden">
                     <iframe src="{{ $mapSettings['embed_url'] }}" style="border:0; width: 100%; height: 340px; border-radius: 12px;" allowfullscreen loading="lazy"></iframe>
                 </div>
             @endif

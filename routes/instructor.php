@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Instructor Studio Portal Routes
+ *
+ * Defines guest instructor registration and authenticated instructor routes
+ * for course building, question banks, grading, campus rosters, and payouts.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Instructor\RegisterController;
 use App\Http\Controllers\Instructor\DashboardController;
@@ -74,8 +83,9 @@ Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('inst
 
     // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications/feed', [NotificationController::class, 'feed'])->name('notifications.feed');
     Route::get('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     // Course builder routes
     Route::get('/courses/create', [CourseBuilderController::class, 'create'])->name('courses.create');

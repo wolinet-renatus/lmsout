@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents a file associated with an assignment.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class AssignmentFile extends Model
 {

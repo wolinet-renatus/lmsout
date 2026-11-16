@@ -16,9 +16,13 @@ use Illuminate\Http\Request;
  * Provides live class management to the Flutter instructor app.
  *
  * @package App\Http\Controllers\Api\Instructor
+ * @author Renatus Bernardo
  */
 class LiveClassController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(protected LiveClassService $liveClassService) {}
 
     /**
@@ -161,6 +165,9 @@ class LiveClassController extends Controller
         ]);
     }
 
+    /**
+     * Format.
+     */
     private function format(LiveClass $lc, bool $full = false): array
     {
         $data = [

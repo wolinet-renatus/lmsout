@@ -11,9 +11,13 @@ use Illuminate\Http\Request;
 
 /**
  * Institutional Global Search across Applicants, Invoices/Control Numbers, Users & Courses (migrated from SCMS).
+ * @author Renatus Bernardo
  */
 class GlobalSearchController extends Controller
 {
+    /**
+     * Search.
+     */
     public function search(Request $request)
     {
         $q = trim((string) $request->input('q', ''));

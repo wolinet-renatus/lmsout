@@ -5,6 +5,11 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Store course discussion request — validates and authorizes incoming request payloads.
+ *
+ * @author Renatus Bernardo
+ */
 class StoreCourseDiscussionRequest extends FormRequest
 {
     /**

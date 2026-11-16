@@ -15,12 +15,23 @@ use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Course apply controller — handles public storefront and learner intake workflows.
+ *
+ * @author Renatus Bernardo
+ */
 class CourseApplyController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private CampusApplicationService $applications)
     {
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Course $course)
     {
         if ($course->status !== 'published' || $course->visibility !== 'public') {
@@ -53,6 +64,9 @@ class CourseApplyController extends Controller
         ]);
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request, Course $course)
     {
         if ($course->isOnline()) {
@@ -80,9 +94,11 @@ class CourseApplyController extends Controller
         $invoice = $result['invoice'];
         $request->session()->put('last_campus_invoice_id', $invoice->id);
 
-        if (($data['payment_option'] ?? 'pay_later') === 'online' && $course->allow_online_f2f_payment && $invoice->balance > 0) {
+        $enrolledCourse = $invoice->course ?? $course;
+
+        if (($data['payment_option'] ?? 'pay_later') === 'online' && $enrolledCourse->allow_online_f2f_payment && $invoice->balance > 0) {
             ToastMagic::success('Application recorded! Proceed to pay your first installment online.');
-            return redirect()->route('courses.checkout', ['id' => $course->id, 'invoice_id' => $invoice->id]);
+            return redirect()->route('courses.checkout', ['id' => $enrolledCourse->id, 'invoice_id' => $invoice->id]);
         }
 
         ToastMagic::success('Application submitted! Invoice ' . $invoice->invoice_number . ' and Control Number ' . $invoice->control_number . ' are ready.');
@@ -90,6 +106,9 @@ class CourseApplyController extends Controller
         return redirect()->route('courses.apply.confirmation', $invoice->id);
     }
 
+    /**
+     * Confirmation.
+     */
     public function confirmation(Request $request, Invoice $invoice)
     {
         $authorized = ($request->session()->get('last_campus_invoice_id') == $invoice->id)
@@ -120,6 +139,9 @@ class CourseApplyController extends Controller
         return view('campus.invoice-print', compact('invoice', 'qr'));
     }
 
+    /**
+     * Verify invoice.
+     */
     public function verifyInvoice(string $number)
     {
         $invoice = Invoice::withoutGlobalScope('branch')
@@ -133,6 +155,9 @@ class CourseApplyController extends Controller
         return view('courses.verify-invoice', compact('invoice'));
     }
 
+    /**
+     * Course fee.
+     */
     public function courseFee(Course $course)
     {
         $weeks = 0;

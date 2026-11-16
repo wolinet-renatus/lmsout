@@ -6,6 +6,11 @@ use App\Services\SettingsRepository;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Gemini service — encapsulates domain business logic and transactional operations.
+ *
+ * @author Renatus Bernardo
+ */
 class GeminiService
 {
     protected $apiKey;
@@ -14,6 +19,9 @@ class GeminiService
 
     protected $settings;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(SettingsRepository $settings)
     {
         $this->settings = $settings;

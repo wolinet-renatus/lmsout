@@ -14,6 +14,7 @@ use ZipArchive;
  * and ZIP-based theme installation.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class ThemeService
 {
@@ -32,6 +33,9 @@ class ThemeService
      */
     protected ?array $cachedThemes = null;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct()
     {
         $this->themesPath = resource_path('views/home');

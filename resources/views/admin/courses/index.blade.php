@@ -103,6 +103,17 @@
                             </form>
                         </div>
                         <div class="col-md-3 text-right d-flex flex-wrap justify-content-end align-items-center gap-2">
+                            @php
+                                $activeCurrencyCode = currency_code();
+                            @endphp
+                            <div class="btn-group btn-group-sm mr-1" role="group" aria-label="Currency Switch" title="1 USD = {{ number_format(usd_to_tzs_rate(), 0) }} TZS">
+                                @foreach (supported_switch_currencies() as $curCode => $curLabel)
+                                    <a href="{{ request()->fullUrlWithQuery(['currency' => $curCode]) }}"
+                                       class="btn {{ $curCode === $activeCurrencyCode ? 'btn-dark' : 'btn-outline-secondary' }}">
+                                        {{ $curCode === 'TZS' ? 'TSH' : 'USD ($)' }}
+                                    </a>
+                                @endforeach
+                            </div>
                             <a href="{{ route('admin.courses.create') }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-plus mr-1"></i> Create Course
                             </a>
@@ -171,13 +182,18 @@
                                             @else
                                                 @if ($course->sale_price)
                                                     <div>
-                                                        <strong>{{ currency_format($course->sale_price) }}</strong>
+                                                        <strong>{{ $course->formatPrice($course->sale_price) }}</strong>
                                                         <br>
                                                         <small
-                                                            class="text-muted text-decoration-line-through">{{ currency_format($course->regular_price ?? 0) }}</small>
+                                                            class="text-muted text-decoration-line-through">{{ $course->formatPrice($course->regular_price ?? 0) }}</small>
                                                     </div>
                                                 @else
-                                                    <strong>{{ currency_format($course->regular_price ?? 0) }}</strong>
+                                                    <strong>{{ $course->formatPrice($course->regular_price ?? 0) }}</strong>
+                                                @endif
+                                                @if ($course->getPriceCurrencyCode() !== currency_code())
+                                                    <div class="text-muted" style="font-size: 11px;">
+                                                        Base: {{ currency_format($course->sale_price ?: ($course->regular_price ?? 0), 2, 'code', $course->getPriceCurrencyCode(), $course->getPriceCurrencyCode(), false) }}
+                                                    </div>
                                                 @endif
                                             @endif
                                         </td>

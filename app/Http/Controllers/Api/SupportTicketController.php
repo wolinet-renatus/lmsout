@@ -10,8 +10,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Support ticket controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class SupportTicketController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -30,6 +38,9 @@ class SupportTicketController extends Controller
         ]);
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -85,6 +96,9 @@ class SupportTicketController extends Controller
         ], 201);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
@@ -98,6 +112,9 @@ class SupportTicketController extends Controller
         ]);
     }
 
+    /**
+     * Reply.
+     */
     public function reply(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
@@ -151,6 +168,9 @@ class SupportTicketController extends Controller
         ]);
     }
 
+    /**
+     * Close.
+     */
     public function close(Request $request, int $id): JsonResponse
     {
         $user = $request->user();

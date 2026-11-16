@@ -1,11 +1,11 @@
 <!-- Real-Time Header Search Styles & Script -->
 <style>
-    .edux-live-search {
+    .lmsout-live-search {
         position: relative;
         z-index: 1050;
     }
 
-    .edux-live-search__form {
+    .lmsout-live-search__form {
         display: inline-flex;
         align-items: center;
         gap: 7px;
@@ -18,27 +18,27 @@
         transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .edux-live-search.is-open .edux-live-search__form,
-    .edux-live-search__form:focus-within {
+    .lmsout-live-search.is-open .lmsout-live-search__form,
+    .lmsout-live-search__form:focus-within {
         width: 280px;
         background: #ffffff;
         border-color: #013ba6;
         box-shadow: 0 0 0 3px rgba(1, 59, 166, 0.12);
     }
 
-    .edux-live-search__icon {
+    .lmsout-live-search__icon {
         font-size: 12.5px;
         color: #64748b;
         flex-shrink: 0;
         transition: color 0.18s ease;
     }
 
-    .edux-live-search.is-open .edux-live-search__icon,
-    .edux-live-search__form:focus-within .edux-live-search__icon {
+    .lmsout-live-search.is-open .lmsout-live-search__icon,
+    .lmsout-live-search__form:focus-within .lmsout-live-search__icon {
         color: #013ba6;
     }
 
-    .edux-live-search__input {
+    .lmsout-live-search__input {
         width: 100%;
         border: none !important;
         background: transparent !important;
@@ -52,12 +52,12 @@
         line-height: 1;
     }
 
-    .edux-live-search__input::placeholder {
+    .lmsout-live-search__input::placeholder {
         color: #94a3b8;
         font-weight: 500;
     }
 
-    .edux-live-search__clear {
+    .lmsout-live-search__clear {
         width: 20px;
         height: 20px;
         border-radius: 50%;
@@ -74,12 +74,12 @@
         transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .edux-live-search__clear:hover {
+    .lmsout-live-search__clear:hover {
         background: #cbd5e1;
         color: #0f172a;
     }
 
-    .edux-live-search__kbd {
+    .lmsout-live-search__kbd {
         font-size: 10px;
         font-weight: 700;
         font-family: inherit;
@@ -94,7 +94,7 @@
     }
 
     /* Live Results Dropdown Panel */
-    .edux-live-search__dropdown {
+    .lmsout-live-search__dropdown {
         position: absolute;
         top: calc(100% + 10px);
         right: 0;
@@ -111,20 +111,20 @@
         overflow: hidden;
     }
 
-    .edux-live-search.is-open .edux-live-search__dropdown {
+    .lmsout-live-search.is-open .lmsout-live-search__dropdown {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
     }
 
-    .edux-live-search__body {
+    .lmsout-live-search__body {
         max-height: 440px;
         overflow-y: auto;
         padding: 10px;
     }
 
-    .edux-live-search__loading,
-    .edux-live-search__empty {
+    .lmsout-live-search__loading,
+    .lmsout-live-search__empty {
         padding: 26px 16px;
         text-align: center;
         font-size: 13px;
@@ -132,20 +132,20 @@
         font-weight: 500;
     }
 
-    .edux-live-search__loading i {
+    .lmsout-live-search__loading i {
         color: #013ba6;
         margin-right: 6px;
     }
 
-    .edux-live-search__section {
+    .lmsout-live-search__section {
         margin-bottom: 10px;
     }
 
-    .edux-live-search__section:last-child {
+    .lmsout-live-search__section:last-child {
         margin-bottom: 0;
     }
 
-    .edux-live-search__heading {
+    .lmsout-live-search__heading {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -157,7 +157,7 @@
         color: #64748b;
     }
 
-    .edux-live-search__item {
+    .lmsout-live-search__item {
         display: flex;
         align-items: center;
         gap: 11px;
@@ -168,12 +168,12 @@
         transition: background 0.15s ease;
     }
 
-    .edux-live-search__item:hover,
-    .edux-live-search__item.is-active {
+    .lmsout-live-search__item:hover,
+    .lmsout-live-search__item.is-active {
         background: #f0f7ff;
     }
 
-    .edux-live-search__thumb {
+    .lmsout-live-search__thumb {
         width: 48px;
         height: 36px;
         border-radius: 7px;
@@ -182,7 +182,7 @@
         background: #f1f5f9;
     }
 
-    .edux-live-search__avatar {
+    .lmsout-live-search__avatar {
         width: 36px;
         height: 36px;
         border-radius: 50%;
@@ -191,12 +191,12 @@
         background: #f1f5f9;
     }
 
-    .edux-live-search__info {
+    .lmsout-live-search__info {
         flex: 1;
         min-width: 0;
     }
 
-    .edux-live-search__title {
+    .lmsout-live-search__title {
         font-size: 13px;
         font-weight: 700;
         color: #0f172a;
@@ -207,12 +207,12 @@
         line-height: 1.3;
     }
 
-    .edux-live-search__item:hover .edux-live-search__title,
-    .edux-live-search__item.is-active .edux-live-search__title {
+    .lmsout-live-search__item:hover .lmsout-live-search__title,
+    .lmsout-live-search__item.is-active .lmsout-live-search__title {
         color: #013ba6;
     }
 
-    .edux-live-search__meta {
+    .lmsout-live-search__meta {
         display: flex;
         align-items: center;
         gap: 6px;
@@ -223,7 +223,7 @@
         text-overflow: ellipsis;
     }
 
-    .edux-live-search__badge {
+    .lmsout-live-search__badge {
         display: inline-block;
         padding: 1px 6px;
         border-radius: 4px;
@@ -233,18 +233,18 @@
         font-weight: 700;
     }
 
-    .edux-live-search__price {
+    .lmsout-live-search__price {
         font-size: 12px;
         font-weight: 800;
         color: #0f172a;
         flex-shrink: 0;
     }
 
-    .edux-live-search__price.is-free {
+    .lmsout-live-search__price.is-free {
         color: #16a34a;
     }
 
-    .edux-live-search__footer {
+    .lmsout-live-search__footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -256,7 +256,7 @@
         font-weight: 700;
     }
 
-    .edux-live-search__footer a {
+    .lmsout-live-search__footer a {
         color: #013ba6;
         text-decoration: none !important;
         display: inline-flex;
@@ -264,33 +264,33 @@
         gap: 5px;
     }
 
-    .edux-live-search__footer a:hover {
+    .lmsout-live-search__footer a:hover {
         color: #228ddd;
     }
 
     @media (max-width: 991px) {
-        .edux-live-search__form {
+        .lmsout-live-search__form {
             width: 165px;
         }
-        .edux-live-search.is-open .edux-live-search__form,
-        .edux-live-search__form:focus-within {
+        .lmsout-live-search.is-open .lmsout-live-search__form,
+        .lmsout-live-search__form:focus-within {
             width: 210px;
         }
-        .edux-live-search__kbd {
+        .lmsout-live-search__kbd {
             display: none;
         }
     }
 
     @media (max-width: 575px) {
-        .edux-live-search__form {
+        .lmsout-live-search__form {
             width: 140px;
             padding: 0 8px;
         }
-        .edux-live-search.is-open .edux-live-search__form,
-        .edux-live-search__form:focus-within {
+        .lmsout-live-search.is-open .lmsout-live-search__form,
+        .lmsout-live-search__form:focus-within {
             width: 175px;
         }
-        .edux-live-search__dropdown {
+        .lmsout-live-search__dropdown {
             position: fixed;
             top: 64px;
             left: 12px;
@@ -302,12 +302,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('edux-live-search');
-    const input = document.getElementById('edux-header-search-input');
-    const clearBtn = document.getElementById('edux-live-search-clear');
-    const kbdBadge = document.getElementById('edux-live-search-kbd');
-    const dropdown = document.getElementById('edux-live-search-dropdown');
-    const bodyEl = document.getElementById('edux-live-search-body');
+    const container = document.getElementById('lmsout-live-search');
+    const input = document.getElementById('lmsout-header-search-input');
+    const clearBtn = document.getElementById('lmsout-live-search-clear');
+    const kbdBadge = document.getElementById('lmsout-live-search-kbd');
+    const dropdown = document.getElementById('lmsout-live-search-dropdown');
+    const bodyEl = document.getElementById('lmsout-live-search-body');
 
     if (!container || !input || !dropdown || !bodyEl) {
         return;
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (courses.length === 0 && instructors.length === 0) {
             bodyEl.innerHTML = `
-                <div class="edux-live-search__empty">
+                <div class="lmsout-live-search__empty">
                     <i class="fa-solid fa-magnifying-glass mb-2 d-block" style="font-size:18px;color:#94a3b8;"></i>
                     No results found for <strong>"${escapeHtml(query)}"</strong>
                 </div>
@@ -367,23 +367,23 @@ document.addEventListener('DOMContentLoaded', function () {
         let html = '';
 
         if (courses.length > 0) {
-            html += `<div class="edux-live-search__section">
-                <div class="edux-live-search__heading">
+            html += `<div class="lmsout-live-search__section">
+                <div class="lmsout-live-search__heading">
                     <span>${query ? 'Matching Courses' : 'Popular Courses'}</span>
                     <span>${courses.length}</span>
                 </div>`;
             courses.forEach(function (c) {
                 html += `
-                    <a href="${escapeHtml(c.url)}" class="edux-live-search__item" role="option">
-                        <img src="${escapeHtml(c.thumbnail)}" alt="${escapeHtml(c.title)}" class="edux-live-search__thumb" loading="lazy">
-                        <div class="edux-live-search__info">
-                            <div class="edux-live-search__title">${escapeHtml(c.title)}</div>
-                            <div class="edux-live-search__meta">
-                                <span class="edux-live-search__badge">${escapeHtml(c.category)}</span>
+                    <a href="${escapeHtml(c.url)}" class="lmsout-live-search__item" role="option">
+                        <img src="${escapeHtml(c.thumbnail)}" alt="${escapeHtml(c.title)}" class="lmsout-live-search__thumb" loading="lazy">
+                        <div class="lmsout-live-search__info">
+                            <div class="lmsout-live-search__title">${escapeHtml(c.title)}</div>
+                            <div class="lmsout-live-search__meta">
+                                <span class="lmsout-live-search__badge">${escapeHtml(c.category)}</span>
                                 <span>&middot; ${escapeHtml(c.instructor)}</span>
                             </div>
                         </div>
-                        <span class="edux-live-search__price ${c.is_free ? 'is-free' : ''}">${escapeHtml(c.price_label)}</span>
+                        <span class="lmsout-live-search__price ${c.is_free ? 'is-free' : ''}">${escapeHtml(c.price_label)}</span>
                     </a>
                 `;
             });
@@ -391,18 +391,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (instructors.length > 0) {
-            html += `<div class="edux-live-search__section">
-                <div class="edux-live-search__heading">
+            html += `<div class="lmsout-live-search__section">
+                <div class="lmsout-live-search__heading">
                     <span>Instructors</span>
                     <span>${instructors.length}</span>
                 </div>`;
             instructors.forEach(function (inst) {
                 html += `
-                    <a href="${escapeHtml(inst.url)}" class="edux-live-search__item" role="option">
-                        <img src="${escapeHtml(inst.avatar)}" alt="${escapeHtml(inst.name)}" class="edux-live-search__avatar" loading="lazy">
-                        <div class="edux-live-search__info">
-                            <div class="edux-live-search__title">${escapeHtml(inst.name)}</div>
-                            <div class="edux-live-search__meta">
+                    <a href="${escapeHtml(inst.url)}" class="lmsout-live-search__item" role="option">
+                        <img src="${escapeHtml(inst.avatar)}" alt="${escapeHtml(inst.name)}" class="lmsout-live-search__avatar" loading="lazy">
+                        <div class="lmsout-live-search__info">
+                            <div class="lmsout-live-search__title">${escapeHtml(inst.name)}</div>
+                            <div class="lmsout-live-search__meta">
                                 <span>${escapeHtml(inst.headline)}</span>
                                 <span>&middot; ${inst.courses_count} courses</span>
                             </div>
@@ -415,13 +415,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         bodyEl.innerHTML = html;
 
-        const existingFooter = dropdown.querySelector('.edux-live-search__footer');
+        const existingFooter = dropdown.querySelector('.lmsout-live-search__footer');
         if (existingFooter) {
             existingFooter.remove();
         }
 
         const footerEl = document.createElement('div');
-        footerEl.className = 'edux-live-search__footer';
+        footerEl.className = 'lmsout-live-search__footer';
         footerEl.innerHTML = `
             <a href="${escapeHtml(data.all_courses_url || '/courses')}">
                 ${query ? `Explore all courses for "${escapeHtml(query)}"` : 'Browse all courses'} <i class="fa-solid fa-arrow-right"></i>
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
         currentController = new AbortController();
 
         bodyEl.innerHTML = `
-            <div class="edux-live-search__loading">
+            <div class="lmsout-live-search__loading">
                 <i class="fa-solid fa-circle-notch fa-spin"></i> Searching...
             </div>
         `;
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(function (err) {
                 if (err && err.name === 'AbortError') return;
-                bodyEl.innerHTML = `<div class="edux-live-search__empty">Unable to load search results right now.</div>`;
+                bodyEl.innerHTML = `<div class="lmsout-live-search__empty">Unable to load search results right now.</div>`;
             });
     }
 
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Keyboard navigation (Up/Down/Escape & Cmd+K / Ctrl+K)
     input.addEventListener('keydown', function (e) {
-        const items = Array.from(bodyEl.querySelectorAll('.edux-live-search__item'));
+        const items = Array.from(bodyEl.querySelectorAll('.lmsout-live-search__item'));
         if (e.key === 'Escape') {
             closeDropdown();
             input.blur();

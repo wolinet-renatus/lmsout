@@ -7,8 +7,16 @@ use App\Services\CertificateVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Certificate verification controller — handles public storefront and learner intake workflows.
+ *
+ * @author Renatus Bernardo
+ */
 class CertificateVerificationController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         protected CertificateVerificationService $verificationService
     ) {}

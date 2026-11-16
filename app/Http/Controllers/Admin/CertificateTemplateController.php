@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
+/**
+ * Certificate template controller — handles administrative portal workflows and governance.
+ *
+ * @author Renatus Bernardo
+ */
 class CertificateTemplateController extends Controller
 {
     /**

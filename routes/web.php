@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Public Web & Storefront Routes
+ *
+ * Defines public catalog, live search, F2F/Hybrid application intake,
+ * certificate verification, custom CMS pages, and payment gateway callbacks.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\CoursesController;
 use App\Http\Controllers\Front\CourseEnrollmentController;
@@ -17,9 +26,15 @@ use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Front\CertificateVerificationController;
 use App\Models\CustomPage;
 
-require __DIR__.'/install.php';
-
 Route::get('/', HomeController::class)->name('home');
+Route::get('/currency/{code}', function (string $code) {
+    $normalized = normalize_currency_code($code);
+    if (isset(supported_switch_currencies()[$normalized])) {
+        session()->put('active_currency', $normalized);
+    }
+
+    return back();
+})->name('currency.switch');
 Route::match(['get', 'post'], '/verify-certificate', [CertificateVerificationController::class, 'verify'])->name('verify-certificate');
 
 // Terms and conditions routes
@@ -75,15 +90,12 @@ Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index'
 Route::get('/bundles/{id}', [BundleController::class, 'show'])->name('bundles.show');
 
 // Payment callbacks
-Route::post('/payment/razorpay/callback', [CourseEnrollmentController::class, 'razorpayCallback'])->name('payment.razorpay.callback');
 Route::get('/payment/stripe/callback', [CourseEnrollmentController::class, 'stripeCallback'])->name('payment.stripe.callback');
-Route::get('/payment/paystack/callback', [CourseEnrollmentController::class, 'paystackCallback'])->name('payment.paystack.callback');
 Route::get('/payment/flutterwave/callback', [CourseEnrollmentController::class, 'flutterwaveCallback'])->name('payment.flutterwave.callback');
 Route::get('/payment/paypal/callback', [CourseEnrollmentController::class, 'paypalCallback'])->name('payment.paypal.callback');
-Route::match(['get', 'post'], '/payment/sslcommerz/callback', [CourseEnrollmentController::class, 'sslcommerzCallback'])->name('payment.sslcommerz.callback');
-Route::get('/payment/mollie/callback', [CourseEnrollmentController::class, 'mollieCallback'])->name('payment.mollie.callback');
-Route::get('/payment/bkash/callback', [CourseEnrollmentController::class, 'bkashCallback'])->name('payment.bkash.callback');
-Route::match(['get', 'post'], '/payment/xpay/callback', [CourseEnrollmentController::class, 'xpayCallback'])->name('payment.xpay.callback');
+Route::match(['get', 'post'], '/payment/pesapal/callback', [CourseEnrollmentController::class, 'pesapalCallback'])->name('payment.pesapal.callback');
+Route::match(['get', 'post'], '/payment/pesapal/ipn', [CourseEnrollmentController::class, 'pesapalIpn'])->name('payment.pesapal.ipn');
+Route::get('/payment/pesapal/status', [CourseEnrollmentController::class, 'pesapalStatus'])->name('payment.pesapal.status');
 
 // Course checkout routes
 Route::middleware(['auth'])->group(function () {

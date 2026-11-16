@@ -7,6 +7,11 @@ use App\Models\MenuItem;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
+/**
+ * Menu seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class MenuSeeder extends Seeder
 {
     /**
@@ -34,25 +39,25 @@ class MenuSeeder extends Seeder
         }
 
         $mainItems = [
-            ['title' => 'Home', 'url' => url('/')],
-            ['title' => 'Courses', 'url' => url('/courses')],
-            ['title' => 'About Us', 'url' => url('/about')],
-            ['title' => 'Instructor', 'url' => url('/instructors')],
-            ['title' => 'Contact Us', 'url' => url('/contact')],
+            ['title' => 'Home', 'url' => '/'],
+            ['title' => 'Courses', 'url' => '/courses'],
+            ['title' => 'About Us', 'url' => '/about'],
+            ['title' => 'Instructor', 'url' => '/instructors'],
+            ['title' => 'Contact Us', 'url' => '/contact'],
         ];
 
         $footerItems = [
-            ['title' => 'Courses', 'url' => url('/courses')],
-            ['title' => 'About Us', 'url' => url('/about')],
-            ['title' => 'Contact Us', 'url' => url('/contact')],
+            ['title' => 'Courses', 'url' => '/courses'],
+            ['title' => 'About Us', 'url' => '/about'],
+            ['title' => 'Contact Us', 'url' => '/contact'],
         ];
 
         $quickItems = [
             ['title' => 'Privacy Policy', 'route_name' => 'pages.show', 'route_parameters' => ['customPage' => 'privacy-policy']],
             ['title' => 'Terms & Conditions', 'route_name' => 'pages.show', 'route_parameters' => ['customPage' => 'terms-and-conditions']],
             ['title' => 'GDPR Compliance', 'route_name' => 'pages.show', 'route_parameters' => ['customPage' => 'gdpr-compliance']],
-            ['title' => 'FAQs', 'url' => url('/faq')],
-            ['title' => 'Testimonials', 'url' => url('/testimonials')],
+            ['title' => 'FAQs', 'url' => '/faq'],
+            ['title' => 'Testimonials', 'url' => '/testimonials'],
         ];
 
         $this->seedMenuItems('main-navigation', $mainItems);
@@ -61,6 +66,9 @@ class MenuSeeder extends Seeder
         $this->seedMenuItems('quick-links', $quickItems);
     }
 
+    /**
+     * Seed menu items.
+     */
     private function seedMenuItems(string $location, array $items): void
     {
         $menu = Menu::where('location', $location)->first();

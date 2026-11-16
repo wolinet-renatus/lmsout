@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for mail.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
 
     /*

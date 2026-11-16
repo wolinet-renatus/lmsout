@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for laravel-toaster-magic.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
     'options' => [
         "closeButton" => true,

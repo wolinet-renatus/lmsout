@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
  * This controller handles the management of withdrawals.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class WithdrawalController extends Controller
 {
@@ -144,6 +145,9 @@ class WithdrawalController extends Controller
         return redirect()->route('admin.withdrawals.index');
     }
 
+    /**
+     * Pagination meta.
+     */
     private function paginationMeta($paginator): array
     {
         return [

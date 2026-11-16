@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Represents a reply to a course discussion thread.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class CourseDiscussionReply extends Model
 {

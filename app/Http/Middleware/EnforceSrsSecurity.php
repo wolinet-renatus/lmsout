@@ -7,8 +7,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Enforce SRS Security Middleware
+ *
+ * Implements institutional session and password hygiene controls:
+ * 1. Immediate termination for suspended (`is_blocked`) accounts.
+ * 2. Optional single-active-session enforcement across devices.
+ * 3. Configurable inactivity/idle timeout logout.
+ * 4. Forced first-login password reset and periodic password expiry checks.
+ *
+ * @package App\Http\Middleware
+ * @author Renatus Bernardo
+ */
 class EnforceSrsSecurity
 {
+    /**
+     * Validate active session, account status, idle timeout, and password compliance.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check()) {
@@ -93,6 +108,9 @@ class EnforceSrsSecurity
         return $next($request);
     }
 
+    /**
+     * Log security event.
+     */
     private function logSecurityEvent($user, string $event, string $description, Request $request): void
     {
         try {

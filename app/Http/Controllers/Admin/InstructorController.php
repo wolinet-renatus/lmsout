@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
  * This controller handles the management of instructors.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class InstructorController extends Controller
 {
@@ -197,6 +198,9 @@ class InstructorController extends Controller
         ));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit($id)
     {
         $instructor = User::where('role', 'instructor')->findOrFail($id);
@@ -204,6 +208,9 @@ class InstructorController extends Controller
         return view('admin.instructors.edit', compact('instructor'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, $id)
     {
         $instructor = User::where('role', 'instructor')->findOrFail($id);

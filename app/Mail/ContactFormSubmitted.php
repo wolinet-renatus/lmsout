@@ -12,15 +12,22 @@ use Illuminate\Queue\SerializesModels;
  * This mail is sent when a new contact form is submitted.
  *
  * @package App\Mail
+ * @author Renatus Bernardo
  */
 class ContactFormSubmitted extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private array $payload, private string $subjectPrefix)
     {
     }
 
+    /**
+     * Build.
+     */
     public function build(): self
     {
         $subject = trim(sprintf('%s %s', $this->subjectPrefix, $this->payload['subject'] ?? 'New message'));

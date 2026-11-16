@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const classId = this.dataset.id;
             const classTitle = this.dataset.title;
             
-            form.action = `/instructor/live-classes/${classId}/end`;
+            form.action = `{{ url('/instructor/live-classes') }}/${classId}/end`;
             modalTitle.textContent = classTitle;
             modal.style.display = 'flex';
         });

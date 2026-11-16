@@ -13,9 +13,15 @@ use Illuminate\Support\Str;
 
 /**
  * Shared attendance logic for Admin, Instructor (tutor) and Student QR self check-in.
+ *
+ * @package App\Services
+ * @author Renatus Bernardo
  */
 class CampusAttendanceService
 {
+    /**
+     * Inject SrsWorkflowService to recompute enrollment attendance percentages after check-ins.
+     */
     public function __construct(private SrsWorkflowService $srs)
     {
     }

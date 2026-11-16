@@ -8,6 +8,11 @@ use App\Models\HabitLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
+/**
+ * Habit controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class HabitController extends Controller
 {
     /**

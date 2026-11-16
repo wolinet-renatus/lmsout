@@ -340,28 +340,10 @@
                                             <td>{{ $payment->transaction_id }}</td>
                                         </tr>
                                     @endif
-                                    @if ($payment->payment_method == 'razorpay')
-                                        <tr>
-                                            <th>Razorpay Order ID</th>
-                                            <td>{{ $payment->razorpay_order_id ?? 'N/A' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Razorpay Payment ID</th>
-                                            <td>{{ $payment->razorpay_payment_id ?? 'N/A' }}</td>
-                                        </tr>
-                                    @elseif($payment->payment_method == 'stripe')
+                                    @if($payment->payment_method == 'stripe')
                                         <tr>
                                             <th>Stripe Payment Intent ID</th>
                                             <td>{{ $payment->stripe_payment_intent_id ?? 'N/A' }}</td>
-                                        </tr>
-                                    @elseif($payment->payment_method == 'paystack')
-                                        <tr>
-                                            <th>Paystack Reference</th>
-                                            <td>{{ $payment->paystack_reference ?? 'N/A' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Paystack Access Code</th>
-                                            <td>{{ $payment->paystack_access_code ?? 'N/A' }}</td>
                                         </tr>
                                     @elseif($payment->payment_method == 'flutterwave')
                                         <tr>
@@ -385,32 +367,22 @@
                                             <th>PayPal Payment ID</th>
                                             <td>{{ $payment->paypal_payment_id ?? 'N/A' }}</td>
                                         </tr>
-                                    @elseif($payment->payment_method == 'sslcommerz')
+                                    @elseif($payment->payment_method == 'pesapal')
                                         <tr>
-                                            <th>SSLCommerz Transaction ID</th>
-                                            <td>{{ $payment->sslcommerz_tran_id ?? 'N/A' }}</td>
+                                            <th>Pesapal Order Tracking ID</th>
+                                            <td>{{ $payment->pesapal_order_tracking_id ?? 'N/A' }}</td>
                                         </tr>
                                         <tr>
-                                            <th>SSLCommerz Session Key</th>
-                                            <td>{{ $payment->sslcommerz_session_key ?? 'N/A' }}</td>
+                                            <th>Pesapal Merchant Reference</th>
+                                            <td>{{ $payment->pesapal_merchant_reference ?? 'N/A' }}</td>
                                         </tr>
                                         <tr>
-                                            <th>SSLCommerz Validation ID</th>
-                                            <td>{{ $payment->sslcommerz_val_id ?? 'N/A' }}</td>
-                                        </tr>
-                                    @elseif($payment->payment_method == 'mollie')
-                                        <tr>
-                                            <th>Mollie Payment ID</th>
-                                            <td>{{ $payment->mollie_payment_id ?? 'N/A' }}</td>
-                                        </tr>
-                                    @elseif($payment->payment_method == 'bkash')
-                                        <tr>
-                                            <th>bKash Payment ID</th>
-                                            <td>{{ $payment->bkash_payment_id ?? 'N/A' }}</td>
+                                            <th>Pesapal Confirmation Code</th>
+                                            <td>{{ $payment->pesapal_confirmation_code ?? 'N/A' }}</td>
                                         </tr>
                                         <tr>
-                                            <th>bKash Transaction ID (TrxID)</th>
-                                            <td>{{ $payment->bkash_trx_id ?? 'N/A' }}</td>
+                                            <th>Pesapal Payment Account</th>
+                                            <td>{{ $payment->pesapal_payment_account ?? 'N/A' }}</td>
                                         </tr>
                                     @elseif($payment->payment_method == 'offline')
                                         <tr>

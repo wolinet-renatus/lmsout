@@ -18,9 +18,13 @@ use Illuminate\View\View;
  * This controller handles the quiz attempts functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class QuizAttemptsController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View|RedirectResponse
     {
         $user = $request->user();
@@ -81,6 +85,9 @@ class QuizAttemptsController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Request $request, Quiz $quiz): View|RedirectResponse
     {
         $user = $request->user();
@@ -149,6 +156,9 @@ class QuizAttemptsController extends Controller
         ]);
     }
 
+    /**
+     * Merit list.
+     */
     public function meritList(Request $request, Quiz $quiz)
     {
         $user = $request->user();
@@ -199,6 +209,9 @@ class QuizAttemptsController extends Controller
         ]);
     }
 
+    /**
+     * Refresh merit ranks.
+     */
     private function refreshMeritRanks(Quiz $quiz): void
     {
         $orderedIds = QuizAttempt::query()
@@ -214,6 +227,9 @@ class QuizAttemptsController extends Controller
         }
     }
 
+    /**
+     * Subject performance for course.
+     */
     private function subjectPerformanceForCourse(int $courseId): array
     {
         if (!$courseId) {
@@ -247,6 +263,9 @@ class QuizAttemptsController extends Controller
         }, $bySubject));
     }
 
+    /**
+     * Authorize quiz.
+     */
     private function authorizeQuiz(Quiz $quiz, $user): void
     {
         $quiz->loadMissing('topic.course');
@@ -256,6 +275,9 @@ class QuizAttemptsController extends Controller
         }
     }
 
+    /**
+     * Summarize quizzes.
+     */
     private function summarizeQuizzes($quizIds): array
     {
         $ids = collect($quizIds)->filter()->unique()->values();
@@ -281,6 +303,9 @@ class QuizAttemptsController extends Controller
         ];
     }
 
+    /**
+     * Summarize attempts.
+     */
     private function summarizeAttempts(int $quizId): array
     {
         $attempts = QuizAttempt::query()
@@ -315,6 +340,9 @@ class QuizAttemptsController extends Controller
         ];
     }
 
+    /**
+     * Format seconds.
+     */
     private function formatSeconds(?int $seconds): ?string
     {
         if ($seconds === null) {

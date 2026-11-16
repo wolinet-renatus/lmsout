@@ -9,13 +9,24 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Force password controller — handles authentication, verification, and password security flows.
+ *
+ * @author Renatus Bernardo
+ */
 class ForcePasswordController extends Controller
 {
+    /**
+     * Display the specified resource details.
+     */
     public function show()
     {
         return view('auth.force-password');
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request)
     {
         $request->validate([

@@ -477,6 +477,7 @@ return [
     'bank_transfer'                  => 'Bank Transfer',
     'paypal'                         => 'PayPal',
     'stripe'                         => 'Stripe',
+    'pesapal'                        => 'Pesapal (Mobile Money / Bank)',
     'payout_details'                 => 'Payout Details',
     'payout_details_placeholder'     => 'Add account or payment details',
     'completed_date_col'             => 'Completed Date',

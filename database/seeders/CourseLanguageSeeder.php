@@ -6,6 +6,11 @@ use App\Models\CourseLanguage;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 
+/**
+ * Course language seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class CourseLanguageSeeder extends Seeder
 {
     /**

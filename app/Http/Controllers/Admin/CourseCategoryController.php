@@ -18,6 +18,7 @@ use Illuminate\Validation\Rule;
  * This controller handles the management of course categories.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class CourseCategoryController extends Controller
 {

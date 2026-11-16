@@ -18,9 +18,13 @@ use Illuminate\Support\Str;
  * This controller handles the home page functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class HomeController extends Controller
 {
+    /**
+     * invoke.
+     */
     public function __invoke(): View
     {
         $meta = frontend_meta('home', null, []);
@@ -225,6 +229,9 @@ class HomeController extends Controller
         ]);
     }
 
+    /**
+     * Resolve media.
+     */
     private function resolveMedia(?string $path, string $fallback): string
     {
         if (blank($path)) {
@@ -248,6 +255,9 @@ class HomeController extends Controller
         return asset($fallback);
     }
 
+    /**
+     * Resolve price.
+     */
     private function resolvePrice(Course $course): float
     {
         if ($course->pricing_model === 'free') {
@@ -261,6 +271,9 @@ class HomeController extends Controller
         return (float) ($course->regular_price ?? 0);
     }
 
+    /**
+     * Format rating.
+     */
     private function formatRating(?float $value): ?float
     {
         if ($value === null) {

@@ -7,11 +7,19 @@ use App\Services\SettingsRepository;
 use App\Services\PaymentGatewayService;
 use Illuminate\Http\Request;
 
+/**
+ * Setting controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class SettingController extends Controller
 {
     protected $repository;
     protected $paymentGatewayService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(SettingsRepository $repository, PaymentGatewayService $paymentGatewayService)
     {
         $this->repository = $repository;

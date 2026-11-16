@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
  * This controller handles the students functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class StudentsController extends Controller
 {

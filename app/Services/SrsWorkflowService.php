@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\AttendanceRecord;
+use App\Models\Bundle;
+use App\Models\BundleEnrollment;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Invoice;
@@ -11,10 +13,24 @@ use App\Models\PaymentSchedule;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
+/**
+ * SRS Workflow Service
+ *
+ * Orchestrates GePG-style control number generation, SCMS fee/discount calculations,
+ * installment schedule allocation, invoice-to-payment reconciliation, attendance
+ * percentage recalculation, and QR/serial certificate issuance.
+ *
+ * @package App\Services
+ * @author Renatus Bernardo
+ */
 class SrsWorkflowService
 {
+    /**
+     * Inject RevenueShareService to settle platform/instructor splits on verified payments.
+     */
     public function __construct(private RevenueShareService $revenueShare)
     {
     }
@@ -45,7 +61,19 @@ class SrsWorkflowService
             'control_number_generated_at' => now(),
         ]);
 
-        return $invoice->fresh();
+        $fresh = $invoice->fresh();
+        $recipient = $fresh->user ?? $fresh->enrollment?->user;
+        if ($recipient && Route::has('student.campus.invoices.index')) {
+            app(PortalNotificationService::class)->notifyUser(
+                $recipient,
+                'Control Number Issued',
+                "Control number {$fresh->control_number} is now ready for invoice {$fresh->invoice_number}.",
+                'info',
+                route('student.campus.invoices.index')
+            );
+        }
+
+        return $fresh;
     }
 
     /**
@@ -196,6 +224,17 @@ class SrsWorkflowService
 
             if ($verificationStatus === 'verified' && $amount > 0) {
                 $this->settleVerifiedAmountOnInvoice($invoice, $payment);
+            } elseif ($amount > 0) {
+                $recipient = User::find($payment->user_id) ?? $invoice->user ?? $invoice->enrollment?->user;
+                if ($recipient && Route::has('student.payments')) {
+                    app(PortalNotificationService::class)->notifyUser(
+                        $recipient,
+                        'Payment Receipt Submitted',
+                        "Payment submission for invoice {$invoice->invoice_number} is awaiting finance verification.",
+                        'info',
+                        route('student.payments')
+                    );
+                }
             }
 
             return $payment->fresh();
@@ -203,34 +242,310 @@ class SrsWorkflowService
     }
 
     /**
-     * Verify a pending offline/receipt payment and settle invoice balances & schedules.
+     * Verify a pending offline/receipt payment and settle invoice, enrollments, and earnings.
      */
     public function verifyPendingPayment(Payment $payment): Payment
     {
         return DB::transaction(function () use ($payment): Payment {
-            if ($payment->verification_status === 'verified' && $payment->status === Payment::STATUS_COMPLETED) {
-                return $payment;
-            }
+            $fresh = Payment::withoutGlobalScope('branch')->lockForUpdate()->findOrFail($payment->id);
 
-            $payment->update([
+            $fresh->update([
                 'verification_status' => 'verified',
                 'status' => Payment::STATUS_COMPLETED,
+                'payment_date' => $fresh->payment_date ?? now()->toDateString(),
             ]);
 
-            if ($payment->invoice) {
-                $this->settleVerifiedAmountOnInvoice($payment->invoice, $payment);
-            }
+            $this->finalizeCompletedPayment($fresh->fresh());
 
-            return $payment->fresh();
+            return $fresh->fresh();
         });
     }
 
+    /**
+     * Generate a unique institutional invoice number using the configured prefix.
+     */
+    public function nextInvoiceNumber(): string
+    {
+        $prefix = function_exists('generateInvoicePrefix') ? generateInvoicePrefix() : 'INV-';
+        do {
+            $candidate = $prefix . str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
+        } while (Invoice::withoutGlobalScope('branch')->where('invoice_number', $candidate)->exists());
+
+        return $candidate;
+    }
+
+    /**
+     * Ensure any completed or enrollment-linked payment has a real DB Invoice + GePG control number.
+     */
+    public function ensureInvoiceForPayment(Payment $payment, bool $syncCompleted = true): ?Invoice
+    {
+        if ($payment->invoice_id) {
+            $existing = Invoice::withoutGlobalScope('branch')->find($payment->invoice_id);
+            if ($existing && empty($existing->control_number) && $existing->payment_status !== 'paid') {
+                $existing->forceFill([
+                    'control_number' => $this->generateControlNumber(),
+                    'control_number_generated_at' => now(),
+                ])->saveQuietly();
+            }
+
+            if ($existing && $syncCompleted && $payment->status === Payment::STATUS_COMPLETED) {
+                $this->syncInvoiceFromCompletedPayment($payment);
+            }
+
+            return $existing?->fresh();
+        }
+
+        if (! $payment->user_id) {
+            return null;
+        }
+
+        // Skip abandoned orphan pending rows with neither an enrollment nor a bundle
+        if ($payment->status !== Payment::STATUS_COMPLETED && ! $payment->enrollment_id && ! $payment->bundle_id) {
+            return null;
+        }
+
+        $enrollment = $payment->enrollment_id
+            ? Enrollment::withoutGlobalScope('branch')->with('course')->find($payment->enrollment_id)
+            : null;
+
+        $courseId = $enrollment?->course_id;
+        if (! $courseId && $payment->bundle_id) {
+            $bundle = Bundle::with('courses:id,branch_id')->find($payment->bundle_id);
+            $firstBundleCourse = $bundle?->courses->first();
+            $courseId = $firstBundleCourse?->id;
+        }
+
+        $branchId = $enrollment?->branch_id
+            ?? $enrollment?->course?->branch_id
+            ?? User::find($payment->user_id)?->branch_id;
+
+        $invoice = DB::transaction(function () use ($payment, $enrollment, $courseId, $branchId): Invoice {
+            $candidate = null;
+
+            if ($enrollment) {
+                $candidate = Invoice::withoutGlobalScope('branch')
+                    ->where('user_id', $payment->user_id)
+                    ->where('enrollment_id', $enrollment->id)
+                    ->where('payment_status', '!=', 'cancelled')
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($candidate && $candidate->payment_status === 'paid' && $payment->status === Payment::STATUS_COMPLETED) {
+                    $hasOtherCompleted = Payment::withoutGlobalScope('branch')
+                        ->where('invoice_id', $candidate->id)
+                        ->where('status', Payment::STATUS_COMPLETED)
+                        ->where('id', '!=', $payment->id)
+                        ->exists();
+
+                    if ($hasOtherCompleted) {
+                        $candidate = null;
+                    }
+                }
+            }
+
+            if (! $candidate && $courseId) {
+                $candidate = Invoice::withoutGlobalScope('branch')
+                    ->where('user_id', $payment->user_id)
+                    ->where('course_id', $courseId)
+                    ->whereIn('payment_status', ['unpaid', 'partial'])
+                    ->orderByDesc('id')
+                    ->first();
+            }
+
+            if ($candidate) {
+                $updates = [];
+                if (empty($candidate->control_number)) {
+                    $updates['control_number'] = $this->generateControlNumber();
+                    $updates['control_number_generated_at'] = now();
+                }
+                if (! $candidate->enrollment_id && $enrollment) {
+                    $updates['enrollment_id'] = $enrollment->id;
+                }
+                if (! $candidate->course_id && $courseId) {
+                    $updates['course_id'] = $courseId;
+                }
+                if (! $candidate->branch_id && $branchId) {
+                    $updates['branch_id'] = $branchId;
+                }
+                if (! empty($updates)) {
+                    $candidate->forceFill($updates)->saveQuietly();
+                }
+
+                $invoice = $candidate;
+            } else {
+                $netAmount = max(0.0, round((float) $payment->amount, 2));
+                $discountAmount = max(0.0, round((float) ($payment->discount_amount ?? 0), 2));
+                $totalAmount = round($netAmount + $discountAmount, 2);
+                $issuedAt = $payment->created_at ?? now();
+
+                $invoice = Invoice::create([
+                    'invoice_number' => $this->nextInvoiceNumber(),
+                    'control_number' => $this->generateControlNumber(),
+                    'control_number_generated_at' => now(),
+                    'user_id' => $payment->user_id,
+                    'enrollment_id' => $enrollment?->id,
+                    'course_id' => $courseId,
+                    'branch_id' => $branchId,
+                    'total_amount' => $totalAmount,
+                    'discount_amount' => $discountAmount,
+                    'net_amount' => $netAmount,
+                    'paid_amount' => 0,
+                    'balance' => $netAmount,
+                    'payment_status' => $netAmount <= 0 ? 'paid' : 'unpaid',
+                    'installment_plan' => 'full',
+                    'due_date' => $issuedAt->copy()->addDays(7)->toDateString(),
+                    'issued_at' => $issuedAt,
+                    'notes' => $payment->bundle_id
+                        ? 'Auto-generated from bundle checkout'
+                        : 'Auto-generated from course checkout',
+                    'created_by' => $payment->user_id,
+                ]);
+
+                $this->buildPaymentSchedules($invoice, $enrollment, 'full');
+            }
+
+            $payment->forceFill(['invoice_id' => $invoice->id])->saveQuietly();
+
+            return $invoice;
+        });
+
+        if ($syncCompleted && $payment->status === Payment::STATUS_COMPLETED) {
+            $this->syncInvoiceFromCompletedPayment($payment->fresh() ?? $payment);
+        }
+
+        return $invoice->fresh();
+    }
+
+    /**
+     * Self-heal missing invoice links and unsettled completed invoices for a given student.
+     */
+    public function syncMissingInvoicesForStudent(User $user): void
+    {
+        $unlinkedPayments = Payment::withoutGlobalScope('branch')
+            ->where('user_id', $user->id)
+            ->whereNull('invoice_id')
+            ->where(function ($query): void {
+                $query->where('status', Payment::STATUS_COMPLETED)
+                    ->orWhereNotNull('enrollment_id')
+                    ->orWhereNotNull('bundle_id');
+            })
+            ->orderBy('id')
+            ->get();
+
+        foreach ($unlinkedPayments as $payment) {
+            $this->ensureInvoiceForPayment($payment);
+        }
+
+        // Reconcile any completed payment whose linked invoice still reports zero paid_amount.
+        $unreconciledPayments = Payment::withoutGlobalScope('branch')
+            ->where('user_id', $user->id)
+            ->where('status', Payment::STATUS_COMPLETED)
+            ->whereNotNull('invoice_id')
+            ->whereHas('invoice', fn ($q) => $q->withoutGlobalScope('branch')->where('paid_amount', '<=', 0)->where('net_amount', '>', 0))
+            ->get();
+
+        foreach ($unreconciledPayments as $payment) {
+            $this->syncInvoiceFromCompletedPayment($payment);
+        }
+    }
+
+    /**
+     * Finalize any completed payment idempotently across invoices, enrollments, bundles,
+     * revenue share, and student bell notifications.
+     */
+    public function finalizeCompletedPayment(Payment $payment): void
+    {
+        if ($payment->status !== Payment::STATUS_COMPLETED) {
+            return;
+        }
+
+        if ($payment->verification_status !== 'verified' || ! $payment->payment_date) {
+            $payment->forceFill([
+                'verification_status' => 'verified',
+                'payment_date' => $payment->payment_date ?? now()->toDateString(),
+            ])->saveQuietly();
+        }
+
+        if (! $payment->invoice_id) {
+            $this->ensureInvoiceForPayment($payment, false);
+            $payment = $payment->fresh() ?? $payment;
+        }
+
+        if ($payment->invoice_id) {
+            $this->syncInvoiceFromCompletedPayment($payment);
+        }
+
+        $enrollmentActivated = false;
+        if ($payment->enrollment_id) {
+            $enrollment = Enrollment::withoutGlobalScope('branch')->with('course', 'user')->find($payment->enrollment_id);
+            if ($enrollment && $enrollment->status === Enrollment::STATUS_PENDING) {
+                $enrollment->update([
+                    'status' => Enrollment::STATUS_APPROVED,
+                    'payment_id' => $enrollment->payment_id ?? $payment->id,
+                    'enrolled_at' => $enrollment->enrolled_at ?? now(),
+                ]);
+                $enrollmentActivated = true;
+            }
+
+            if ($payment->bundle_id && $enrollment) {
+                $bundle = Bundle::with('courses')->find($payment->bundle_id);
+                if ($bundle) {
+                    foreach ($bundle->courses as $bundleCourseItem) {
+                        if ((int) $bundleCourseItem->id === (int) $enrollment->course_id) {
+                            continue;
+                        }
+
+                        Enrollment::updateOrCreate(
+                            ['user_id' => $enrollment->user_id, 'course_id' => $bundleCourseItem->id],
+                            [
+                                'status' => Enrollment::STATUS_APPROVED,
+                                'enrolled_at' => now(),
+                            ]
+                        );
+                    }
+
+                    BundleEnrollment::updateOrCreate(
+                        ['user_id' => $enrollment->user_id, 'bundle_id' => $bundle->id],
+                        [
+                            'status' => 'approved',
+                            'enrolled_at' => now(),
+                        ]
+                    );
+                }
+            }
+
+            if ($enrollmentActivated && $enrollment && ! $payment->invoice_id && $enrollment->user) {
+                $courseTitle = $enrollment->course?->title ?? 'Course';
+                $accessUrl = Route::has('student.courses.access') && $enrollment->course_id
+                    ? route('student.courses.access', $enrollment->course_id)
+                    : (Route::has('student.my-courses') ? route('student.my-courses') : null);
+
+                app(PortalNotificationService::class)->notifyUser(
+                    $enrollment->user,
+                    'Payment Confirmed',
+                    "Your payment for {$courseTitle} is completed and enrollment is active.",
+                    'success',
+                    $accessUrl
+                );
+            }
+        }
+
+        $freshPayment = $payment->fresh() ?? $payment;
+        if (! $freshPayment->commission_processed) {
+            $this->revenueShare->process($freshPayment);
+        }
+    }
+
+    /**
+     * Reconcile an invoice after an online gateway payment is completed.
+     */
     public function syncInvoiceFromCompletedPayment(Payment $payment): void
     {
         if (! $payment->invoice_id) {
             return;
         }
 
+        // Bypass branch scope so gateway webhooks/callbacks can reconcile cross-branch invoices.
         $invoice = Invoice::withoutGlobalScope('branch')->find($payment->invoice_id);
         if (! $invoice) {
             return;
@@ -243,9 +558,14 @@ class SrsWorkflowService
         $this->settleVerifiedAmountOnInvoice($invoice, $payment);
     }
 
+    /**
+     * Sum verified payments, update invoice balance/status, allocate installments,
+     * approve pending enrollments, and process revenue share once per payment.
+     */
     protected function settleVerifiedAmountOnInvoice(Invoice $invoice, Payment $payment): void
     {
-        $verifiedTotal = (float) Payment::where('invoice_id', $invoice->id)
+        $verifiedTotal = (float) Payment::withoutGlobalScope('branch')
+            ->where('invoice_id', $invoice->id)
             ->where('status', Payment::STATUS_COMPLETED)
             ->sum('amount');
 
@@ -281,16 +601,45 @@ class SrsWorkflowService
 
         // Approve enrollment once any verified payment covers first installment or balance
         $enrollment = $invoice->enrollment;
+        $enrollmentWasApproved = false;
         if ($enrollment && $enrollment->status === Enrollment::STATUS_PENDING && $paidAmount > 0) {
             $enrollment->update([
                 'status' => Enrollment::STATUS_APPROVED,
                 'payment_id' => $payment->id,
                 'enrolled_at' => $enrollment->enrolled_at ?? now(),
             ]);
+            $enrollmentWasApproved = true;
         }
 
         if (! $payment->commission_processed) {
             $this->revenueShare->process($payment);
+        }
+
+        $recipient = $invoice->user ?? $enrollment?->user ?? ($payment->user_id ? User::find($payment->user_id) : null);
+        if ($recipient && ($invoice->wasChanged(['paid_amount', 'payment_status']) || $enrollmentWasApproved)) {
+            $notifier = app(PortalNotificationService::class);
+            $invUrl = Route::has('student.campus.invoices.index') ? route('student.campus.invoices.index') : null;
+            $statusLabel = $invStatus === 'paid' ? 'fully settled' : 'partially paid';
+
+            $notifier->notifyUser(
+                $recipient,
+                'Payment Confirmed',
+                "Your payment for invoice {$invoice->invoice_number} has been verified ({$statusLabel}).",
+                'success',
+                $invUrl
+            );
+
+            if ($enrollmentWasApproved && $enrollment) {
+                $courseTitle = $enrollment->course?->title ?? 'Campus Course';
+                $courseUrl = Route::has('student.campus.timetable') ? route('student.campus.timetable') : null;
+                $notifier->notifyUser(
+                    $recipient,
+                    'Enrollment Approved',
+                    "Your enrollment for {$courseTitle} is now active. Check your campus timetable and course materials.",
+                    'success',
+                    $courseUrl
+                );
+            }
         }
     }
 
@@ -381,6 +730,18 @@ class SrsWorkflowService
 
         $enrollment->update($updates);
 
-        return $enrollment->fresh();
+        $fresh = $enrollment->fresh();
+        if ($targetStatus === 'issued' && $fresh?->user && Route::has('student.certificates')) {
+            $courseTitle = $fresh->course?->title ?? 'Course';
+            app(PortalNotificationService::class)->notifyUser(
+                $fresh->user,
+                'Certificate Issued',
+                "Your verified OUT certificate ({$serial}) for {$courseTitle} is ready to download.",
+                'success',
+                route('student.certificates')
+            );
+        }
+
+        return $fresh;
     }
 }

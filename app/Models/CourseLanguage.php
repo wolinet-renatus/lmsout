@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents a language for courses.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class CourseLanguage extends Model
 {
@@ -27,6 +28,9 @@ class CourseLanguage extends Model
         'display_order' => 'integer',
     ];
 
+    /**
+     * Eloquent hasMany relationship for Courses.
+     */
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class, 'course_language_id');

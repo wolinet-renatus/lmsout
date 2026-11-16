@@ -12,6 +12,7 @@ use BaconQrCode\Writer;
  *
  * Generates QR codes locally (SVG) so they work offline and inside DomPDF.
  * Falls back to a public QR API when BaconQrCode is unavailable.
+ * @author Renatus Bernardo
  */
 class QrCodeService
 {

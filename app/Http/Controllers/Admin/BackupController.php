@@ -16,9 +16,13 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  *
  * Provides database, media storage, and full system backup creation,
  * download, and lifecycle management from the Admin Panel.
+ * @author Renatus Bernardo
  */
 class BackupController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         protected SystemBackupService $backupService
     ) {}

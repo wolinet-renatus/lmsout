@@ -17,12 +17,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Bundle controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class BundleController extends Controller
 {
     protected PaymentGatewayService $paymentGatewayService;
     protected SettingsRepository $settingsRepository;
     protected FileUploadService $fileUploadService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         PaymentGatewayService $paymentGatewayService,
         SettingsRepository $settingsRepository,
@@ -33,6 +41,9 @@ class BundleController extends Controller
         $this->fileUploadService = $fileUploadService;
     }
 
+    /**
+     * Display a listing of the resource records.
+     */
     public function index()
     {
         $bundles = Bundle::with(['courses' => function ($q) {
@@ -48,6 +59,9 @@ class BundleController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show($id)
     {
         $bundle = Bundle::with(['courses.instructor', 'vendor'])
@@ -63,6 +77,9 @@ class BundleController extends Controller
 
 
 
+    /**
+     * Create course enrollments.
+     */
     private function createCourseEnrollments($bundle, $user, $payment, $status)
     {
         $ownedCourseIds = Enrollment::where('user_id', $user->id)

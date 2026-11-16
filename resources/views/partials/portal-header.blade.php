@@ -5,6 +5,13 @@
     $notificationsRoute = $portalType === 'instructor' && \Illuminate\Support\Facades\Route::has('instructor.notifications.index')
         ? route('instructor.notifications.index')
         : (\Illuminate\Support\Facades\Route::has('student.notifications.index') ? route('student.notifications.index') : '#');
+    $notificationsFeedRoute = \Illuminate\Support\Facades\Route::has($portalType . '.notifications.feed')
+        ? route($portalType . '.notifications.feed')
+        : '';
+    $notificationsReadAllRoute = \Illuminate\Support\Facades\Route::has($portalType . '.notifications.readAll')
+        ? route($portalType . '.notifications.readAll')
+        : '#';
+    $readRouteName = $portalType . '.notifications.read';
     $messagesRoute = $portalType === 'instructor' && \Illuminate\Support\Facades\Route::has('instructor.messages.index')
         ? route('instructor.messages.index')
         : (\Illuminate\Support\Facades\Route::has('student.messages.index') ? route('student.messages.index') : '#');
@@ -12,9 +19,20 @@
     $ticketsRoute = $portalType === 'instructor' ? route('instructor.tickets.index') : route('student.tickets.index');
     $userPhoto = $user?->profile_photo ? asset('storage/' . $user->profile_photo) : asset('assets/front/img/home-1/courses/client-01.png');
     $unreadCount = $user ? $user->unreadNotifications()->count() : 0;
+    $recentPortalNotifications = $user ? $user->notifications()->latest()->limit(8)->get() : collect();
+    $unreadMessagesCount = 0;
+    if ($user) {
+        try {
+            $unreadMessagesCount = app(\App\Services\ChatService::class)->getUnreadCount($user->id, $portalType);
+        } catch (\Throwable) {
+            $unreadMessagesCount = 0;
+        }
+    }
 @endphp
 
-<header class="out-portal-header">
+<header class="out-portal-header"
+        data-feed-url="{{ $notificationsFeedRoute }}"
+        data-chat-indicator=".{{ $portalType }}-chat-indicator">
     <div class="out-portal-header-left">
         <!-- Sidebar Drawer Toggle (Mobile & Desktop) -->
         <button type="button" class="out-portal-toggle-btn" id="outPortalSidebarToggle" aria-label="Toggle Navigation">
@@ -47,22 +65,86 @@
             <span class="d-none d-md-inline">Visit Website</span>
         </a>
 
-        <!-- Messages Shortcut -->
+        <!-- Messages Shortcut with Live Unread Count -->
         @if($messagesRoute !== '#')
-            <a href="{{ $messagesRoute }}" class="out-portal-icon-btn d-none d-sm-inline-flex" title="Messages">
+            <a href="{{ $messagesRoute }}" class="out-portal-icon-btn" title="Messages">
                 <i class="fa-solid fa-envelope"></i>
-                <span class="out-portal-icon-badge d-none {{ $portalType }}-chat-indicator"></span>
+                <span class="out-portal-icon-badge out-portal-count-badge {{ $portalType }}-chat-indicator {{ $unreadMessagesCount > 0 ? '' : 'd-none' }}">{{ $unreadMessagesCount > 99 ? '99+' : $unreadMessagesCount }}</span>
             </a>
         @endif
 
-        <!-- Notifications Shortcut -->
+        <!-- Interactive Notifications Bell Dropdown -->
         @if($notificationsRoute !== '#')
-            <a href="{{ $notificationsRoute }}" class="out-portal-icon-btn d-none d-sm-inline-flex" title="Notifications">
-                <i class="fa-solid fa-bell"></i>
-                @if($unreadCount > 0)
-                    <span class="out-portal-icon-badge"></span>
-                @endif
-            </a>
+            <div class="dropdown out-portal-bell-dropdown" id="portalBellDropdown">
+                <button type="button"
+                        class="out-portal-icon-btn"
+                        id="portalBellToggle"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-expanded="false"
+                        title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="portalBellBadge"
+                          class="out-portal-icon-badge out-portal-count-badge {{ $unreadCount > 0 ? '' : 'd-none' }}">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-end out-portal-bell-menu shadow" aria-labelledby="portalBellToggle">
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom bg-light">
+                        <span class="fw-bold text-dark" style="font-size: 13px;">
+                            <i class="fa-solid fa-bell text-primary me-1"></i> Notifications
+                        </span>
+                        <a href="{{ $notificationsReadAllRoute }}"
+                           id="portalBellMarkAll"
+                           data-read-all-url="{{ $notificationsReadAllRoute }}"
+                           class="text-decoration-none fw-semibold {{ $unreadCount > 0 ? '' : 'd-none' }}"
+                           style="font-size: 11.5px; color: #013ba6;">
+                            Mark all read
+                        </a>
+                    </div>
+
+                    <div id="portalBellList" class="out-portal-bell-list">
+                        @forelse($recentPortalNotifications as $notification)
+                            @php
+                                $data = is_array($notification->data) ? $notification->data : [];
+                                $isUnread = $notification->read_at === null;
+                                $notifType = $data['type'] ?? 'info';
+                                $iconColor = match ($notifType) {
+                                    'success' => '#059669',
+                                    'warning' => '#d97706',
+                                    'danger'  => '#dc2626',
+                                    default   => '#013ba6',
+                                };
+                            @endphp
+                            <a href="{{ route($readRouteName, $notification->id) }}"
+                               class="dropdown-item out-portal-bell-item {{ $isUnread ? 'unread' : '' }}">
+                                <div class="d-flex align-items-start gap-2">
+                                    <span class="mt-1 flex-shrink-0" style="color: {{ $iconColor }}; font-size: 13px;">
+                                        <i class="fa-solid fa-circle-dot"></i>
+                                    </span>
+                                    <div class="flex-grow-1" style="min-width: 0;">
+                                        <div class="d-flex justify-content-between align-items-center gap-2">
+                                            <span class="fw-semibold text-dark text-truncate" style="font-size: 12.5px;">{{ $data['title'] ?? 'Notification' }}</span>
+                                            <span class="text-muted flex-shrink-0" style="font-size: 10px;">{{ $notification->created_at?->diffForHumans(null, true) }}</span>
+                                        </div>
+                                        <p class="text-muted mb-0 text-truncate" style="font-size: 11.5px;">{{ $data['message'] ?? '' }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="text-center py-4 px-3 text-muted" style="font-size: 12.5px;">
+                                <i class="fa-regular fa-bell-slash d-block mb-1 fs-5"></i>
+                                No notifications yet.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="border-top px-3 py-2 text-center bg-light">
+                        <a href="{{ $notificationsRoute }}" class="text-decoration-none fw-semibold" style="font-size: 12px; color: #013ba6;">
+                            View All Notifications <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
         @endif
 
         <!-- User Profile Dropdown Pill -->
@@ -112,4 +194,3 @@
         @endif
     </div>
 </header>
-

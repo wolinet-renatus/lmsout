@@ -14,11 +14,15 @@ use Illuminate\Notifications\Notification;
  * to enrolled students via database and email channels.
  *
  * @package App\Notifications
+ * @author Renatus Bernardo
  */
 class LiveClassNotification extends Notification
 {
     use Queueable;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         public readonly LiveClass $liveClass,
         public readonly string $notificationType, // scheduled|reminder|starting_now|cancelled

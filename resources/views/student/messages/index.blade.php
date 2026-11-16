@@ -150,7 +150,7 @@
                         let html = '';
                         data.forEach(function(inst) {
                             const avatar = inst.profile_photo
-                                ? `<img src="/storage/${inst.profile_photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
+                                ? `<img src="{{ asset('storage') }}/${inst.profile_photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
                                 : `<div style="width:36px;height:36px;border-radius:50%;background:var(--theme-light,#eefdf3);color:var(--theme,#008D5E);display:flex;align-items:center;justify-content:center;font-weight:700;">${inst.name.charAt(0).toUpperCase()}</div>`;
                             html += `<div class="d-flex align-items-center gap-2 p-2 rounded instructor-option" style="cursor:pointer;border-radius:10px;" data-id="${inst.id}" data-name="${inst.name}">
                                 ${avatar}

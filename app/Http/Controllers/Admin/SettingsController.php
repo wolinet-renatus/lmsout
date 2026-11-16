@@ -14,9 +14,13 @@ use Illuminate\Http\Request;
  * This controller handles the management of settings.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class SettingsController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private SettingsRepository $settings, private FileUploadService $fileUploadService)
     {
     }
@@ -207,7 +211,7 @@ class SettingsController extends Controller
             'MAD' => 'MAD · Moroccan Dirham',
             'NGN' => 'NGN · Nigerian Naira',
             'KES' => 'KES · Kenyan Shilling',
-            'TZS' => 'TZS · Tanzanian Shilling',
+            'TZS' => 'TZS · Tanzanian Shilling (TSH)',
             'UGX' => 'UGX · Ugandan Shilling',
             'ZMW' => 'ZMW · Zambian Kwacha',
             'MWK' => 'MWK · Malawian Kwacha',
@@ -253,7 +257,10 @@ class SettingsController extends Controller
             'timezone' => ['required', 'string', 'max:120'],
             'default_language' => ['required', 'string', 'max:10'],
             'default_currency' => ['required', 'string', 'max:10'],
+            'usd_to_tzs_rate' => ['nullable', 'numeric', 'min:1'],
         ]);
+
+        $data['usd_to_tzs_rate'] = (float) ($data['usd_to_tzs_rate'] ?? usd_to_tzs_rate());
 
         $this->settings->set('platform.general', $data, 'platform', 'array');
 

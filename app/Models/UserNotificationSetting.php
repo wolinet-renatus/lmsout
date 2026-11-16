@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents the notification settings for a user.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class UserNotificationSetting extends Model
 {
@@ -23,6 +24,9 @@ class UserNotificationSetting extends Model
         'preferences' => 'array',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

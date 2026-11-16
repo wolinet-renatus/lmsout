@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents a reply to a review.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class ReviewReply extends Model
 {

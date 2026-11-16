@@ -14,9 +14,13 @@ use Illuminate\Validation\Rule;
  * This request validates the data for updating an assignment submission.
  *
  * @package App\Http\Requests\Instructor
+ * @author Renatus Bernardo
  */
 class UpdateAssignmentSubmissionRequest extends FormRequest
 {
+    /**
+     * Determine whether the current user is authorized to perform this request.
+     */
     public function authorize(): bool
     {
         /** @var User|null $user */
@@ -40,6 +44,9 @@ class UpdateAssignmentSubmissionRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Define the validation rules applied to the incoming request.
+     */
     public function rules(): array
     {
         return [
@@ -58,6 +65,9 @@ class UpdateAssignmentSubmissionRequest extends FormRequest
         ];
     }
 
+    /**
+     * Define custom validation error messages for the request.
+     */
     public function messages(): array
     {
         return [

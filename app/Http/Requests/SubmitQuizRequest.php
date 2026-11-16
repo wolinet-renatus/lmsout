@@ -10,25 +10,35 @@ use Illuminate\Foundation\Http\FormRequest;
  * This request validates the data for submitting a quiz.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class SubmitQuizRequest extends FormRequest
 {
+    /**
+     * Determine whether the current user is authorized to perform this request.
+     */
     public function authorize(): bool
     {
         return (bool) ($this->user()?->isStudent());
     }
 
+    /**
+     * Define the validation rules applied to the incoming request.
+     */
     public function rules(): array
     {
         return [
             'quiz_id' => ['required', 'integer', 'exists:quizzes,id'],
-            'answers' => ['required', 'array'],
+            'answers' => ['nullable', 'array'],
             'answers.*.question_id' => ['required', 'integer', 'exists:quiz_questions,id'],
             'answers.*.selected_answer' => ['required', 'integer', 'min:0'],
             'time_taken' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
+    /**
+     * Define custom validation error messages for the request.
+     */
     public function messages(): array
     {
         return [

@@ -12,9 +12,13 @@ use Illuminate\View\View;
 
 /**
  * Countries / Nationality Reference Manager (migrated from SCMS CountryController).
+ * @author Renatus Bernardo
  */
 class CountryController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View
     {
         $q = trim((string) $request->query('q', ''));
@@ -30,6 +34,9 @@ class CountryController extends Controller
         return view('admin.campus.countries.index', compact('countries', 'q'));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -50,6 +57,9 @@ class CountryController extends Controller
         return back();
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, Country $country): RedirectResponse
     {
         $data = $request->validate([
@@ -70,6 +80,9 @@ class CountryController extends Controller
         return back();
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(Country $country): RedirectResponse
     {
         if ($country->branches()->exists() || $country->applicants()->exists()) {

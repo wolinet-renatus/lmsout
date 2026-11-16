@@ -14,6 +14,11 @@ use App\Models\ReviewReply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Review controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class ReviewController extends Controller
 {
     /**

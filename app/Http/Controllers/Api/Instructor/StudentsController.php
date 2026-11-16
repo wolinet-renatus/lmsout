@@ -12,8 +12,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+/**
+ * Students controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class StudentsController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $instructor = Auth::user();
@@ -111,6 +119,9 @@ class StudentsController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show($id)
     {
         $instructor = Auth::user();

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: create account deletion requests table.
+ *
+ * @author Renatus Bernardo
+ */
+
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

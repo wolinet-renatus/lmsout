@@ -17,9 +17,13 @@ use Illuminate\Support\Facades\Artisan;
  *
  * Inspects application version alignment, Git/CI-CD deployment status,
  * pending migrations, and executes post-deployment synchronization tasks.
+ * @author Renatus Bernardo
  */
 class UpdaterController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         protected DeploymentInspectorService $inspector,
         protected SystemBackupService $backupService

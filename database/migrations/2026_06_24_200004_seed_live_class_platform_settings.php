@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: seed live class platform settings.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 

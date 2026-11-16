@@ -10,6 +10,7 @@ use App\Models\User;
  * This policy determines the actions that can be performed on a course.
  *
  * @package App\Policies
+ * @author Renatus Bernardo
  */
 class CoursePolicy
 {

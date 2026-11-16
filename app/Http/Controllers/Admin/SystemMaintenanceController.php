@@ -19,6 +19,7 @@ use Devrabiul\ToastMagic\Facades\ToastMagic;
  * This controller handles the management of system maintenance.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class SystemMaintenanceController extends Controller
 {

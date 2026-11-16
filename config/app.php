@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for app.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
 
     /*

@@ -19,9 +19,13 @@ use Illuminate\Support\Facades\Auth;
  * Handles scheduling, managing, and ending live class sessions.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class LiveClassController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         protected LiveClassService $liveClassService,
         protected FileUploadService $fileUploadService,

@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * Invoice Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class Invoice extends Model
 {
     use HasFactory, BranchScoped, LogsActivity;
@@ -50,6 +55,9 @@ class Invoice extends Model
         'paid_at' => 'datetime',
     ];
 
+    /**
+     * Get activitylog options.
+     */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -66,43 +74,84 @@ class Invoice extends Model
             ->dontSubmitEmptyLogs();
     }
 
+    /**
+     * Eloquent belongsTo relationship for Applicant.
+     */
     public function applicant(): BelongsTo
     {
         return $this->belongsTo(Applicant::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Enrollment.
+     */
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(Enrollment::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Course.
+     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Branch.
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Creator.
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * Eloquent hasMany relationship for Payments.
+     */
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Payment schedules.
+     */
     public function paymentSchedules(): HasMany
     {
         return $this->hasMany(PaymentSchedule::class)->orderBy('installment_number');
+    }
+
+    /**
+     * Scope invoices belonging to a given user across direct, enrollment, and applicant ownership.
+     */
+    public function scopeOwnedByUser($query, User $user)
+    {
+        return $query->where(function ($q) use ($user): void {
+            $q->where('user_id', $user->id)
+                ->orWhereHas('enrollment', fn ($eq) => $eq->where('user_id', $user->id))
+                ->orWhereHas('applicant', function ($aq) use ($user): void {
+                    $aq->where('user_id', $user->id);
+                    if (! empty($user->email)) {
+                        $aq->orWhere('email', $user->email);
+                    }
+                });
+        });
     }
 }

@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * Applicant Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class Applicant extends Model
 {
     use HasFactory, BranchScoped, LogsActivity;
@@ -51,6 +56,9 @@ class Applicant extends Model
         'discount_percentage' => 'decimal:2',
     ];
 
+    /**
+     * Get activitylog options.
+     */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -68,6 +76,9 @@ class Applicant extends Model
             ->dontSubmitEmptyLogs();
     }
 
+    /**
+     * Accessor for computed Full name attribute.
+     */
     public function getFullNameAttribute($value): string
     {
         if (! empty($value)) {
@@ -127,31 +138,49 @@ class Applicant extends Model
         ];
     }
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Branch.
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Country.
+     */
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Enrollments.
+     */
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Invoices.
+     */
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Payments.
+     */
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);

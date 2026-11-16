@@ -1,3 +1,6 @@
+const getAppBaseUrl = () => ($('meta[name="app-url"]').attr('content') || window.location.origin).replace(/\/+$/, '');
+const appUrl = (path) => `${getAppBaseUrl()}/${String(path).replace(/^\/+/, '')}`;
+
 $(document).ready(function() {
     let quizTimer = null;
     let quizStartTime = null;
@@ -48,11 +51,11 @@ $(document).ready(function() {
         }
     });
 
-    $('.lesson-item, .quiz-item, .assignment-item').on('click', function() {
+    $(document).on('click', '.lesson-item, .quiz-item, .assignment-item', function() {
         const itemId = $(this).data('item-id');
         const itemType = $(this).data('item-type');
-        const courseId = $(this).data('course-id');
-        const isAccessible = $(this).data('accessible') == 1;
+        const targetCourseId = $(this).data('course-id');
+        const isAccessible = $(this).attr('data-accessible') == '1';
 
         if (!isAccessible) {
             if (window.toastMagic) {
@@ -66,15 +69,84 @@ $(document).ready(function() {
         $('.lesson-item, .quiz-item, .assignment-item').removeClass('active');
         $(this).addClass('active');
 
-        loadItem(itemId, itemType, courseId);
+        loadItem(itemId, itemType, targetCourseId);
     });
 
-    function loadItem(itemId, itemType, courseId) {
+    function syncActiveSidebarItem() {
+        $('.lesson-item, .quiz-item, .assignment-item').removeClass('active');
+        const $activeItem = $(`.curriculum-item.${currentItemType}-item[data-item-id="${currentItemId}"]`);
+        if ($activeItem.length) {
+            $activeItem.addClass('active');
+            const $chapterSection = $activeItem.closest('.chapter-section');
+            if ($chapterSection.length && $chapterSection.hasClass('collapsed')) {
+                $chapterSection.removeClass('collapsed');
+                $chapterSection.find('.chapter-content').show();
+                $chapterSection.find('.chapter-toggle-icon').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            }
+        }
+    }
+
+    function updateProgressSummary(summary) {
+        if (!summary) return;
+        const pct = parseInt(summary.percentage, 10) || 0;
+        const completed = parseInt(summary.completed_items, 10) || 0;
+        const total = parseInt(summary.total_items, 10) || 0;
+
+        $('#course-progress-bar')
+            .css('width', pct + '%')
+            .attr('aria-valuenow', pct);
+        $('#course-progress-text').text(`${completed}/${total} (${pct}%)`);
+    }
+
+    function updateNavigationButtons(navigation) {
+        if (!navigation) return;
+        currentNavigation = navigation;
+
+        const hasPrev = Boolean(navigation.has_previous);
+        const hasNext = Boolean(navigation.has_next);
+        const nextAccessible = Boolean(navigation.next_accessible);
+
+        $('#prev-btn')
+            .prop('disabled', !hasPrev)
+            .toggleClass('opacity-50', !hasPrev)
+            .attr('title', hasPrev ? 'Previous' : 'First item in course');
+
+        $('#next-btn')
+            .prop('disabled', !hasNext)
+            .toggleClass('opacity-50', !hasNext || !nextAccessible)
+            .attr('title', !hasNext ? 'Last item in course' : (nextAccessible ? 'Next' : 'Complete current item to unlock Next'));
+    }
+
+    function extractAjaxError(xhr, fallback) {
+        let errorMessage = fallback;
+        if (xhr && xhr.responseJSON) {
+            if (xhr.responseJSON.errors) {
+                const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                if (firstKey && Array.isArray(xhr.responseJSON.errors[firstKey]) && xhr.responseJSON.errors[firstKey][0]) {
+                    return xhr.responseJSON.errors[firstKey][0];
+                }
+            }
+            if (xhr.responseJSON.error) {
+                errorMessage = xhr.responseJSON.error;
+            } else if (xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+        }
+        return errorMessage;
+    }
+
+    function loadItem(itemId, itemType, targetCourseId) {
+        if (quizTimer) {
+            clearInterval(quizTimer);
+            quizTimer = null;
+        }
+        quizTimeExpired = false;
+
         const url = itemType === 'lesson' 
-            ? `/student/courses/${courseId}/lesson/load`
+            ? appUrl(`student/courses/${targetCourseId}/lesson/load`)
             : itemType === 'quiz'
-            ? `/student/courses/${courseId}/quiz/${itemId}/load`
-            : `/student/courses/${courseId}/assignment/${itemId}/load`;
+            ? appUrl(`student/courses/${targetCourseId}/quiz/${itemId}/load`)
+            : appUrl(`student/courses/${targetCourseId}/assignment/${itemId}/load`);
 
         const data = {
             _token: $('meta[name="csrf-token"]').attr('content')
@@ -82,9 +154,9 @@ $(document).ready(function() {
         
         if (itemType === 'lesson') {
             data.lesson_id = itemId;
-            data.course_id = courseId;
+            data.course_id = targetCourseId;
         } else {
-            data.course_id = courseId;
+            data.course_id = targetCourseId;
         }
 
         $.ajax({
@@ -100,16 +172,16 @@ $(document).ready(function() {
                     $('#current-item-title').text(response.title);
                     
                     let iconClass = 'fas fa-play-circle';
-                    if (response.type === 'quiz') {
+                    if (currentItemType === 'quiz') {
                         iconClass = 'fas fa-question-circle';
-                    } else if (response.type === 'assignment') {
+                    } else if (currentItemType === 'assignment') {
                         iconClass = 'fas fa-file-alt';
                     }
                     $('.course-header-play-icon').attr('class', iconClass + ' course-header-play-icon');
                     
                     let durationHtml = '';
-                    if (response.duration && response.type === 'lesson') {
-                        const duration = parseInt(response.duration);
+                    if (response.duration && currentItemType === 'lesson') {
+                        const duration = parseInt(response.duration, 10);
                         const hours = Math.floor(duration / 60);
                         const minutes = duration % 60;
                         const durationFormatted = hours > 0 
@@ -117,7 +189,19 @@ $(document).ready(function() {
                             : '0:' + String(minutes).padStart(2, '0');
                         durationHtml = `(${durationFormatted} min)`;
                     }
-                    $('.course-header-duration').text(durationHtml);
+                    if (durationHtml) {
+                        $('#current-item-duration, .course-header-duration').text(durationHtml).show();
+                    } else {
+                        $('#current-item-duration, .course-header-duration').text('').hide();
+                    }
+
+                    if (window.history && typeof window.history.replaceState === 'function') {
+                        const nextUrl = `${appUrl(`student/courses/${targetCourseId}/access`)}?item_type=${encodeURIComponent(currentItemType)}&item_id=${encodeURIComponent(currentItemId)}`;
+                        window.history.replaceState(null, '', nextUrl);
+                    }
+
+                    syncActiveSidebarItem();
+                    updateNavigationButtons(response.navigation);
                     
                     if ($(window).width() <= 991) {
                         $('#course-sidebar-wrapper').removeClass('open');
@@ -137,14 +221,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                let errorMessage = 'Failed to load content';
-                if (xhr.responseJSON) {
-                    if (xhr.responseJSON.error) {
-                        errorMessage = xhr.responseJSON.error;
-                    } else if (xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-                }
+                const errorMessage = extractAjaxError(xhr, 'Failed to load content');
                 
                 if (window.toastMagic) {
                     if (xhr.responseJSON && xhr.responseJSON.locked) {
@@ -163,7 +240,10 @@ $(document).ready(function() {
         });
     }
 
+    let lastReportedProgressPercent = -1;
+
     function initializeVideoPlayer() {
+        lastReportedProgressPercent = -1;
         if (videoPlayer) {
             videoPlayer.dispose();
             videoPlayer = null;
@@ -179,52 +259,58 @@ $(document).ready(function() {
             });
 
             videoPlayer.ready(function() {
-                const savedRate = parseFloat(localStorage.getItem('edux_playback_rate') || '1');
+                const savedRate = parseFloat(localStorage.getItem('lmsout_playback_rate') || '1');
                 if (savedRate && !isNaN(savedRate)) {
                     videoPlayer.playbackRate(savedRate);
-                    $('#edux-speed-select').val(String(savedRate));
+                    $('#lmsout-speed-select').val(String(savedRate));
                 }
 
                 videoPlayer.on('ratechange', function() {
                     const currentRate = videoPlayer.playbackRate();
-                    localStorage.setItem('edux_playback_rate', currentRate);
-                    $('#edux-speed-select').val(String(currentRate));
+                    localStorage.setItem('lmsout_playback_rate', currentRate);
+                    $('#lmsout-speed-select').val(String(currentRate));
                 });
 
                 videoPlayer.on('timeupdate', function() {
                     if (videoPlayer.duration()) {
                         const percentage = Math.round((videoPlayer.currentTime() / videoPlayer.duration()) * 100);
-                        updateVideoProgress(percentage);
+                        if (
+                            percentage !== lastReportedProgressPercent &&
+                            (Math.abs(percentage - lastReportedProgressPercent) >= 5 || (percentage >= 90 && lastReportedProgressPercent < 90))
+                        ) {
+                            lastReportedProgressPercent = percentage;
+                            updateVideoProgress(percentage);
+                        }
                     }
                 });
 
                 videoPlayer.on('ended', function() {
                     const lessonId = $('#mark-complete-btn').data('lesson-id');
-                    const courseId = $('#mark-complete-btn').data('course-id');
-                    if (lessonId && courseId) {
-                        markComplete(lessonId, courseId, true); 
+                    const targetCourseId = $('#mark-complete-btn').data('course-id');
+                    if (lessonId && targetCourseId) {
+                        markComplete(lessonId, targetCourseId, true); 
                     }
                 });
             });
         }
     }
 
-    window.eduxVideoSeek = function(seconds) {
+    window.lmsoutVideoSeek = function(seconds) {
         if (videoPlayer && typeof videoPlayer.currentTime === 'function') {
             const nextTime = Math.max(0, (videoPlayer.currentTime() || 0) + Number(seconds));
             videoPlayer.currentTime(nextTime);
         }
     };
 
-    window.eduxSetVideoSpeed = function(rate) {
+    window.lmsoutSetVideoSpeed = function(rate) {
         const numericRate = parseFloat(rate) || 1;
-        localStorage.setItem('edux_playback_rate', numericRate);
+        localStorage.setItem('lmsout_playback_rate', numericRate);
         if (videoPlayer && typeof videoPlayer.playbackRate === 'function') {
             videoPlayer.playbackRate(numericRate);
         }
     };
 
-    window.eduxTogglePiP = async function() {
+    window.lmsoutTogglePiP = async function() {
         try {
             const rawVideo = document.querySelector('#lesson-video-player_html5_api') || document.querySelector('video');
             if (!rawVideo) return;
@@ -238,7 +324,7 @@ $(document).ready(function() {
         }
     };
 
-    window.eduxToggleTheater = function() {
+    window.lmsoutToggleTheater = function() {
         $('#course-sidebar-wrapper').toggleClass('d-none');
     };
 
@@ -248,7 +334,7 @@ $(document).ready(function() {
         
         if (lessonId && courseId) {
             $.ajax({
-                url: `/student/courses/${courseId}/lesson/progress`,
+                url: appUrl(`student/courses/${courseId}/lesson/progress`),
                 method: 'POST',
                 data: {
                     lesson_id: lessonId,
@@ -265,21 +351,26 @@ $(document).ready(function() {
         }
     }
 
-    function markComplete(lessonId, courseId, autoNavigate = false) {
+    function markComplete(lessonId, targetCourseId, autoNavigate = false) {
+        const $btn = $('#mark-complete-btn');
+        $btn.prop('disabled', true);
+
         $.ajax({
-            url: `/student/courses/${courseId}/lesson/complete`,
+            url: appUrl(`student/courses/${targetCourseId}/lesson/complete`),
             method: 'POST',
             data: {
                 lesson_id: lessonId,
-                course_id: courseId,
+                course_id: targetCourseId,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
                 if (response.success) {
-                    $('#mark-complete-btn').html('<i class="fas fa-check-circle"></i> Completed').prop('disabled', true);
+                    $btn.html('<i class="fas fa-check-circle"></i> Completed')
+                        .prop('disabled', true)
+                        .css({ opacity: '0.6', cursor: 'not-allowed' });
                     
                     updateSidebarLessonStatus(lessonId, true);
-                    
+                    updateNavigationButtons(response.navigation);
                     refreshSidebarAccessibility();
                     
                     if (window.toastMagic) {
@@ -291,23 +382,29 @@ $(document).ready(function() {
                             if (window.toastMagic) {
                                 window.toastMagic.success('Course Completed!', 'Congratulations! You have completed the entire course!');
                             }
-                            window.location.href = `/student/courses/${courseId}/completion`;
+                            window.location.href = appUrl(`student/courses/${targetCourseId}/completion`);
                         }, 2000);
                     } else if (autoNavigate && response.next_item) {
                         setTimeout(function() {
                             if (response.next_item.item_id && response.next_item.type) {
-                                loadItem(response.next_item.item_id, response.next_item.type, courseId);
+                                loadItem(response.next_item.item_id, response.next_item.type, targetCourseId);
                                 if (window.toastMagic) {
                                     window.toastMagic.info('Moving Forward', 'Loading next item...');
                                 }
                             }
                         }, 1500);
-                    } else if (!autoNavigate) {
-                        
-                        setTimeout(function() {
-                            refreshSidebarAccessibility();
-                        }, 500);
                     }
+                } else {
+                    $btn.prop('disabled', false);
+                }
+            },
+            error: function(xhr) {
+                $btn.prop('disabled', false);
+                const msg = extractAjaxError(xhr, 'Failed to mark lesson complete');
+                if (window.toastMagic) {
+                    window.toastMagic.error('Error', msg);
+                } else {
+                    alert(msg);
                 }
             }
         });
@@ -315,15 +412,14 @@ $(document).ready(function() {
 
     $(document).on('click', '#mark-complete-btn', function() {
         const lessonId = $(this).data('lesson-id');
-        const courseId = $(this).data('course-id');
-        markComplete(lessonId, courseId);
+        const targetCourseId = $(this).data('course-id');
+        markComplete(lessonId, targetCourseId);
     });
 
     function initializeQuizTimer() {
+        quizTimeExpired = false;
         const timerElement = $('.floating-quiz-timer');
         if (timerElement.length) {
-            quizTimeExpired = false;
-            
             timerElement.removeClass('warning danger');
             
             const timeLimitMinutes = parseInt(timerElement.data('time-limit')) || 0;
@@ -392,26 +488,16 @@ $(document).ready(function() {
             return;
         }
 
-        if (quizTimer && quizStartTime) {
-            const elapsed = Math.floor((Date.now() - quizStartTime) / 1000);
-            $('#time-taken').val(Math.floor(elapsed / 60));
-            clearInterval(quizTimer);
-            quizTimer = null;
-        }
-
         const quizId = $form.data('quiz-id');
-        const courseId = $form.data('course-id');
-
-        
-        $form.find('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Submitting...');
+        const targetCourseId = $form.data('course-id');
 
         const answers = [];
         $('.quiz-radio-input:checked').each(function() {
             const name = $(this).attr('name');
             const match = name.match(/answers\[(\d+)\]/);
             if (match) {
-                const questionId = parseInt(match[1]);
-                const selectedAnswer = parseInt($(this).val());
+                const questionId = parseInt(match[1], 10);
+                const selectedAnswer = parseInt($(this).val(), 10);
                 answers.push({
                     question_id: questionId,
                     selected_answer: selectedAnswer
@@ -419,8 +505,26 @@ $(document).ready(function() {
             }
         });
 
+        if (!allowExpired && answers.length === 0) {
+            if (window.toastMagic) {
+                window.toastMagic.warning('Answer Required', 'Please select at least one answer before submitting the quiz.');
+            } else {
+                alert('Please select at least one answer before submitting the quiz.');
+            }
+            return;
+        }
+
+        if (quizTimer && quizStartTime) {
+            const elapsed = Math.floor((Date.now() - quizStartTime) / 1000);
+            $('#time-taken').val(Math.floor(elapsed / 60));
+            clearInterval(quizTimer);
+            quizTimer = null;
+        }
+
+        $form.find('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Submitting...');
+
         $.ajax({
-            url: `/student/courses/${courseId}/quiz/${quizId}/submit`,
+            url: appUrl(`student/courses/${targetCourseId}/quiz/${quizId}/submit`),
             method: 'POST',
             data: {
                 quiz_id: quizId,
@@ -432,6 +536,8 @@ $(document).ready(function() {
                 if (response.success) {
                     quizTimeExpired = true;
                     $('#main-content').html(response.html);
+                    updateNavigationButtons(response.navigation);
+                    updateProgressSummary(response.progress_summary);
                     
                     if (response.passed && response.quiz_id) {
                         updateSidebarQuizStatus(response.quiz_id, true);
@@ -446,18 +552,17 @@ $(document).ready(function() {
                                 if (window.toastMagic) {
                                     window.toastMagic.success('Course Completed!', 'Congratulations! You have completed the entire course!');
                                 }
-                                window.location.href = `/student/courses/${courseId}/completion`;
+                                window.location.href = appUrl(`student/courses/${targetCourseId}/completion`);
                             }, 3000);
                         } else if (response.next_item && response.next_item.item_id) {
                             setTimeout(function() {
-                                loadItem(response.next_item.item_id, response.next_item.type, courseId);
+                                loadItem(response.next_item.item_id, response.next_item.type, targetCourseId);
                                 if (window.toastMagic) {
                                     window.toastMagic.info('Moving Forward', 'Loading next item...');
                                 }
                             }, 3000);
                         }
                     } else if (response.passed === false) {
-                       
                         if (window.toastMagic) {
                             window.toastMagic.warning('Quiz Failed', 'You did not pass the quiz. You can retake it.');
                         }
@@ -465,7 +570,6 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                
                 if (quizTimeExpired) {
                     if (window.toastMagic) {
                         window.toastMagic.error('Submission Failed', 'Quiz time has expired. Please refresh the page to submit again.');
@@ -474,14 +578,10 @@ $(document).ready(function() {
                     }
                     return;
                 }
-                
-                
+
                 $form.find('button[type="submit"]').prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Submit Quiz');
-                
-                let errorMessage = 'Failed to submit quiz';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
+
+                const errorMessage = extractAjaxError(xhr, 'Failed to submit quiz');
                 
                 if (window.toastMagic) {
                     window.toastMagic.error('Submission Failed', errorMessage);
@@ -511,15 +611,18 @@ $(document).ready(function() {
     $(document).on('submit', '#assignment-form', function(e) {
         e.preventDefault();
 
+        const $form = $(this);
+        const $submitBtn = $form.find('button[type="submit"]');
         const formData = new FormData(this);
-        const assignmentId = $(this).data('assignment-id');
-        const courseId = $(this).data('course-id');
+        const assignmentId = $form.data('assignment-id');
+        const targetCourseId = $form.data('course-id');
 
         formData.append('assignment_id', assignmentId);
         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Submitting...');
 
         $.ajax({
-            url: `/student/courses/${courseId}/assignment/${assignmentId}/submit`,
+            url: appUrl(`student/courses/${targetCourseId}/assignment/${assignmentId}/submit`),
             method: 'POST',
             data: formData,
             processData: false,
@@ -527,13 +630,14 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     $('#main-content').html(response.html);
+                    updateNavigationButtons(response.navigation);
+                    updateProgressSummary(response.progress_summary);
                     
                     if (window.toastMagic) {
                         window.toastMagic.success('Assignment Submitted', 'Your assignment has been submitted successfully!');
                     }
                     
                     updateSidebarAssignmentStatus(assignmentId, true);
-                    
                     refreshSidebarAccessibility();
                     
                     if (response.course_completed) {
@@ -541,27 +645,23 @@ $(document).ready(function() {
                             if (window.toastMagic) {
                                 window.toastMagic.success('Course Completed!', 'Congratulations! You have completed the entire course!');
                             }
-                            window.location.href = `/student/courses/${courseId}/completion`;
+                            window.location.href = appUrl(`student/courses/${targetCourseId}/completion`);
                         }, 2500);
                     } else if (response.next_item && response.next_item.item_id) {
                         setTimeout(function() {
-                            loadItem(response.next_item.item_id, response.next_item.type, courseId);
+                            loadItem(response.next_item.item_id, response.next_item.type, targetCourseId);
                             if (window.toastMagic) {
                                 window.toastMagic.info('Moving Forward', 'Loading next item...');
                             }
                         }, 2000);
-                    } else {
-                        setTimeout(function() {
-                            navigateItem('next');
-                        }, 2000);
                     }
+                } else {
+                    $submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Submit Assignment');
                 }
             },
             error: function(xhr) {
-                let errorMessage = 'Failed to submit assignment';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
+                $submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Submit Assignment');
+                const errorMessage = extractAjaxError(xhr, 'Failed to submit assignment');
                 
                 if (window.toastMagic) {
                     window.toastMagic.error('Submission Failed', errorMessage);
@@ -604,7 +704,7 @@ $(document).ready(function() {
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
 
         $.ajax({
-            url: `/student/courses/${targetCourseId}/quiz/${quizId}/load`,
+            url: appUrl(`student/courses/${targetCourseId}/quiz/${quizId}/load`),
             method: 'POST',
             data: {
                 retake: true,
@@ -618,7 +718,9 @@ $(document).ready(function() {
                     
                     $('#current-item-title').text(response.title);
                     $('.course-header-play-icon').attr('class', 'fas fa-question-circle course-header-play-icon');
-                    $('.course-header-duration').text('');
+                    $('#current-item-duration, .course-header-duration').text('').hide();
+                    updateNavigationButtons(response.navigation);
+                    syncActiveSidebarItem();
                     
                     setTimeout(function() {
                         initializeQuizTimer();
@@ -662,7 +764,7 @@ $(document).ready(function() {
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
 
         $.ajax({
-            url: `/student/courses/${courseId}/quiz/attempt/${attemptId}/results`,
+            url: appUrl(`student/courses/${courseId}/quiz/attempt/${attemptId}/results`),
             method: 'GET',
             success: function(response) {
                 if (response.success) {
@@ -701,8 +803,8 @@ $(document).ready(function() {
 
     function navigateItem(direction) {
         const url = direction === 'next' 
-            ? `/student/courses/${courseId}/item/${currentItemId}/next`
-            : `/student/courses/${courseId}/item/${currentItemId}/previous`;
+            ? appUrl(`student/courses/${courseId}/item/${currentItemId}/next`)
+            : appUrl(`student/courses/${courseId}/item/${currentItemId}/previous`);
 
         $.ajax({
             url: url,
@@ -713,6 +815,24 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success && response.item_id) {
                     loadItem(response.item_id, response.type, courseId);
+                } else if (response && response.message) {
+                    if (window.toastMagic) {
+                        if (response.reason === 'locked') {
+                            window.toastMagic.warning('Content Locked', response.message);
+                        } else {
+                            window.toastMagic.info('Navigation', response.message);
+                        }
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            },
+            error: function(xhr) {
+                const msg = extractAjaxError(xhr, 'Unable to navigate to the requested item.');
+                if (window.toastMagic) {
+                    window.toastMagic.error('Navigation Error', msg);
+                } else {
+                    alert(msg);
                 }
             }
         });
@@ -795,11 +915,17 @@ $(document).ready(function() {
 
     function refreshSidebarAccessibility() {
         $.ajax({
-            url: `/student/courses/${courseId}/sidebar/refresh`,
+            url: appUrl(`student/courses/${courseId}/sidebar/refresh`),
             method: 'GET',
+            data: {
+                active_type: currentItemType,
+                active_id: currentItemId
+            },
             success: function(response) {
                 if (response.success) {
                     $('#course-sidebar').html(response.html);
+                    updateProgressSummary(response.progress_summary);
+                    syncActiveSidebarItem();
                     
                     if (response.accessibleItems) {
                         Object.keys(response.accessibleItems).forEach(function(key) {
@@ -846,7 +972,7 @@ $(document).ready(function() {
     }
 
     let searchTimeout;
-    $('#search-input').on('input', function() {
+    $(document).on('input', '#search-input', function() {
         clearTimeout(searchTimeout);
         const query = $(this).val();
 
@@ -857,7 +983,7 @@ $(document).ready(function() {
 
         searchTimeout = setTimeout(function() {
             $.ajax({
-                url: `/student/courses/${courseId}/search`,
+                url: appUrl(`student/courses/${courseId}/search`),
                 method: 'POST',
                 data: {
                     q: query,
@@ -890,6 +1016,10 @@ $(document).ready(function() {
         $('#search-input').val('');
     });
 
+    if (typeof currentNavigation !== 'undefined') {
+        updateNavigationButtons(currentNavigation);
+    }
+
     if (currentItemType === 'lesson') {
         setTimeout(function() {
             initializeVideoPlayer();
@@ -920,7 +1050,7 @@ function loadDiscussions(filter = 'all', search = '') {
     `);
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions`,
+        url: appUrl(`student/courses/${courseId}/discussions`),
         method: 'GET',
         data: {
             filter: filter,
@@ -958,7 +1088,7 @@ function submitNewDiscussion(event) {
     submitBtn.prop('disabled', true).text('Posting...');
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions`,
+        url: appUrl(`student/courses/${courseId}/discussions`),
         method: 'POST',
         data: form.serialize(),
         success: function(response) {
@@ -996,7 +1126,7 @@ function showDiscussion(discussionId) {
     `);
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions/${discussionId}`,
+        url: appUrl(`student/courses/${courseId}/discussions/${discussionId}`),
         method: 'GET',
         success: function(response) {
             if (response.success) {
@@ -1017,7 +1147,7 @@ function submitReply(event, discussionId) {
     submitBtn.prop('disabled', true).text('Posting...');
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions/${discussionId}/replies`,
+        url: appUrl(`student/courses/${courseId}/discussions/${discussionId}/replies`),
         method: 'POST',
         data: form.serialize(),
         success: function(response) {
@@ -1044,7 +1174,7 @@ function toggleLike(discussionId, event) {
     btn.prop('disabled', true);
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions/${discussionId}/like`,
+        url: appUrl(`student/courses/${courseId}/discussions/${discussionId}/like`),
         method: 'POST',
         data: {
             _token: $('meta[name="csrf-token"]').attr('content')
@@ -1070,7 +1200,7 @@ function toggleReplyLike(replyId, event) {
     btn.prop('disabled', true);
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions/replies/${replyId}/like`,
+        url: appUrl(`student/courses/${courseId}/discussions/replies/${replyId}/like`),
         method: 'POST',
         data: {
             _token: $('meta[name="csrf-token"]').attr('content')
@@ -1099,7 +1229,7 @@ function deleteDiscussion(discussionId, event) {
     }
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions/${discussionId}`,
+        url: appUrl(`student/courses/${courseId}/discussions/${discussionId}`),
         method: 'POST',
         data: {
             _method: 'DELETE',
@@ -1126,7 +1256,7 @@ function deleteReply(discussionId, replyId, event) {
     }
 
     $.ajax({
-        url: `/student/courses/${courseId}/discussions/${discussionId}/replies/${replyId}`,
+        url: appUrl(`student/courses/${courseId}/discussions/${discussionId}/replies/${replyId}`),
         method: 'POST',
         data: {
             _method: 'DELETE',

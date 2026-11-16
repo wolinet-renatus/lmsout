@@ -6,6 +6,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * BranchScoped Trait
+ *
+ * Applies automatic regional-center (branch_id) query isolation for branch-level
+ * staff roles while preserving unrestricted multi-branch access for global executives,
+ * and auto-assigns the creator's branch_id when persisting new scoped records.
+ *
+ * @package App\Traits
+ * @author Renatus Bernardo
+ */
 trait BranchScoped
 {
     /**

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: add initial system version to platform settings.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 

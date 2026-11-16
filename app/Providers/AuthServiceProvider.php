@@ -10,11 +10,15 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
  * This service provider registers the authentication policies.
  *
  * @package App\Providers
+ * @author Renatus Bernardo
  */
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [];
 
+    /**
+     * Bootstrap services, policies, or model observers.
+     */
     public function boot(): void
     {
         $this->registerPolicies();

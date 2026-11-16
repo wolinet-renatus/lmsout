@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents a withdrawal request for an instructor.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class InstructorWithdrawal extends Model
 {
@@ -40,16 +41,25 @@ class InstructorWithdrawal extends Model
     public const STATUS_REJECTED = 'rejected';
     public const STATUS_PROCESSING = 'processing';
 
+    /**
+     * Eloquent belongsTo relationship for Instructor.
+     */
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'instructor_id');
     }
 
+    /**
+     * Check condition: Is pending.
+     */
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING || $this->status === self::STATUS_PROCESSING;
     }
 
+    /**
+     * Check condition: Is completed.
+     */
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_COMPLETED;

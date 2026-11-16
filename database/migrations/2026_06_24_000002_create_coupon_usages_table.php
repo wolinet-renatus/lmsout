@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: create coupon usages table.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

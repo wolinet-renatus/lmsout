@@ -14,6 +14,7 @@ use Devrabiul\ToastMagic\Facades\ToastMagic;
  * This controller handles the impersonation of users.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class ImpersonationController extends Controller
 {

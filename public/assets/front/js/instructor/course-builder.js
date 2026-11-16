@@ -1,4 +1,5 @@
 
+const appBaseUrl = ($('meta[name="app-url"]').attr('content') || window.location.origin).replace(/\/+$/, '');
 let currentStep = 1;
 let topics = [];
 window.quillEditor = null;
@@ -218,6 +219,68 @@ $(document).ready(function () {
             $('#pricingFields').slideUp();
         }
     });
+
+    const $pricingFields = $('#pricingFields');
+    if ($pricingFields.length) {
+        const exchangeRate = parseFloat($pricingFields.data('exchange-rate')) || 2500;
+        let lastSelectedCurrency = $('input[name="price_currency"]:checked').val() || 'TZS';
+
+        const formatMoneyPreview = (amount, code) => {
+            const num = parseFloat(amount);
+            if (isNaN(num) || num <= 0) return null;
+            const formatted = num.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            return code === 'USD' ? `$${formatted}` : `TZS ${formatted}`;
+        };
+
+        const refreshPriceConversionPreview = () => {
+            const currentCode = $('input[name="price_currency"]:checked').val() || 'TZS';
+            const targetCode = currentCode === 'USD' ? 'TZS' : 'USD';
+            const symbol = currentCode === 'USD' ? '$' : 'TZS';
+            $('.lmsout-price-currency-symbol').text(symbol);
+
+            const regVal = parseFloat($('#regularPriceInput').val());
+            const saleVal = parseFloat($('#salePriceInput').val());
+            const convert = (val) => currentCode === 'USD' ? (val * exchangeRate) : (val / exchangeRate);
+
+            const parts = [];
+            if (!isNaN(regVal) && regVal > 0) {
+                parts.push(`Regular: <strong>${formatMoneyPreview(convert(regVal), targetCode)}</strong>`);
+            }
+            if (!isNaN(saleVal) && saleVal > 0) {
+                parts.push(`Sale: <strong>${formatMoneyPreview(convert(saleVal), targetCode)}</strong>`);
+            }
+
+            const label = targetCode === 'USD' ? 'USD ($)' : 'TSH (TZS)';
+            $('#lmsout-price-conversion-preview').html(
+                parts.length
+                    ? `<i class="fa-solid fa-right-left mr-1"></i> Equivalent in ${label}: ${parts.join(' &middot; ')}`
+                    : ''
+            );
+        };
+
+        $('input[name="price_currency"]').on('change', function () {
+            const nextCode = $(this).val();
+            if (nextCode && nextCode !== lastSelectedCurrency) {
+                const convertInput = ($input) => {
+                    const val = parseFloat($input.val());
+                    if (!isNaN(val) && val > 0) {
+                        const converted = nextCode === 'TZS' ? (val * exchangeRate) : (val / exchangeRate);
+                        $input.val(converted.toFixed(2));
+                    }
+                };
+                convertInput($('#regularPriceInput'));
+                convertInput($('#salePriceInput'));
+                lastSelectedCurrency = nextCode;
+            }
+            refreshPriceConversionPreview();
+        });
+
+        $('#regularPriceInput, #salePriceInput').on('input', refreshPriceConversionPreview);
+        refreshPriceConversionPreview();
+    }
 
     $('#featuredImage').on('change', function (e) {
         const file = e.target.files[0];
@@ -852,7 +915,7 @@ function renderTopicContent(topicId) {
                         ${isLive ? `
                             <div style="padding:12px 16px;background:rgba(229,62,62,0.08);border:1px dashed #e53e3e;border-radius:8px;">
                                 <p style="margin:0;color:#e53e3e;font-size:13px;font-weight:600;"><i class="fa-solid fa-circle" style="font-size:0.55rem;margin-right:6px;"></i> Live Session Lesson</p>
-                                <p style="margin:4px 0 0;color:#555;font-size:12px;">No video upload needed. Schedule a live class from your <a href="/instructor/live-classes" target="_blank">Live Classes</a> page and link it to this lesson.</p>
+                                <p style="margin:4px 0 0;color:#555;font-size:12px;">No video upload needed. Schedule a live class from your <a href="${appBaseUrl}/instructor/live-classes" target="_blank">Live Classes</a> page and link it to this lesson.</p>
                             </div>
                         ` : videoType === 'url' ? `
                             <input type="url" class="form-control" placeholder="https://..." value="${item.videoUrl || ''}" onchange="updateContentItem(${topicId}, ${item.id}, 'lesson', 'videoUrl', this.value)">

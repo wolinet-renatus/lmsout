@@ -8,6 +8,11 @@ use App\Models\Enrollment;
 use App\Models\Review;
 use Illuminate\Http\Request;
 
+/**
+ * Instructor controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class InstructorController extends Controller
 {
     /**

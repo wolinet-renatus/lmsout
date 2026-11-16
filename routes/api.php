@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Sanctum REST API Routes
+ *
+ * Exposes public catalog/campus intake endpoints and token-authenticated
+ * Student and Instructor API suites for mobile and decoupled clients.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -97,13 +106,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Enrollment
     Route::post('/courses/{id}/enroll', [CourseEnrollmentController::class, 'enroll']);
     Route::post('/bundles/{id}/checkout', [CourseEnrollmentController::class, 'enrollBundle']);
-    Route::post('/payments/razorpay/verify', [CourseEnrollmentController::class, 'razorpayVerify']);
-    Route::post('/payments/sslcommerz/verify', [CourseEnrollmentController::class, 'sslcommerzVerify']);
     Route::post('/payments/stripe/verify', [CourseEnrollmentController::class, 'stripeVerify']);
-    Route::post('/payments/paystack/verify', [CourseEnrollmentController::class, 'paystackVerify']);
-    Route::post('/payments/mollie/verify', [CourseEnrollmentController::class, 'mollieVerify']);
-    Route::post('/payments/bkash/verify', [CourseEnrollmentController::class, 'bkashVerify']);
-    Route::post('/payments/xpay/verify', [CourseEnrollmentController::class, 'xpayVerify']);
+    Route::post('/payments/pesapal/verify', [CourseEnrollmentController::class, 'pesapalVerify']);
     Route::get('/user/courses', [CourseController::class, 'myCourses']);
     Route::get('/user/certificates', [CertificateController::class, 'index']);
     Route::get('/user/certificates/{id}', [CertificateController::class, 'show']);

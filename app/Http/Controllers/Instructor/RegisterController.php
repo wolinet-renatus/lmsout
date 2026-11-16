@@ -22,9 +22,13 @@ use App\Models\UserNotificationSetting;
  * This controller handles the instructor registration functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class RegisterController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private FileUploadService $fileUploadService, private RecaptchaService $recaptcha, private NotificationPreferenceService $notificationPreferenceService)
     {
     }

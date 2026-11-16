@@ -18,9 +18,13 @@ use Illuminate\View\View;
  * This controller handles the assignments functionality.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class AssignmentsController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View
     {
         $user = $this->currentUser();
@@ -124,6 +128,9 @@ class AssignmentsController extends Controller
         ]);
     }
 
+    /**
+     * Normalize status.
+     */
     private function normalizeStatus(?string $status): ?string
     {
         $status = $status !== null ? trim($status) : null;
@@ -141,6 +148,9 @@ class AssignmentsController extends Controller
         return in_array($status, $allowed, true) ? $status : null;
     }
 
+    /**
+     * Build summary.
+     */
     private function buildSummary($assignmentIds, int $userId): array
     {
         $ids = collect($assignmentIds)->filter()->unique()->values();
@@ -176,6 +186,9 @@ class AssignmentsController extends Controller
         ];
     }
 
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

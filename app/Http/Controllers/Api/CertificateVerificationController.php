@@ -7,8 +7,16 @@ use App\Services\CertificateVerificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Certificate verification controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class CertificateVerificationController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         protected CertificateVerificationService $verificationService
     ) {}

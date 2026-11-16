@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User; // Added this line
 
+/**
+ * Focus session Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class FocusSession extends Model
 {
     protected $fillable = [
@@ -21,6 +26,9 @@ class FocusSession extends Model
         'end_time' => 'datetime',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);

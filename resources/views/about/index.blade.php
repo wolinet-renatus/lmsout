@@ -2,22 +2,22 @@
 
 @section('content')
     <!-- 1. Brand Gradient Hero Banner -->
-    <section class="edux-page-hero">
+    <section class="lmsout-page-hero">
         <div class="container">
             <div class="row align-items-center g-4">
                 <div class="col-lg-8">
-                    <span class="edux-page-hero__eyebrow">
+                    <span class="lmsout-page-hero__eyebrow">
                         <i class="fa-solid fa-building-columns"></i> {{ $heroSettings['subheading'] ?? __('frontend.about_us') }}
                     </span>
-                    <h1 class="edux-page-hero__title">
+                    <h1 class="lmsout-page-hero__title">
                         {{ $heroSettings['heading'] ?? 'Transforming Learning Into Lasting Impact' }}
                     </h1>
-                    <p class="edux-page-hero__desc">
+                    <p class="lmsout-page-hero__desc">
                         {{ $heroSettings['description'] ?? 'The Open University of Tanzania provides open, online, and blended higher education—delivering affordable and quality education accessible across all regions.' }}
                     </p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
-                    <a href="{{ $heroSettings['cta_url'] ?? route('courses') }}" class="edux-btn-primary" style="background: var(--theme-yellow, #f4ed2d); color: #04153b !important;">
+                    <a href="{{ $heroSettings['cta_url'] ?? route('courses') }}" class="lmsout-btn-primary" style="background: var(--theme-yellow, #f4ed2d); color: #04153b !important;">
                         <span>{{ $heroSettings['cta_label'] ?? __('frontend.explore_courses') }}</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
@@ -26,10 +26,10 @@
         </div>
     </section>
 
-    <div class="edux-page-wrap">
+    <div class="lmsout-page-wrap">
         <div class="container">
             <!-- 2. Key Platform Stats Strip -->
-            <div class="edux-surface-card mb-5" style="margin-top: -58px; position: relative; z-index: 3;">
+            <div class="lmsout-surface-card mb-5" style="margin-top: -58px; position: relative; z-index: 3;">
                 <div class="row g-3 text-center">
                     <div class="col-6 col-md-3">
                         <span class="d-inline-flex align-items-center justify-content-center rounded-3 mb-2" style="width: 38px; height: 38px; background: var(--theme); color: #ffffff;">
@@ -65,8 +65,8 @@
             <!-- 3. Our Identity & Why Choose Us (2-Column Cards) -->
             <div class="row g-4 mb-5">
                 <div class="col-lg-6">
-                    <div class="edux-surface-card">
-                        <div class="edux-inner-header__eyebrow">OUR IDENTITY</div>
+                    <div class="lmsout-surface-card">
+                        <div class="lmsout-inner-header__eyebrow">OUR IDENTITY</div>
                         <h2 class="fw-bold mb-2" style="font-size: 22px; color: #0f172a;">The Open University of Tanzania</h2>
                         <p class="text-muted small mb-4" style="font-size: 13.5px; line-height: 1.6;">
                             Committed to expanding access to flexible, high-standard university and professional education through innovative digital learning technologies.
@@ -96,8 +96,8 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <div class="edux-surface-card">
-                        <div class="edux-inner-header__eyebrow">{{ $featureSettings['title'] ?? __('frontend.why_choose_us') }}</div>
+                    <div class="lmsout-surface-card">
+                        <div class="lmsout-inner-header__eyebrow">{{ $featureSettings['title'] ?? __('frontend.why_choose_us') }}</div>
                         <h2 class="fw-bold mb-2" style="font-size: 22px; color: #0f172a;">
                             {{ $featureSettings['subtitle'] ?? __('frontend.learning_aligns') }}
                         </h2>
@@ -140,19 +140,19 @@
             <!-- 4. Top Categories Grid -->
             @if ($topCategories->isNotEmpty())
                 <div class="mb-5">
-                    <div class="edux-inner-header">
+                    <div class="lmsout-inner-header">
                         <div>
-                            <div class="edux-inner-header__eyebrow">{{ __('frontend.top_categories') }}</div>
-                            <h2 class="edux-inner-header__title">{{ __('frontend.learning_paths_love') }}</h2>
+                            <div class="lmsout-inner-header__eyebrow">{{ __('frontend.top_categories') }}</div>
+                            <h2 class="lmsout-inner-header__title">{{ __('frontend.learning_paths_love') }}</h2>
                         </div>
-                        <a href="{{ route('courses') }}" class="edux-btn-outline">
+                        <a href="{{ route('courses') }}" class="lmsout-btn-outline">
                             Browse Catalog <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
                     <div class="row g-3">
                         @foreach ($topCategories as $category)
                             <div class="col-lg-4 col-md-6">
-                                <a href="{{ route('courses', ['category' => $category->name]) }}" class="edux-surface-card edux-surface-card--hover d-flex align-items-center justify-content-between text-decoration-none p-3">
+                                <a href="{{ route('courses', ['category' => $category->name]) }}" class="lmsout-surface-card lmsout-surface-card--hover d-flex align-items-center justify-content-between text-decoration-none p-3">
                                     <div class="d-flex align-items-center gap-3">
                                         <span class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width: 42px; height: 42px; background: rgba(1, 59, 166, 0.08); color: var(--theme);">
                                             <i class="fa-solid fa-layer-group"></i>
@@ -173,12 +173,12 @@
             <!-- 5. Featured Instructors -->
             @if ($featuredInstructors->isNotEmpty())
                 <div class="mb-5">
-                    <div class="edux-inner-header">
+                    <div class="lmsout-inner-header">
                         <div>
-                            <div class="edux-inner-header__eyebrow">{{ __('frontend.featured_teachers') }}</div>
-                            <h2 class="edux-inner-header__title">{{ __('frontend.greatest_teachers') }}</h2>
+                            <div class="lmsout-inner-header__eyebrow">{{ __('frontend.featured_teachers') }}</div>
+                            <h2 class="lmsout-inner-header__title">{{ __('frontend.greatest_teachers') }}</h2>
                         </div>
-                        <a href="{{ route('instructors.index') }}" class="edux-btn-outline">
+                        <a href="{{ route('instructors.index') }}" class="lmsout-btn-outline">
                             All Instructors <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
@@ -190,7 +190,7 @@
                                     : asset('assets/front/img/home-1/team/team-0' . (($loop->index % 4) + 1) . '.jpg');
                             @endphp
                             <div class="col-xl-3 col-lg-4 col-md-6">
-                                <div class="edux-surface-card edux-surface-card--hover text-center">
+                                <div class="lmsout-surface-card lmsout-surface-card--hover text-center">
                                     <img src="{{ $instPhoto }}" alt="{{ $featured->name }}"
                                          class="rounded-circle mb-3"
                                          style="width: 76px; height: 76px; object-fit: cover; border: 2.5px solid var(--theme); padding: 2px;">
@@ -213,13 +213,13 @@
             @if ($recentReviews->isNotEmpty())
                 <div>
                     <div class="text-center mb-4">
-                        <div class="edux-inner-header__eyebrow">{{ __('frontend.learner_feedback') }}</div>
-                        <h2 class="edux-inner-header__title">{{ __('frontend.what_students_say') }}</h2>
+                        <div class="lmsout-inner-header__eyebrow">{{ __('frontend.learner_feedback') }}</div>
+                        <h2 class="lmsout-inner-header__title">{{ __('frontend.what_students_say') }}</h2>
                     </div>
                     <div class="row g-4 justify-content-center">
                         @foreach ($recentReviews->take(3) as $review)
                             <div class="col-lg-4 col-md-6">
-                                <div class="edux-surface-card d-flex flex-column justify-content-between">
+                                <div class="lmsout-surface-card d-flex flex-column justify-content-between">
                                     <div>
                                         <div class="mb-2" style="color: #f59e0b; font-size: 12px;">
                                             @for ($i = 0; $i < 5; $i++)

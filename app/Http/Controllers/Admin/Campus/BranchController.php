@@ -9,8 +9,16 @@ use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+/**
+ * Branch controller — manages campus & short-course operations within the admin portal.
+ *
+ * @author Renatus Bernardo
+ */
 class BranchController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $branches = Branch::with('country')
@@ -28,6 +36,9 @@ class BranchController extends Controller
         return view('admin.campus.branches.index', compact('branches', 'countries'));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         Branch::create($this->validated($request));
@@ -36,6 +47,9 @@ class BranchController extends Controller
         return redirect()->route('admin.campus.branches.index');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Branch $branch)
     {
         $countries = Country::orderBy('name')->get(['id', 'name', 'nicename']);
@@ -43,6 +57,9 @@ class BranchController extends Controller
         return view('admin.campus.branches.edit', compact('branch', 'countries'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, Branch $branch)
     {
         $branch->update($this->validated($request, $branch));
@@ -51,6 +68,9 @@ class BranchController extends Controller
         return redirect()->route('admin.campus.branches.index');
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(Branch $branch)
     {
         if ($branch->enrollments()->exists() || $branch->invoices()->exists()) {

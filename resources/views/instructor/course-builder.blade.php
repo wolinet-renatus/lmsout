@@ -475,14 +475,42 @@
                                                 <span class="control-label">Paid</span>
                                             </label>
                                         </div>
-                                        <div class="pricing-fields" id="pricingFields"
+                                        @php
+                                            $selectedPriceCurrency = normalize_currency_code(
+                                                old('price_currency', isset($course) ? $course->getPriceCurrencyCode() : currency_code()),
+                                                base_currency_code()
+                                            );
+                                            if (! in_array($selectedPriceCurrency, ['TZS', 'USD'], true)) {
+                                                $selectedPriceCurrency = 'TZS';
+                                            }
+                                            $usdToTzsRate = usd_to_tzs_rate();
+                                        @endphp
+                                        <div class="pricing-fields" id="pricingFields" data-exchange-rate="{{ $usdToTzsRate }}"
                                             style="display: @isset($course){{ old('pricing_model', $course->pricing_model) === 'paid' ? 'block' : 'none' }}@else{{ old('pricing_model') === 'paid' ? 'block' : 'none' }}@endisset;">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 p-2 rounded border bg-light">
+                                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                                    <span class="font-weight-bold text-dark" style="font-size: 13px;">
+                                                        <i class="fa-solid fa-coins mr-1 text-primary"></i> Price Currency:
+                                                    </span>
+                                                    <label class="mb-0 d-inline-flex align-items-center" style="cursor: pointer; gap: 6px; font-size: 13px; font-weight: 600;">
+                                                        <input type="radio" name="price_currency" value="TZS" {{ $selectedPriceCurrency === 'TZS' ? 'checked' : '' }}>
+                                                        <span>TSH (TZS)</span>
+                                                    </label>
+                                                    <label class="mb-0 d-inline-flex align-items-center" style="cursor: pointer; gap: 6px; font-size: 13px; font-weight: 600;">
+                                                        <input type="radio" name="price_currency" value="USD" {{ $selectedPriceCurrency === 'USD' ? 'checked' : '' }}>
+                                                        <span>USD ($)</span>
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted">
+                                                    Exchange rate: <strong>1 USD = {{ number_format($usdToTzsRate, 0) }} TZS</strong>
+                                                </small>
+                                            </div>
                                             <div class="form-row">
                                                 <div class="form-group">
                                                     <label>Regular Price</label>
                                                     <div class="price-input-wrapper">
-                                                        <span class="currency">$</span>
-                                                        <input type="number" name="regular_price" class="form-control"
+                                                        <span class="currency lmsout-price-currency-symbol">{{ $selectedPriceCurrency === 'USD' ? '$' : 'TZS' }}</span>
+                                                        <input type="number" name="regular_price" id="regularPriceInput" class="form-control"
                                                             step="0.01" min="0" placeholder="0.00"
                                                             value="@isset($course){{ old('regular_price', $course->regular_price) }}@else{{ old('regular_price') }}@endisset">
                                                     </div>
@@ -490,13 +518,14 @@
                                                 <div class="form-group">
                                                     <label>Sale Price</label>
                                                     <div class="price-input-wrapper">
-                                                        <span class="currency">$</span>
-                                                        <input type="number" name="sale_price" class="form-control"
+                                                        <span class="currency lmsout-price-currency-symbol">{{ $selectedPriceCurrency === 'USD' ? '$' : 'TZS' }}</span>
+                                                        <input type="number" name="sale_price" id="salePriceInput" class="form-control"
                                                             step="0.01" min="0" placeholder="0.00"
                                                             value="@isset($course){{ old('sale_price', $course->sale_price) }}@else{{ old('sale_price') }}@endisset">
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div id="lmsout-price-conversion-preview" class="small text-muted mt-1"></div>
                                         </div>
                                     </div>
                                 </div>

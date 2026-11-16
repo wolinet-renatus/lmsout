@@ -12,12 +12,23 @@ use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * Attendance controller — manages campus & short-course operations within the admin portal.
+ *
+ * @author Renatus Bernardo
+ */
 class AttendanceController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private CampusAttendanceService $attendance)
     {
     }
 
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $assignments = CourseAssignment::with(['course:id,title', 'instructor:id,name', 'branch:id,name', 'venue:id,name'])
@@ -32,6 +43,9 @@ class AttendanceController extends Controller
         return view('admin.campus.attendance.index', compact('assignments', 'todayCount', 'branches'));
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Request $request, CourseAssignment $assignment)
     {
         $date = $request->input('date', now()->toDateString());
@@ -49,6 +63,9 @@ class AttendanceController extends Controller
         return view('admin.campus.attendance.show', compact('assignment', 'roster', 'existing', 'date', 'qr', 'qrToken'));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request, CourseAssignment $assignment)
     {
         $data = $request->validate([
@@ -62,6 +79,9 @@ class AttendanceController extends Controller
         return redirect()->route('admin.campus.attendance.show', [$assignment, 'date' => $data['date']]);
     }
 
+    /**
+     * Open qr.
+     */
     public function openQr(CourseAssignment $assignment)
     {
         $token = $this->attendance->openQrSession($assignment, 15);
@@ -71,6 +91,9 @@ class AttendanceController extends Controller
         return redirect()->route('admin.campus.attendance.show', $assignment);
     }
 
+    /**
+     * Export.
+     */
     public function export(CourseAssignment $assignment): StreamedResponse
     {
         $assignment->load('course');

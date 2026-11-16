@@ -97,7 +97,7 @@ Expanding the original 6 SCMIS roles (`ST`, `TC`, `SA`, `Instructor`, `MO`, `DR`
 - **Build & Asset Pipeline**: Composer `2.x`, Node.js `18+`, Vite `^7.0.7`, Tailwind CSS `^4.0.0`, Axios `^1.11`.
 
 ### 2.5 User Documentation & Online Help
-Built-in interactive role-aware **Online Help** portals are served across `/admin/help`, `/instructor/help`, and `/student/help` via `HelpController`, complemented by the guided web installer (`resources/views/setup/`) and `README.md`.
+Built-in interactive role-aware **Online Help** portals are served across `/admin/help`, `/instructor/help`, and `/student/help` via `HelpController`, complemented by `README.md` (database migrations and seeding are executed via `php artisan migrate --seed`).
 
 ---
 

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
  * This controller handles the earnings functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class EarningsController extends Controller
 {
@@ -235,6 +236,9 @@ class EarningsController extends Controller
         ]);
     }
 
+    /**
+     * Store withdrawal.
+     */
     public function storeWithdrawal(Request $request)
     {
         $user = $request->user();
@@ -247,7 +251,7 @@ class EarningsController extends Controller
         $minimumWithdrawal = (float) settings('withdrawals.settings.minimum_amount', 10);
 
         $data = $request->validate([
-            'method'         => ['required', 'in:bank_transfer,paypal,stripe'],
+            'method'         => ['required', 'in:bank_transfer,paypal,stripe,pesapal'],
             'amount'         => ['required', 'numeric', 'min:' . $minimumWithdrawal],
             'method_details' => ['nullable', 'string', 'max:255'],
             'notes'          => ['nullable', 'string', 'max:1000'],
@@ -290,6 +294,9 @@ class EarningsController extends Controller
         return redirect()->route('instructor.withdrawals');
     }
 
+    /**
+     * Connect stripe.
+     */
     public function connectStripe(Request $request)
     {
         $user = $request->user();
@@ -331,6 +338,9 @@ class EarningsController extends Controller
         return back();
     }
 
+    /**
+     * Pagination meta.
+     */
     private function paginationMeta(LengthAwarePaginator $paginator): array
     {
         return [

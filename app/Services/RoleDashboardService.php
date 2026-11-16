@@ -29,9 +29,15 @@ use Spatie\Activitylog\Models\Activity;
 /**
  * Builds role-specific, permission-checked, filterable, and paginated dashboard payloads
  * using joined database queries across LMS and SCMS tables.
+ *
+ * @package App\Services
+ * @author Renatus Bernardo
  */
 class RoleDashboardService
 {
+    /**
+     * Assemble the complete KPI, chart, filter, and paginated widget payload for a user.
+     */
     public function buildForUser(User $user, array $rawFilters = []): array
     {
         $profile = $user->primaryDashboardProfile();
@@ -115,11 +121,17 @@ class RoleDashboardService
         };
     }
 
+    /**
+     * Apply date filter.
+     */
     private function applyDateFilter(Builder $query, string $column, ?array $window): Builder
     {
         return $window ? $query->whereBetween($column, $window) : $query;
     }
 
+    /**
+     * Status options for profile.
+     */
     private function statusOptionsForProfile(string $profile): array
     {
         return match ($profile) {
@@ -174,6 +186,9 @@ class RoleDashboardService
         };
     }
 
+    /**
+     * Paginate collection.
+     */
     private function paginateCollection(Collection $items, int $perPage, string $pageName): LengthAwarePaginator
     {
         $page = Paginator::resolveCurrentPage($pageName);
@@ -976,6 +991,9 @@ class RoleDashboardService
         ];
     }
 
+    /**
+     * Get revenue enrollment chart.
+     */
     private function getRevenueEnrollmentChart(string $period, ?int $branchId = null): array
     {
         $labels = [];
@@ -1010,6 +1028,9 @@ class RoleDashboardService
         return compact('labels', 'revenue', 'enrollments');
     }
 
+    /**
+     * Get applicant enrollment chart.
+     */
     private function getApplicantEnrollmentChart(int $months = 12, ?int $branchId = null): array
     {
         $labels = [];
@@ -1030,6 +1051,9 @@ class RoleDashboardService
         return compact('labels', 'applicants', 'enrollments');
     }
 
+    /**
+     * Recent security logs.
+     */
     private function recentSecurityLogs(int $limit = 5): Collection
     {
         if (! Schema::hasTable('activity_log')) {

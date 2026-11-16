@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Represents a scheduled live session linked to a course and optionally a lesson.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class LiveClass extends Model
 {
@@ -55,16 +56,25 @@ class LiveClass extends Model
 
     // ─── Relations ───────────────────────────────────────────────────────────
 
+    /**
+     * Eloquent belongsTo relationship for Course.
+     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Lesson.
+     */
     public function lesson(): BelongsTo
     {
         return $this->belongsTo(Lesson::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Instructor.
+     */
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'instructor_id');
@@ -124,17 +134,26 @@ class LiveClass extends Model
 
     // ─── Scopes ──────────────────────────────────────────────────────────────
 
+    /**
+     * Query scope to filter records by Upcoming.
+     */
     public function scopeUpcoming($query)
     {
         return $query->where('status', self::STATUS_SCHEDULED)
                      ->where('scheduled_at', '>', now());
     }
 
+    /**
+     * Query scope to filter records by Live.
+     */
     public function scopeLive($query)
     {
         return $query->where('status', self::STATUS_LIVE);
     }
 
+    /**
+     * Query scope to filter records by For course.
+     */
     public function scopeForCourse($query, int $courseId)
     {
         return $query->where('course_id', $courseId);

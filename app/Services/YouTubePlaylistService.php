@@ -5,6 +5,11 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * You tube playlist service — encapsulates domain business logic and transactional operations.
+ *
+ * @author Renatus Bernardo
+ */
 class YouTubePlaylistService
 {
     /**

@@ -19,12 +19,20 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
+/**
+ * Import scms command Artisan Command — executes scheduled or CLI maintenance tasks.
+ *
+ * @author Renatus Bernardo
+ */
 class ImportScmsCommand extends Command
 {
     protected $signature = 'scms:import {--dry-run : Preview source counts and mappings without modifying OUT LMS database}';
 
     protected $description = 'Idempotently import SCMS branches, venues, users, courses, applicants, enrollments, invoices, schedules, payments, and certificates into OUT LMS';
 
+    /**
+     * Execute the primary handler logic for this component.
+     */
     public function handle(): int
     {
         $dryRun = (bool) $this->option('dry-run');

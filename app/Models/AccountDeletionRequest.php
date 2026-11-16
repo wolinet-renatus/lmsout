@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents a request to delete a user's account.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class AccountDeletionRequest extends Model
 {
@@ -32,11 +33,17 @@ class AccountDeletionRequest extends Model
         'processed_at' => 'datetime',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Processed by.
+     */
     public function processedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'processed_by');

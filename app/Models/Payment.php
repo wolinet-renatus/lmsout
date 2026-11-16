@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
  * This model represents a payment for a course.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Payment extends Model
 {
@@ -36,26 +37,17 @@ class Payment extends Model
         'commission_processed',
         'status',
         'verification_status',
-        'razorpay_order_id',
-        'razorpay_payment_id',
-        'razorpay_signature',
         'stripe_payment_intent_id',
         'stripe_client_secret',
-        'paystack_reference',
-        'paystack_access_code',
         'flutterwave_transaction_id',
         'flutterwave_tx_ref',
         'paypal_order_id',
         'paypal_payer_id',
         'paypal_payment_id',
-        'sslcommerz_tran_id',
-        'sslcommerz_session_key',
-        'sslcommerz_val_id',
-        'mollie_payment_id',
-        'bkash_payment_id',
-        'bkash_trx_id',
-        'xpay_order_id',
-        'xpay_transaction_id',
+        'pesapal_order_tracking_id',
+        'pesapal_merchant_reference',
+        'pesapal_confirmation_code',
+        'pesapal_payment_account',
         'receipt_file',
         'receipt_number',
         'payment_date',
@@ -75,10 +67,48 @@ class Payment extends Model
         'payment_date' => 'date',
     ];
 
+    /**
+     * Booted.
+     */
     protected static function booted()
     {
-        static::saved(function ($payment) {
-            if ($payment->isDirty('status') && $payment->status === self::STATUS_COMPLETED) {
+        static::creating(function (Payment $payment) {
+            $attributes = $payment->getAttributes();
+            $payment->status = $payment->status ?: self::STATUS_PENDING;
+
+            if (! array_key_exists('verification_status', $attributes)) {
+                $payment->verification_status = $payment->status === self::STATUS_COMPLETED
+                    ? 'verified'
+                    : 'pending';
+            } elseif ($payment->verification_status === 'verified' && $payment->status === self::STATUS_PENDING) {
+                $payment->status = self::STATUS_COMPLETED;
+            }
+
+            if ($payment->status === self::STATUS_COMPLETED) {
+                $payment->verification_status = 'verified';
+                $payment->payment_date = $payment->payment_date ?? now()->toDateString();
+            }
+        });
+
+        static::updating(function (Payment $payment) {
+            if ($payment->verification_status === 'verified' && $payment->status === self::STATUS_PENDING) {
+                $payment->status = self::STATUS_COMPLETED;
+            } elseif ($payment->isDirty('verification_status') && $payment->verification_status === 'rejected' && $payment->status === self::STATUS_PENDING) {
+                $payment->status = self::STATUS_FAILED;
+            }
+
+            if ($payment->status === self::STATUS_COMPLETED) {
+                if ($payment->verification_status !== 'verified') {
+                    $payment->verification_status = 'verified';
+                }
+                if (! $payment->payment_date) {
+                    $payment->payment_date = now()->toDateString();
+                }
+            }
+        });
+
+        static::saved(function (Payment $payment) {
+            if (($payment->isDirty('status') || $payment->wasChanged('status')) && $payment->status === self::STATUS_COMPLETED) {
                 if ($payment->coupon_id) {
                     \App\Models\CouponUsage::firstOrCreate([
                         'coupon_id' => $payment->coupon_id,
@@ -94,49 +124,57 @@ class Payment extends Model
                     }
                 }
 
-                if ($payment->invoice_id) {
-                    app(\App\Services\SrsWorkflowService::class)->syncInvoiceFromCompletedPayment($payment);
-                }
+                app(\App\Services\SrsWorkflowService::class)->finalizeCompletedPayment($payment);
             }
         });
     }
 
-    const PAYMENT_METHOD_RAZORPAY = 'razorpay';
     const PAYMENT_METHOD_OFFLINE = 'offline';
     const PAYMENT_METHOD_STRIPE = 'stripe';
-    const PAYMENT_METHOD_PAYSTACK = 'paystack';
     const PAYMENT_METHOD_FLUTTERWAVE = 'flutterwave';
     const PAYMENT_METHOD_PAYPAL = 'paypal';
-    const PAYMENT_METHOD_SSLCOMMERZ = 'sslcommerz';
-    const PAYMENT_METHOD_MOLLIE = 'mollie';
-    const PAYMENT_METHOD_BKASH = 'bkash';
-    const PAYMENT_METHOD_XPAY = 'xpay';
+    const PAYMENT_METHOD_PESAPAL = 'pesapal';
 
     const STATUS_PENDING = 'pending';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
     const STATUS_REFUNDED = 'refunded';
 
+    /**
+     * Eloquent belongsTo relationship for Enrollment.
+     */
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(Enrollment::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Coupon.
+     */
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Bundle.
+     */
     public function bundle(): BelongsTo
     {
         return $this->belongsTo(Bundle::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Accessor for computed Receipt url attribute.
+     */
     public function getReceiptUrlAttribute(): ?string
     {
         if (!$this->receipt_file) {
@@ -153,71 +191,73 @@ class Payment extends Model
         return $disk->url($this->receipt_file);
     }
 
+    /**
+     * Check condition: Is pending.
+     */
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
     }
 
+    /**
+     * Check condition: Is completed.
+     */
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_COMPLETED;
     }
 
-    public function isRazorpay(): bool
-    {
-        return $this->payment_method === self::PAYMENT_METHOD_RAZORPAY;
-    }
-
+    /**
+     * Check condition: Is offline.
+     */
     public function isOffline(): bool
     {
         return $this->payment_method === self::PAYMENT_METHOD_OFFLINE;
     }
 
+    /**
+     * Check condition: Is stripe.
+     */
     public function isStripe(): bool
     {
         return $this->payment_method === self::PAYMENT_METHOD_STRIPE;
     }
 
-    public function isPaystack(): bool
-    {
-        return $this->payment_method === self::PAYMENT_METHOD_PAYSTACK;
-    }
-
+    /**
+     * Check condition: Is flutterwave.
+     */
     public function isFlutterwave(): bool
     {
         return $this->payment_method === self::PAYMENT_METHOD_FLUTTERWAVE;
     }
 
+    /**
+     * Check condition: Is paypal.
+     */
     public function isPaypal(): bool
     {
         return $this->payment_method === self::PAYMENT_METHOD_PAYPAL;
     }
 
-    public function isSslcommerz(): bool
+    /**
+     * Check condition: Is Pesapal.
+     */
+    public function isPesapal(): bool
     {
-        return $this->payment_method === self::PAYMENT_METHOD_SSLCOMMERZ;
+        return $this->payment_method === self::PAYMENT_METHOD_PESAPAL;
     }
 
-    public function isMollie(): bool
-    {
-        return $this->payment_method === self::PAYMENT_METHOD_MOLLIE;
-    }
-
-    public function isBkash(): bool
-    {
-        return $this->payment_method === self::PAYMENT_METHOD_BKASH;
-    }
-
-    public function isXpay(): bool
-    {
-        return $this->payment_method === self::PAYMENT_METHOD_XPAY;
-    }
-
+    /**
+     * Eloquent belongsTo relationship for Invoice.
+     */
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Applicant.
+     */
     public function applicant(): BelongsTo
     {
         return $this->belongsTo(Applicant::class);

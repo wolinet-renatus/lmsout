@@ -14,11 +14,15 @@ use Illuminate\View\View;
 
 /**
  * Controller to manage language files and translations in the Admin panel.
+ * @author Renatus Bernardo
  */
 class LanguageController extends Controller
 {
     protected LanguageManagerService $languageService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(LanguageManagerService $languageService)
     {
         $this->languageService = $languageService;

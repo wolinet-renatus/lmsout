@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
  * This controller handles the management of users.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class UserController extends Controller
 {

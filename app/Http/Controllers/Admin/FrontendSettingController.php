@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
  * This controller handles the management of frontend settings.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class FrontendSettingController extends Controller
 {
@@ -450,6 +451,9 @@ class FrontendSettingController extends Controller
         return redirect()->route('admin.frontend.about.edit');
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([

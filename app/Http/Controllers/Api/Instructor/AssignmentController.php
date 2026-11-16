@@ -9,6 +9,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+/**
+ * Assignment controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class AssignmentController extends Controller
 {
     /**
@@ -168,6 +173,9 @@ class AssignmentController extends Controller
         ]);
     }
 
+    /**
+     * Summarize assignments.
+     */
     private function summarizeAssignments($assignmentIds): array
     {
         $ids = collect($assignmentIds)->filter()->unique()->values();

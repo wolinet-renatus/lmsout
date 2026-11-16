@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
  * Handles coupon management for the instructor mobile app.
  *
  * @package App\Http\Controllers\Api\Instructor
+ * @author Renatus Bernardo
  */
 class CouponController extends Controller
 {

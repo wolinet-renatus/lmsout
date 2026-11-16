@@ -8,6 +8,11 @@ use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Bundle controller — handles public storefront and learner intake workflows.
+ *
+ * @author Renatus Bernardo
+ */
 class BundleController extends Controller
 {
     /**

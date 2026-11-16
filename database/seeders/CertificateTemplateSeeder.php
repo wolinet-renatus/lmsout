@@ -8,9 +8,13 @@ use Illuminate\Database\Seeder;
 /**
  * Seeds the 6 pre-built certificate designs (v2.2.0).
  * Safe to run multiple times — existing templates (by name) are skipped.
+ * @author Renatus Bernardo
  */
 class CertificateTemplateSeeder extends Seeder
 {
+    /**
+     * Execute the database seeder.
+     */
     public function run(): void
     {
         $first = CertificateTemplate::count() === 0;

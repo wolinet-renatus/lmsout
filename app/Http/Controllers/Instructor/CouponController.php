@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
  * CRUD management for coupons by instructors.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class CouponController extends Controller
 {

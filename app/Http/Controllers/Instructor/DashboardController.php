@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * This controller handles the instructor dashboard functionality with filtering and card pagination.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class DashboardController extends Controller
 {
@@ -109,6 +110,9 @@ class DashboardController extends Controller
         ]);
     }
 
+    /**
+     * Count unique students.
+     */
     private function countUniqueStudents(int $instructorId): int
     {
         return Enrollment::query()
@@ -121,6 +125,9 @@ class DashboardController extends Controller
             ->count('user_id');
     }
 
+    /**
+     * Average rating.
+     */
     private function averageRating(int $instructorId): float
     {
         $rating = Review::query()
@@ -131,6 +138,9 @@ class DashboardController extends Controller
         return $rating ? round($rating, 1) : 0.0;
     }
 
+    /**
+     * Total earnings.
+     */
     private function totalEarnings(int $instructorId): float
     {
         $amount = Payment::query()
@@ -141,6 +151,9 @@ class DashboardController extends Controller
         return (float) $amount;
     }
 
+    /**
+     * Recent activity.
+     */
     private function recentActivity(int $instructorId, string $search, ?array $dateWindow, int $perPage): LengthAwarePaginator
     {
         $enrollments = Enrollment::query()

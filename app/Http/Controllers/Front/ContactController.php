@@ -19,9 +19,13 @@ use Illuminate\Support\Str;
  * This controller handles the contact functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class ContactController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(): View
     {
         $meta = frontend_meta('contact', null, []);
@@ -73,6 +77,9 @@ class ContactController extends Controller
         ]);
     }
 
+    /**
+     * Submit.
+     */
     public function submit(ContactRequest $request): RedirectResponse|JsonResponse
     {
         $data = $request->validated();

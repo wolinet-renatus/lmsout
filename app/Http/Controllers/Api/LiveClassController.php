@@ -14,9 +14,13 @@ use Illuminate\Http\Request;
  * Provides live class data to the Flutter student app.
  *
  * @package App\Http\Controllers\Api
+ * @author Renatus Bernardo
  */
 class LiveClassController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(protected LiveClassService $liveClassService) {}
 
     /**

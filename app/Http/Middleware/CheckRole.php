@@ -9,12 +9,18 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Check Role Middleware
  *
- * This middleware checks if the user has the required role.
+ * Enforces portal-level role isolation (/admin, /instructor, /student),
+ * binds the active regional branch context into session for admin staff,
+ * and evaluates route-prefix Spatie permissions for scoped staff roles.
  *
  * @package App\Http\Middleware
+ * @author Renatus Bernardo
  */
 class CheckRole
 {
+    /**
+     * Authorize the authenticated user for the requested portal and route permission.
+     */
     public function handle(Request $request, Closure $next, string $role): Response
     {
         if (!Auth::check()) {
@@ -23,6 +29,7 @@ class CheckRole
 
         $user = Auth::user();
         
+        // Allow administrators who have initiated an impersonation session to enter target portals.
         if (session('impersonating_admin_id')) {
             if ($role === 'instructor' && session('impersonating_instructor_id')) {
                 return $next($request);

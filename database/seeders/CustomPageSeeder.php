@@ -6,6 +6,11 @@ use App\Models\CustomPage;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
+/**
+ * Custom page seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class CustomPageSeeder extends Seeder
 {
     /**

@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
  * CRUD management for coupons by admins.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class CouponController extends Controller
 {

@@ -20,6 +20,7 @@ use Illuminate\View\View;
  * This controller handles the reviews functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class ReviewsController extends Controller
 {

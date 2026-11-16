@@ -14,6 +14,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
  *
  * @package App\Http\Controllers
  * @author Wolinet (OUT LMS)
+ * @author Renatus Bernardo
  */
 abstract class Controller
 {

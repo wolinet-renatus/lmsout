@@ -17,9 +17,13 @@ use Illuminate\Support\Facades\Notification;
  * Handles all business logic for scheduling, managing, and notifying about live classes.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class LiveClassService
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         protected SettingsRepository $settings,
         protected FileUploadService $fileUploadService,

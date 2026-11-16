@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
  * This controller handles the reset password functionality.
  *
  * @package App\Http\Controllers\Auth
+ * @author Renatus Bernardo
  */
 class ResetPasswordController extends Controller
 {

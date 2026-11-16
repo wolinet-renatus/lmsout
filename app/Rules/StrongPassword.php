@@ -8,9 +8,13 @@ use Illuminate\Contracts\Validation\ValidationRule;
 /**
  * Enforces strong password complexity per SCMIS SRS Section 5.1.1:
  * minimum 8 characters with uppercase, lowercase, numeric, and special characters.
+ * @author Renatus Bernardo
  */
 class StrongPassword implements ValidationRule
 {
+    /**
+     * Validate.
+     */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $password = (string) $value;

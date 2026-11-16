@@ -13,17 +13,24 @@ use Illuminate\Console\Command;
  * and sends reminder notifications to enrolled students.
  *
  * Schedule: every 5 minutes via app/Console/Kernel.php / console.php
+ * @author Renatus Bernardo
  */
 class SendLiveClassReminders extends Command
 {
     protected $signature   = 'live-classes:send-reminders';
     protected $description = 'Send reminder notifications for upcoming live classes';
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(protected LiveClassService $liveClassService)
     {
         parent::__construct();
     }
 
+    /**
+     * Execute the primary handler logic for this component.
+     */
     public function handle(): int
     {
         $reminderMinutes = (int) app(\App\Services\SettingsRepository::class)

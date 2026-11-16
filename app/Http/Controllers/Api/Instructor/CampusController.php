@@ -9,12 +9,23 @@ use App\Services\CampusAttendanceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Campus controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class CampusController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private CampusAttendanceService $attendance)
     {
     }
 
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): JsonResponse
     {
         $assignments = CourseAssignment::withoutGlobalScope('branch')
@@ -30,6 +41,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Roster.
+     */
     public function roster(Request $request, CourseAssignment $assignment): JsonResponse
     {
         abort_unless((int) $assignment->instructor_id === (int) $request->user()->id, 403);
@@ -54,6 +68,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Store attendance.
+     */
     public function storeAttendance(Request $request, CourseAssignment $assignment): JsonResponse
     {
         abort_unless((int) $assignment->instructor_id === (int) $request->user()->id, 403);
@@ -72,6 +89,9 @@ class CampusController extends Controller
         ]);
     }
 
+    /**
+     * Open qr.
+     */
     public function openQr(Request $request, CourseAssignment $assignment): JsonResponse
     {
         abort_unless((int) $assignment->instructor_id === (int) $request->user()->id, 403);

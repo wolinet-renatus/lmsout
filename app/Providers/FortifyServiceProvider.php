@@ -20,6 +20,7 @@ use Laravel\Fortify\Fortify;
  * This service provider registers the Fortify services.
  *
  * @package App\Providers
+ * @author Renatus Bernardo
  */
 class FortifyServiceProvider extends ServiceProvider
 {

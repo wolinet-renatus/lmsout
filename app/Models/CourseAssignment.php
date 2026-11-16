@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Course assignment Eloquent model — represents domain state, relationships, and query scopes.
+ *
+ * @author Renatus Bernardo
+ */
 class CourseAssignment extends Model
 {
     use HasFactory, BranchScoped;
@@ -35,31 +40,49 @@ class CourseAssignment extends Model
         'max_capacity' => 'integer',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for Course.
+     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Instructor.
+     */
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'instructor_id');
     }
 
+    /**
+     * Eloquent belongsTo relationship for Branch.
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Venue.
+     */
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Enrollments.
+     */
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
     }
 
+    /**
+     * Eloquent hasMany relationship for Attendance records.
+     */
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);

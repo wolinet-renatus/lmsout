@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: add approval reason to users table.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

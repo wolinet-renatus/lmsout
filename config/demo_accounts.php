@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for demo_accounts.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
     'domain' => 'lsmout.ac.tz',
     'default_password' => 'password',
@@ -8,7 +14,7 @@ return [
     |--------------------------------------------------------------------------
     | One-Click Demo Accounts Across All RBAC Roles & Isolation Scopes
     |--------------------------------------------------------------------------
-    | Used by AdminSeeder, FinalController, and the /login quick-access panel
+    | Used by AdminSeeder and the /login quick-access panel
     | so credentials, RBAC permissions, and branch/portal isolation stay aligned.
     */
     'roles' => [

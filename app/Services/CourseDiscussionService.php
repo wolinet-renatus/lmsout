@@ -19,11 +19,15 @@ use Illuminate\Support\Facades\Auth;
  * including permission validations for students, instructors, and admins.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class CourseDiscussionService
 {
     protected $repository;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(CourseDiscussionRepository $repository)
     {
         $this->repository = $repository;

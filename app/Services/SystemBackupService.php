@@ -13,6 +13,7 @@ use ZipArchive;
  *
  * Shared engine for creating, listing, and managing database SQL dumps
  * and media/full ZIP archives used by both Backup Management and System Updater.
+ * @author Renatus Bernardo
  */
 class SystemBackupService
 {

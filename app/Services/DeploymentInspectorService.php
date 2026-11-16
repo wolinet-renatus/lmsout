@@ -14,6 +14,7 @@ use Symfony\Component\Process\Process;
  *
  * Inspects application versions, Git/CI-CD deployment metadata,
  * pending database migrations, and runtime readiness for System Updater.
+ * @author Renatus Bernardo
  */
 class DeploymentInspectorService
 {

@@ -18,11 +18,15 @@ use Illuminate\Support\Facades\Auth;
  * Handles AJAX discussion actions for students in the course player.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class CourseDiscussionController extends Controller
 {
     protected $discussionService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(CourseDiscussionService $discussionService)
     {
         $this->discussionService = $discussionService;

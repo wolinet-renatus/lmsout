@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Artisan Console & Scheduler Definitions
+ *
+ * Registers scheduled background tasks for live class reminders and
+ * daily F2F/Hybrid installment payment reminders.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;

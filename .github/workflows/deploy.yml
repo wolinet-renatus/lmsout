@@ -1,0 +1,59 @@
+name: Deploy to Production
+
+on:
+  workflow_run:
+    workflows: [ "CI" ]
+    types: [ completed ]
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      run_seed:
+        description: "Run idempotent database seeders (db:seed --force)"
+        required: false
+        default: "false"
+        type: boolean
+
+concurrency:
+  group: production-lmsout
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to lmsout.wolinet.com
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+
+    steps:
+      - name: Verify required SSH secrets are configured
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          for var in SSH_HOST SSH_USER SSH_PRIVATE_KEY DEPLOY_PATH; do
+            if [ -z "${!var}" ]; then
+              echo "ERROR: Required GitHub Secret '$var' is not set." >&2
+              echo "Configure SSH_HOST, SSH_USER, SSH_PORT, SSH_PRIVATE_KEY, and DEPLOY_PATH in Settings -> Secrets -> Actions." >&2
+              exit 1
+            fi
+          done
+
+      - name: Deploy over SSH via deploy/deploy.sh
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 15m
+          script: |
+            set -Eeuo pipefail
+            cd "${{ secrets.DEPLOY_PATH }}"
+            SEED_FLAG=""
+            if [ "${{ inputs.run_seed || vars.RUN_SEED || 'false' }}" = "true" ]; then
+              SEED_FLAG="--seed"
+            fi
+            bash deploy/deploy.sh --branch=main ${SEED_FLAG}

@@ -11,13 +11,24 @@ use App\Notifications\GeneralNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Notification controller — handles administrative portal workflows and governance.
+ *
+ * @author Renatus Bernardo
+ */
 class NotificationController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index()
     {
         return redirect()->route('admin.notifications.create');
     }
 
+    /**
+     * Show the form for creating a new resource record.
+     */
     public function create()
     {
         $courses = Course::select('id', 'title')->get();
@@ -32,6 +43,9 @@ class NotificationController extends Controller
         return view('admin.notifications.create', compact('courses', 'instructors', 'sentNotifications'));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -101,6 +115,9 @@ class NotificationController extends Controller
         return redirect()->back()->with('success', 'Notification sent successfully to ' . $users->count() . ' users.');
     }
 
+    /**
+     * Resend.
+     */
     public function resend($id)
     {
         $history = AdminNotificationHistory::findOrFail($id);

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
  * This controller handles the analytics functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class AnalyticsController extends Controller
 {

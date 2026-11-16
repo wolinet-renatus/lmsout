@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\CustomPage;
 use Illuminate\Http\Request;
 
+/**
+ * Custom page controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class CustomPageController extends Controller
 {
     /**

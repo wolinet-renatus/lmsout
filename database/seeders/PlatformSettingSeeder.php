@@ -5,6 +5,11 @@ namespace Database\Seeders;
 use App\Services\SettingsRepository;
 use Illuminate\Database\Seeder;
 
+/**
+ * Platform setting seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class PlatformSettingSeeder extends Seeder
 {
     /**
@@ -26,6 +31,9 @@ class PlatformSettingSeeder extends Seeder
         }
     }
 
+    /**
+     * Defaults.
+     */
     protected function defaults(): array
     {
         return [

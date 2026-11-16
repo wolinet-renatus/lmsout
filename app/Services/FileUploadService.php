@@ -13,6 +13,7 @@ use Intervention\Image\ImageManagerStatic as Image;
  * This service is responsible for uploading files to the storage.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class FileUploadService
 {

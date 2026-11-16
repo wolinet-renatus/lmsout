@@ -8,13 +8,20 @@ namespace App\Services;
  * This service is responsible for configuring the SMTP settings.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class SmtpConfigurator
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private SettingsRepository $settingsRepository)
     {
     }
 
+    /**
+     * Apply.
+     */
     public function apply(): void
     {
         $credentials = $this->settingsRepository->get('smtp.credentials', []);
@@ -40,6 +47,9 @@ class SmtpConfigurator
         }
     }
 
+    /**
+     * Set config.
+     */
     protected function setConfig(string $key, mixed $value): void
     {
         if ($value !== null && $value !== '') {

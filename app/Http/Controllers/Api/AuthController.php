@@ -16,14 +16,25 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Auth controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class AuthController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         private OtpService $otpService,
         private NotificationPreferenceService $notificationPreferenceService
     ) {
     }
 
+    /**
+     * Register bindings and service container definitions.
+     */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -102,6 +113,9 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Login.
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -189,6 +203,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Verify otp.
+     */
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -218,6 +235,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Resend otp.
+     */
     public function resendOtp(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -233,6 +253,9 @@ class AuthController extends Controller
         return response()->json(['message' => 'OTP resent successfully']);
     }
 
+    /**
+     * Logout.
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -242,6 +265,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * User.
+     */
     public function user(Request $request)
     {
         return response()->json($request->user());

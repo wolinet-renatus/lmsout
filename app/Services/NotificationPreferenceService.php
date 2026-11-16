@@ -11,13 +11,20 @@ use App\Services\SettingsRepository;
  * This service is responsible for managing notification preferences for users.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class NotificationPreferenceService
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private SettingsRepository $settingsRepository)
     {
     }
 
+    /**
+     * Student defaults.
+     */
     public function studentDefaults(): array
     {
         return [
@@ -30,6 +37,9 @@ class NotificationPreferenceService
         ];
     }
 
+    /**
+     * Instructor defaults.
+     */
     public function instructorDefaults(): array
     {
         return [
@@ -40,6 +50,9 @@ class NotificationPreferenceService
         ];
     }
 
+    /**
+     * Defaults for user.
+     */
     public function defaultsForUser(User $user): array
     {
         return $user->isInstructor()
@@ -47,6 +60,9 @@ class NotificationPreferenceService
             : $this->studentDefaults();
     }
 
+    /**
+     * Merge with defaults.
+     */
     public function mergeWithDefaults(array $existing, string $role): array
     {
         $defaults = $role === 'instructor'
@@ -56,6 +72,9 @@ class NotificationPreferenceService
         return array_merge($defaults, $existing);
     }
 
+    /**
+     * Merge for user.
+     */
     public function mergeForUser(User $user, array $existing = [], array $updates = []): array
     {
         $defaults = $this->defaultsForUser($user);
@@ -63,6 +82,9 @@ class NotificationPreferenceService
         return array_merge($defaults, $existing, $updates);
     }
 
+    /**
+     * Prefers.
+     */
     public function prefers(User $user, string $key, bool $fallback = true): bool
     {
         $preferences = $user->notificationSettings?->preferences ?? [];
@@ -71,6 +93,9 @@ class NotificationPreferenceService
         return (bool) ($merged[$key] ?? $fallback);
     }
 
+    /**
+     * Marketing opt in default.
+     */
     protected function marketingOptInDefault(): bool
     {
         $preferences = $this->settingsRepository->get('email.preferences', []);

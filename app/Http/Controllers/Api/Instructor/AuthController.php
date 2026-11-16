@@ -16,8 +16,16 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Auth controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class AuthController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         private OtpService $otpService,
         private NotificationPreferenceService $notificationPreferenceService,
@@ -25,6 +33,9 @@ class AuthController extends Controller
     ) {
     }
 
+    /**
+     * Register bindings and service container definitions.
+     */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -116,6 +127,9 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Login.
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -169,6 +183,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Verify otp.
+     */
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -202,6 +219,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Resend otp.
+     */
     public function resendOtp(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -217,6 +237,9 @@ class AuthController extends Controller
         return response()->json(['message' => 'OTP resent successfully']);
     }
 
+    /**
+     * Logout.
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -226,11 +249,17 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * User.
+     */
     public function user(Request $request)
     {
         return response()->json($request->user());
     }
 
+    /**
+     * Forgot password.
+     */
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);

@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
  * This mail is sent to the admin when a new newsletter is sent.
  *
  * @package App\Mail
+ * @author Renatus Bernardo
  */
 class AdminNewsletterBlast extends Mailable
 {

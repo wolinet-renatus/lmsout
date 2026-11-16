@@ -10,8 +10,16 @@ use App\Services\LiveClassService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Dashboard controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class DashboardController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(protected LiveClassService $liveClassService) {}
     /**
      * Get student dashboard statistics.

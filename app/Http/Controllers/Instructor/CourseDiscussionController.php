@@ -18,11 +18,15 @@ use Illuminate\Support\Facades\Auth;
  * Handles discussions management in the instructor panel.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class CourseDiscussionController extends Controller
 {
     protected $discussionService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(CourseDiscussionService $discussionService)
     {
         $this->discussionService = $discussionService;

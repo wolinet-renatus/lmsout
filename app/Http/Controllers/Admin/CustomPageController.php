@@ -15,6 +15,7 @@ use Illuminate\View\View;
  * This controller handles the management of custom pages.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class CustomPageController extends Controller
 {

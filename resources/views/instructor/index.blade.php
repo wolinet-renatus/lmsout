@@ -2,21 +2,21 @@
 @extends('layouts.app')
 
 @section('content')
-    <section class="edux-page-wrap">
+    <section class="lmsout-page-wrap">
         <div class="container">
             <!-- Clean Catalog Header -->
-            <div class="edux-inner-header">
+            <div class="lmsout-inner-header">
                 <div>
-                    <div class="edux-inner-header__eyebrow">EXPERT MENTORS &amp; FACULTY</div>
-                    <h1 class="edux-inner-header__title">
+                    <div class="lmsout-inner-header__eyebrow">EXPERT MENTORS &amp; FACULTY</div>
+                    <h1 class="lmsout-inner-header__title">
                         Meet Our <span>{{ __('frontend.instructors') }}</span>
                     </h1>
-                    <p class="edux-inner-header__sub">
+                    <p class="lmsout-inner-header__sub">
                         {{ __('frontend.explore_instructor_desc') }}
                     </p>
                 </div>
                 @if(Route::has('instructor.become'))
-                    <a href="{{ route('instructor.become') }}" class="edux-btn-primary">
+                    <a href="{{ route('instructor.become') }}" class="lmsout-btn-primary">
                         <i class="fa-solid fa-chalkboard-user"></i>
                         <span>Become an Instructor</span>
                     </a>
@@ -34,7 +34,7 @@
                             ->implode('');
                     @endphp
                     <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="edux-surface-card edux-surface-card--hover d-flex flex-column text-center">
+                        <div class="lmsout-surface-card lmsout-surface-card--hover d-flex flex-column text-center">
                             <div class="mb-3">
                                 @if(!empty($instructor->display_avatar))
                                     <img src="{{ $instructor->display_avatar }}" alt="{{ $instructor->name }}"
@@ -73,14 +73,14 @@
                                 </span>
                             </div>
 
-                            <a href="{{ route('instructors.show', $instructor) }}" class="edux-btn-outline w-100">
+                            <a href="{{ route('instructors.show', $instructor) }}" class="lmsout-btn-outline w-100">
                                 View Profile <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
                     </div>
                 @empty
                     <div class="col-12">
-                        <div class="edux-surface-card text-center py-5">
+                        <div class="lmsout-surface-card text-center py-5">
                             <i class="fa-solid fa-chalkboard-user fa-3x text-muted mb-3"></i>
                             <h5 class="fw-bold mb-1">{{ __('frontend.no_instructors_yet') }}</h5>
                         </div>

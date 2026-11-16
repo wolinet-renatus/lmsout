@@ -18,11 +18,15 @@ use Illuminate\Support\Facades\Auth;
  * Handles discussions API endpoints for the instructor mobile app.
  *
  * @package App\Http\Controllers\Api\Instructor
+ * @author Renatus Bernardo
  */
 class CourseDiscussionController extends Controller
 {
     protected $discussionService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(CourseDiscussionService $discussionService)
     {
         $this->discussionService = $discussionService;

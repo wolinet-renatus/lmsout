@@ -12,6 +12,7 @@ use Illuminate\Console\Command;
  * to public/themes/{theme}/.
  *
  * @package App\Console\Commands
+ * @author Renatus Bernardo
  */
 class ThemePublishCommand extends Command
 {
@@ -32,6 +33,9 @@ class ThemePublishCommand extends Command
      */
     protected $description = 'Publish homepage theme assets to the public directory';
 
+    /**
+     * Execute the primary handler logic for this component.
+     */
     public function handle(ThemeService $themeService): int
     {
         if ($this->option('clean')) {

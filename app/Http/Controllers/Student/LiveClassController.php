@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
  * Lists live classes from courses the student is enrolled in.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class LiveClassController extends Controller
 {
@@ -37,6 +38,9 @@ class LiveClassController extends Controller
         return view('student.live-classes.index', compact('user', 'liveClasses'));
     }
 
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

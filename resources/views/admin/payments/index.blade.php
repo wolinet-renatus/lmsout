@@ -170,22 +170,15 @@
                                 <select class="form-control" name="payment_method"
                                     onchange="document.getElementById('filterForm').submit()">
                                     <option value="">All Methods</option>
-                                    <option value="razorpay"
-                                        {{ request('payment_method') == 'razorpay' ? 'selected' : '' }}>Razorpay</option>
                                     <option value="stripe" {{ request('payment_method') == 'stripe' ? 'selected' : '' }}>
                                         Stripe</option>
-                                    <option value="paystack"
-                                        {{ request('payment_method') == 'paystack' ? 'selected' : '' }}>Paystack</option>
                                     <option value="flutterwave"
                                         {{ request('payment_method') == 'flutterwave' ? 'selected' : '' }}>Flutterwave
                                     </option>
                                     <option value="paypal" {{ request('payment_method') == 'paypal' ? 'selected' : '' }}>
                                         PayPal</option>
-                                    <option value="sslcommerz"
-                                        {{ request('payment_method') == 'sslcommerz' ? 'selected' : '' }}>SSLCommerz
-                                    </option>
-                                    <option value="mollie" {{ request('payment_method') == 'mollie' ? 'selected' : '' }}>
-                                        Mollie</option>
+                                    <option value="pesapal" {{ request('payment_method') == 'pesapal' ? 'selected' : '' }}>
+                                        Pesapal</option>
                                     <option value="offline" {{ request('payment_method') == 'offline' ? 'selected' : '' }}>
                                         Offline</option>
                                 </select>

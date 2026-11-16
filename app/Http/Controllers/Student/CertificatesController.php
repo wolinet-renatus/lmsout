@@ -14,9 +14,13 @@ use Illuminate\View\View;
  * This controller handles the certificates functionality.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class CertificatesController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(): View
     {
         $user = $this->currentUser();
@@ -49,6 +53,9 @@ class CertificatesController extends Controller
         ]);
     }
 
+    /**
+     * Current user.
+     */
     private function currentUser(): User
     {
         /** @var User $user */

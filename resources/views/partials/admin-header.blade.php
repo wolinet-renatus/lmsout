@@ -5,12 +5,15 @@
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="app-url" content="{{ rtrim(url('/'), '/') }}">
   <meta name="author" content="OUT LMS — Wolinet">
   <meta name="application-name" content="{{ site_name() }}">
   <meta name="theme-color" content="#013ba6">
   <title>@yield('title') | {{ site_name() }} Admin</title>
   <meta name="description" content="{{ site_name() }} Admin Control Center">
-  @php($favicon = branding_asset(['favicon_path', 'logos.favicon', 'favicon'], 'assets/front/img/logo/brand-favicon-v3.png'))
+  @php
+    $favicon = branding_asset(['favicon_path', 'logos.favicon', 'favicon'], 'assets/front/img/logo/brand-favicon-v3.png');
+  @endphp
   <link rel="icon" type="image/png" href="{{ $favicon }}">
   <link rel="shortcut icon" href="{{ $favicon }}">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
@@ -67,9 +70,23 @@
           </ul>
           <ul class="navbar-nav navbar-right align-items-center">
             @auth
-              @php($headerUser = auth()->user())
+              @php
+                $headerUser = auth()->user();
+                $adminActiveCurrency = currency_code();
+              @endphp
               <li class="d-none d-lg-block mr-2">
                 <span class="badge badge-light">{{ $headerUser->primaryRoleLabel() }}@if(! $headerUser->isMultiBranchAdmin() && $headerUser->branch) &bull; {{ $headerUser->branch->name }}@endif</span>
+              </li>
+              <li>
+                <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Currency Switch" title="Exchange Rate: 1 USD = {{ number_format(usd_to_tzs_rate(), 0) }} TZS">
+                  @foreach (supported_switch_currencies() as $curCode => $curLabel)
+                    <a href="{{ request()->fullUrlWithQuery(['currency' => $curCode]) }}"
+                       class="btn {{ $curCode === $adminActiveCurrency ? 'btn-light font-weight-bold text-primary' : 'btn-outline-light text-white' }}"
+                       style="font-size: 11px; padding: 3px 8px;">
+                      {{ $curCode === 'TZS' ? 'TSH' : 'USD ($)' }}
+                    </a>
+                  @endforeach
+                </div>
               </li>
               <li><a href="{{ route('admin.help.index') }}" class="nav-link" title="Online Help"><i class="fas fa-question-circle"></i> <span class="d-none d-sm-inline">Help</span></a></li>
               <li><a href="{{ route('home') }}" class="nav-link" target="_blank"><i class="fas fa-globe"></i> <span class="d-none d-sm-inline">Visit Website</span></a></li>

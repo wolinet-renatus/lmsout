@@ -12,39 +12,61 @@ use Throwable;
  * This service is responsible for handling the Recaptcha verification.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class RecaptchaService
 {
+    /**
+     * Enabled.
+     */
     public function enabled(): bool
     {
         return (bool) settings('recaptcha.config.enabled', false) && $this->siteKey() && $this->secretKey();
     }
 
+    /**
+     * Site key.
+     */
     public function siteKey(): ?string
     {
         return settings('recaptcha.config.site_key');
     }
 
+    /**
+     * Secret key.
+     */
     public function secretKey(): ?string
     {
         return settings('recaptcha.config.secret_key');
     }
 
+    /**
+     * Score threshold.
+     */
     public function scoreThreshold(): float
     {
         return (float) settings('recaptcha.config.score_threshold', 0.5);
     }
 
+    /**
+     * Version.
+     */
     public function version(): string
     {
         return settings('recaptcha.config.version', 'v2_checkbox');
     }
 
+    /**
+     * Uses v3.
+     */
     public function usesV3(): bool
     {
         return $this->version() === 'v3_invisible';
     }
 
+    /**
+     * Verify.
+     */
     public function verify(?string $responseToken, ?string $remoteIp = null, ?string $expectedAction = null): bool
     {
         if (!$this->enabled()) {

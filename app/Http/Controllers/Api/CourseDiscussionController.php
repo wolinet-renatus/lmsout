@@ -16,11 +16,15 @@ use Illuminate\Http\Request;
  * Handles discussions API endpoints for students in the mobile app.
  *
  * @package App\Http\Controllers\Api
+ * @author Renatus Bernardo
  */
 class CourseDiscussionController extends Controller
 {
     protected $discussionService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(CourseDiscussionService $discussionService)
     {
         $this->discussionService = $discussionService;

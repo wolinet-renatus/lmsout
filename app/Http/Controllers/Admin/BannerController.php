@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 
+/**
+ * Banner controller — handles administrative portal workflows and governance.
+ *
+ * @author Renatus Bernardo
+ */
 class BannerController extends Controller
 {
     /**

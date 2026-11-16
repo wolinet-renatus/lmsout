@@ -7,6 +7,11 @@ use App\Models\PaymentSchedule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
+/**
+ * Installment reminder service — encapsulates domain business logic and transactional operations.
+ *
+ * @author Renatus Bernardo
+ */
 class InstallmentReminderService
 {
     /**

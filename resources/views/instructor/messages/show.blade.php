@@ -426,10 +426,10 @@
                         msg.attachments.forEach(function(att) {
                             if (att.file_type && att.file_type.startsWith('image/')) {
                                 attachHtml +=
-                                    `<img src="/storage/${att.file_path}" class="attachment-img" onclick="window.open(this.src)">`;
+                                    `<img src="{{ asset('storage') }}/${att.file_path}" class="attachment-img" onclick="window.open(this.src)">`;
                             } else {
                                 attachHtml +=
-                                    `<a href="/storage/${att.file_path}" target="_blank" class="attachment-item text-decoration-none ${isMe?'text-white':'text-dark'}"><i class="fa-solid fa-file"></i> ${escapeHtml(att.file_name)}</a>`;
+                                    `<a href="{{ asset('storage') }}/${att.file_path}" target="_blank" class="attachment-item text-decoration-none ${isMe?'text-white':'text-dark'}"><i class="fa-solid fa-file"></i> ${escapeHtml(att.file_name)}</a>`;
                             }
                         });
                     }

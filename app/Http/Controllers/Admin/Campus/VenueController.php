@@ -8,8 +8,16 @@ use App\Models\Venue;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 
+/**
+ * Venue controller — manages campus & short-course operations within the admin portal.
+ *
+ * @author Renatus Bernardo
+ */
 class VenueController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $venues = Venue::with('branch')
@@ -25,6 +33,9 @@ class VenueController extends Controller
         return view('admin.campus.venues.index', compact('venues', 'branches'));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         Venue::create($this->validated($request));
@@ -33,6 +44,9 @@ class VenueController extends Controller
         return redirect()->route('admin.campus.venues.index');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Venue $venue)
     {
         $branches = Branch::orderBy('name')->get(['id', 'name']);
@@ -40,6 +54,9 @@ class VenueController extends Controller
         return view('admin.campus.venues.edit', compact('venue', 'branches'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, Venue $venue)
     {
         $venue->update($this->validated($request));
@@ -48,6 +65,9 @@ class VenueController extends Controller
         return redirect()->route('admin.campus.venues.index');
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(Venue $venue)
     {
         if ($venue->courseAssignments()->exists()) {

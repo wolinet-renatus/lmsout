@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Represents a like on a course discussion thread.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class CourseDiscussionLike extends Model
 {

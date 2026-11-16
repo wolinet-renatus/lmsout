@@ -22,9 +22,13 @@ use App\Models\UserNotificationSetting;
  * This controller handles the student registration functionality.
  *
  * @package App\Http\Controllers\Student
+ * @author Renatus Bernardo
  */
 class RegisterController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private RecaptchaService $recaptcha, private NotificationPreferenceService $notificationPreferenceService)
     {
     }

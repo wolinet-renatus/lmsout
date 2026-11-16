@@ -26,6 +26,7 @@ use Maatwebsite\Excel\Facades\Excel;
  * This controller handles the management of reports.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class ReportsController extends Controller
 {

@@ -13,9 +13,13 @@ use Illuminate\Http\Request;
  * This controller handles the newsletter subscription functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class NewsletterController extends Controller
 {
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([

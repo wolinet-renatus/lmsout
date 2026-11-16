@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Represents a discussion thread within a specific course.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class CourseDiscussion extends Model
 {

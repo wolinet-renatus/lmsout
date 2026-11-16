@@ -7,8 +7,16 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use Illuminate\Http\Request;
 
+/**
+ * Course controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class CourseController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $courses = $request->user()->courses()
@@ -29,6 +37,9 @@ class CourseController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Request $request, $id)
     {
         $course = $request->user()->courses()

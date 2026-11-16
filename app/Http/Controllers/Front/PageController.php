@@ -12,9 +12,13 @@ use Illuminate\Contracts\View\View;
  * This controller handles the page functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class PageController extends Controller
 {
+    /**
+     * invoke.
+     */
     public function __invoke(CustomPage $customPage): View
     {
         $seo = frontend_meta($customPage->slug) ?? [];

@@ -12,14 +12,25 @@ use App\Services\SrsWorkflowService;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 
+/**
+ * Campus controller — handles instructor studio workflows and cohort delivery.
+ *
+ * @author Renatus Bernardo
+ */
 class CampusController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         private CampusAttendanceService $attendance,
         private SrsWorkflowService $srs
     ) {
     }
 
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $tutor = $request->user();
@@ -82,6 +93,9 @@ class CampusController extends Controller
         return view('instructor.campus.roster', compact('assignment', 'roster', 'paymentFilter'));
     }
 
+    /**
+     * Show attendance.
+     */
     public function showAttendance(Request $request, CourseAssignment $assignment)
     {
         abort_unless((int) $assignment->instructor_id === (int) $request->user()->id, 403);
@@ -101,6 +115,9 @@ class CampusController extends Controller
         return view('instructor.campus.attendance', compact('assignment', 'roster', 'existing', 'date', 'qr', 'qrToken'));
     }
 
+    /**
+     * Store attendance.
+     */
     public function storeAttendance(Request $request, CourseAssignment $assignment)
     {
         abort_unless((int) $assignment->instructor_id === (int) $request->user()->id, 403);
@@ -116,6 +133,9 @@ class CampusController extends Controller
         return redirect()->route('instructor.campus.attendance', [$assignment, 'date' => $data['date']]);
     }
 
+    /**
+     * Open qr.
+     */
     public function openQr(Request $request, CourseAssignment $assignment)
     {
         abort_unless((int) $assignment->instructor_id === (int) $request->user()->id, 403);

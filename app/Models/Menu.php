@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
  * This model represents a menu.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Menu extends Model
 {
@@ -28,6 +29,9 @@ class Menu extends Model
         'is_active' => 'boolean',
     ];
 
+    /**
+     * Booted.
+     */
     protected static function booted(): void
     {
         static::creating(function (Menu $menu) {
@@ -37,16 +41,25 @@ class Menu extends Model
         });
     }
 
+    /**
+     * Eloquent hasMany relationship for Scope active.
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
+    /**
+     * Eloquent hasMany relationship for Items.
+     */
     public function items(): HasMany
     {
         return $this->hasMany(MenuItem::class)->whereNull('parent_id')->where('is_active', true)->orderBy('order');
     }
 
+    /**
+     * Eloquent hasMany relationship for All items.
+     */
     public function allItems(): HasMany
     {
         return $this->hasMany(MenuItem::class);

@@ -19,9 +19,13 @@ use App\Mail\InstructorReviewNotificationMail;
  * This controller handles the management of reviews.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class ReviewController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private NotificationPreferenceService $notificationPreferenceService) {}
 
     /**
@@ -222,6 +226,9 @@ class ReviewController extends Controller
         return back();
     }
 
+    /**
+     * Notify instructor about review.
+     */
     protected function notifyInstructorAboutReview(Review $review): void
     {
         $review->loadMissing('course.instructor.notificationSettings', 'user');

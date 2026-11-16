@@ -20,6 +20,7 @@ use Spatie\Permission\Models\Role;
  * Staff & Role Management Controller (v2.2.0)
  *
  * Manages Super Admins, Branch Managers, Coordinators, Marketing Officers, Directors, Staff & Role Permissions.
+ * @author Renatus Bernardo
  */
 class StaffController extends Controller
 {

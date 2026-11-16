@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
  * SupportTicket Model (v3.0.0)
  *
  * Represents a support ticket between Student/Instructor and Admin.
+ * @author Renatus Bernardo
  */
 class SupportTicket extends Model
 {
@@ -32,6 +33,9 @@ class SupportTicket extends Model
         'closed_at'     => 'datetime',
     ];
 
+    /**
+     * Booted.
+     */
     protected static function booted(): void
     {
         static::creating(function (SupportTicket $ticket) {
@@ -44,26 +48,41 @@ class SupportTicket extends Model
         });
     }
 
+    /**
+     * Eloquent belongsTo relationship for Generate ticket number.
+     */
     public static function generateTicketNumber(): string
     {
         return 'TKT-' . date('Y') . '-' . strtoupper(Str::random(6));
     }
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Define custom validation error messages for the request.
+     */
     public function messages(): HasMany
     {
         return $this->hasMany(SupportTicketMessage::class, 'ticket_id')->orderBy('created_at');
     }
 
+    /**
+     * Get any file attachments for the email message.
+     */
     public function attachments(): HasMany
     {
         return $this->hasMany(SupportTicketAttachment::class, 'ticket_id');
     }
 
+    /**
+     * Accessor for computed Priority badge attribute.
+     */
     public function getPriorityBadgeAttribute(): string
     {
         return match ($this->priority) {
@@ -74,6 +93,9 @@ class SupportTicket extends Model
         };
     }
 
+    /**
+     * Accessor for computed Status badge attribute.
+     */
     public function getStatusBadgeAttribute(): string
     {
         return match ($this->status) {

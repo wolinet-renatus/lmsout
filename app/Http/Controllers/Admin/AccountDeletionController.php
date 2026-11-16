@@ -17,9 +17,13 @@ use Illuminate\View\View;
  * This controller handles the management of account deletion requests.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class AccountDeletionController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private AccountDeletionService $accountDeletionService) {}
 
     /**

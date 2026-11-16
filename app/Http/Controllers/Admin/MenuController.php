@@ -19,6 +19,7 @@ use Illuminate\Validation\Rule;
  * This controller handles the management of menus.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class MenuController extends Controller
 {
@@ -207,6 +208,9 @@ class MenuController extends Controller
         return $slug;
     }
 
+    /**
+     * Format menu item.
+     */
     private function formatMenuItem(MenuItem $menuItem): array
     {
         return [
@@ -224,6 +228,9 @@ class MenuController extends Controller
         ];
     }
 
+    /**
+     * Location suggestions.
+     */
     private function locationSuggestions(): array
     {
         return [

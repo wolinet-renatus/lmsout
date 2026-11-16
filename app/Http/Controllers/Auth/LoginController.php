@@ -16,9 +16,13 @@ use Illuminate\Support\Facades\Auth;
  * This controller handles the login functionality.
  *
  * @package App\Http\Controllers\Auth
+ * @author Renatus Bernardo
  */
 class LoginController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private RecaptchaService $recaptcha, private OtpService $otpService)
     {
     }

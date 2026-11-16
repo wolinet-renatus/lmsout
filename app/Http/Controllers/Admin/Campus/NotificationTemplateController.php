@@ -7,8 +7,16 @@ use App\Models\NotificationTemplate;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 
+/**
+ * Notification template controller — manages campus & short-course operations within the admin portal.
+ *
+ * @author Renatus Bernardo
+ */
 class NotificationTemplateController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index()
     {
         $templates = NotificationTemplate::orderBy('name')->get();
@@ -16,6 +24,9 @@ class NotificationTemplateController extends Controller
         return view('admin.campus.templates.index', compact('templates'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, NotificationTemplate $template)
     {
         $data = $request->validate([

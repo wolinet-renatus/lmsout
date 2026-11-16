@@ -8,10 +8,18 @@ use App\Services\GeminiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Ai chat controller — handles student campus portal workflows and learning progress.
+ *
+ * @author Renatus Bernardo
+ */
 class AiChatController extends Controller
 {
     protected $geminiService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(GeminiService $geminiService)
     {
         $this->geminiService = $geminiService;

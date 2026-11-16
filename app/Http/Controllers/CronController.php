@@ -14,9 +14,13 @@ use Illuminate\Support\Facades\Log;
  * Secured by an optional secret key.
  *
  * @package App\Http\Controllers
+ * @author Renatus Bernardo
  */
 class CronController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(protected SettingsRepository $settings)
     {
     }

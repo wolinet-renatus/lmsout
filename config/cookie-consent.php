@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for cookie-consent.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
 
     /*

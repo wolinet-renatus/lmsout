@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: add iso columns to countries table.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

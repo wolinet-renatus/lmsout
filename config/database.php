@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for database.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Support\Str;
 
 return [

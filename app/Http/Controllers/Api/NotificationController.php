@@ -5,8 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+/**
+ * Notification controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class NotificationController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -18,6 +26,9 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Mark as read.
+     */
     public function markAsRead($id, Request $request)
     {
         $notification = $request->user()->notifications()->findOrFail($id);
@@ -29,6 +40,9 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Mark all read.
+     */
     public function markAllRead(Request $request)
     {
         $request->user()->unreadNotifications->markAsRead();
@@ -39,6 +53,9 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy($id, Request $request)
     {
         $notification = $request->user()->notifications()->findOrFail($id);

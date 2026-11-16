@@ -1,9 +1,9 @@
 @if($courses->total() > 0)
-<div class="edux-catalog-pagination">
-    <span class="edux-catalog-pagination__info">
+<div class="lmsout-catalog-pagination">
+    <span class="lmsout-catalog-pagination__info">
         Showing {{ $courses->firstItem() ?? 1 }} to {{ $courses->lastItem() ?? $courses->count() }} of {{ $courses->total() }} results
     </span>
-    <ul class="edux-catalog-pagination__list">
+    <ul class="lmsout-catalog-pagination__list">
         @if($courses->onFirstPage())
             <li><span class="page-numbers disabled"><i class="fa-solid fa-chevron-left"></i></span></li>
         @else

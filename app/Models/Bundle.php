@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Bundle Model
  *
  * This model represents a course bundle, sold together.
+ * @author Renatus Bernardo
  */
 class Bundle extends Model
 {
@@ -60,6 +61,9 @@ class Bundle extends Model
         return $this->hasMany(BundleEnrollment::class);
     }
 
+    /**
+     * Accessor for computed Thumbnail attribute.
+     */
     public function getThumbnailAttribute()
     {
         if (!$this->featured_image) {
@@ -74,6 +78,9 @@ class Bundle extends Model
         return asset('storage/' . ltrim($this->featured_image, '/'));
     }
 
+    /**
+     * Accessor for computed Image attribute.
+     */
     public function getImageAttribute()
     {
         return $this->thumbnail;

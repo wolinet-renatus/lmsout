@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
  * Validates data for creating and updating coupons.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class CouponRequest extends FormRequest
 {

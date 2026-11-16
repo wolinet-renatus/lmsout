@@ -20,6 +20,7 @@ use Illuminate\View\View;
  * This controller handles the assignments functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class AssignmentsController extends Controller
 {
@@ -339,6 +340,9 @@ class AssignmentsController extends Controller
         }
     }
 
+    /**
+     * Check originality.
+     */
     public function checkOriginality(Request $request, AssignmentSubmission $submission, OriginalityCheckService $originalityService): RedirectResponse|JsonResponse
     {
         $user = $request->user();

@@ -16,9 +16,13 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Installments, Custom Payment Schedules & Due Reminders (migrated from SCMS PaymentScheduleController).
+ * @author Renatus Bernardo
  */
 class PaymentScheduleController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $effectiveBranch = auth()->user()?->effectiveBranchId($request->integer('branch_id') ?: null);
@@ -54,6 +58,9 @@ class PaymentScheduleController extends Controller
         return view('admin.campus.installments.index', compact('schedules', 'stats', 'branches', 'effectiveBranch'));
     }
 
+    /**
+     * Show the form for creating a new resource record.
+     */
     public function create(Request $request)
     {
         $invoice = $request->filled('invoice_id')
@@ -68,6 +75,9 @@ class PaymentScheduleController extends Controller
         return view('admin.campus.installments.create', compact('invoices', 'invoice'));
     }
 
+    /**
+     * Generate.
+     */
     public function generate(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -120,6 +130,9 @@ class PaymentScheduleController extends Controller
         return redirect()->route('admin.campus.installments.show', $invoice);
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Invoice $invoice)
     {
         $invoice->load(['user', 'applicant', 'course', 'branch', 'paymentSchedules' => fn ($q) => $q->orderBy('installment_number')]);
@@ -127,6 +140,9 @@ class PaymentScheduleController extends Controller
         return view('admin.campus.installments.show', compact('invoice'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, PaymentSchedule $schedule): RedirectResponse
     {
         $data = $request->validate([
@@ -141,6 +157,9 @@ class PaymentScheduleController extends Controller
         return back();
     }
 
+    /**
+     * Mark as sent.
+     */
     public function markAsSent(PaymentSchedule $schedule): RedirectResponse
     {
         $schedule->loadMissing('invoice.user', 'invoice.applicant', 'invoice.course');
@@ -169,6 +188,9 @@ class PaymentScheduleController extends Controller
         return back();
     }
 
+    /**
+     * Check condition: Cancel.
+     */
     public function cancel(PaymentSchedule $schedule): RedirectResponse
     {
         if ($schedule->status === 'paid') {
@@ -182,6 +204,9 @@ class PaymentScheduleController extends Controller
         return back();
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(PaymentSchedule $schedule): RedirectResponse
     {
         if ((float) $schedule->amount_paid > 0) {
@@ -195,6 +220,9 @@ class PaymentScheduleController extends Controller
         return back();
     }
 
+    /**
+     * Reminders.
+     */
     public function reminders(Request $request)
     {
         $effectiveBranch = auth()->user()?->effectiveBranchId($request->integer('branch_id') ?: null);
@@ -211,6 +239,9 @@ class PaymentScheduleController extends Controller
         return view('admin.campus.installments.reminders', compact('dueSoon', 'daysAhead'));
     }
 
+    /**
+     * Send reminders.
+     */
     public function sendReminders(InstallmentReminderService $service): RedirectResponse
     {
         $result = $service->processDueReminders(true);

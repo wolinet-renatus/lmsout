@@ -8,8 +8,16 @@ use App\Models\Course;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 
+/**
+ * Bundle controller — handles instructor studio workflows and cohort delivery.
+ *
+ * @author Renatus Bernardo
+ */
 class BundleController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index()
     {
         $query = Bundle::where('vendor_id', auth()->id())
@@ -29,12 +37,18 @@ class BundleController extends Controller
         return view('instructor.bundles.index', compact('bundles'));
     }
 
+    /**
+     * Show the form for creating a new resource record.
+     */
     public function create()
     {
         $courses = Course::where('instructor_id', auth()->id())->where('status', 'published')->get();
         return view('instructor.bundles.create', compact('courses'));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -75,6 +89,9 @@ class BundleController extends Controller
         return redirect()->route('instructor.bundles.index');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Bundle $bundle)
     {
         if ($bundle->vendor_id !== auth()->id()) {
@@ -85,6 +102,9 @@ class BundleController extends Controller
         return view('instructor.bundles.edit', compact('bundle', 'courses'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, Bundle $bundle)
     {
         if ($bundle->vendor_id !== auth()->id()) {
@@ -125,6 +145,9 @@ class BundleController extends Controller
         return redirect()->route('instructor.bundles.index');
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(Bundle $bundle)
     {
         if ($bundle->vendor_id !== auth()->id()) {

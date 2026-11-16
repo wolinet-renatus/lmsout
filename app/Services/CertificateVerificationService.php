@@ -8,6 +8,7 @@ use App\Models\Enrollment;
  * Certificate Verification Service
  *
  * Handles verification of course completion certificates.
+ * @author Renatus Bernardo
  */
 class CertificateVerificationService
 {

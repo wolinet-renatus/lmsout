@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
+/**
+ * Quiz attempt controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class QuizAttemptController extends Controller
 {
     /**
@@ -100,6 +105,9 @@ class QuizAttemptController extends Controller
         ]);
     }
 
+    /**
+     * Summarize quizzes.
+     */
     private function summarizeQuizzes($quizIds): array
     {
         $ids = collect($quizIds)->filter()->unique()->values();
@@ -124,6 +132,9 @@ class QuizAttemptController extends Controller
         ];
     }
 
+    /**
+     * Summarize attempts.
+     */
     private function summarizeAttempts(int $quizId): array
     {
         $attempts = QuizAttempt::where('quiz_id', $quizId)->get();
@@ -152,6 +163,9 @@ class QuizAttemptController extends Controller
         ];
     }
 
+    /**
+     * Format seconds.
+     */
     private function formatSeconds(?int $seconds): ?string
     {
         if ($seconds === null) {

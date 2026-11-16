@@ -9,6 +9,11 @@ use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
+/**
+ * Dashboard controller API Controller — handles instructor mobile/client REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class DashboardController extends Controller
 {
     /**
@@ -77,6 +82,9 @@ class DashboardController extends Controller
         ]);
     }
 
+    /**
+     * Enrollment trends.
+     */
     private function enrollmentTrends(int $instructorId)
     {
         $days = collect();
@@ -102,6 +110,9 @@ class DashboardController extends Controller
         });
     }
 
+    /**
+     * Count unique students.
+     */
     private function countUniqueStudents(int $instructorId): int
     {
         return Enrollment::query()
@@ -114,6 +125,9 @@ class DashboardController extends Controller
             ->count('user_id');
     }
 
+    /**
+     * Average rating.
+     */
     private function averageRating(int $instructorId): float
     {
         $rating = Review::query()
@@ -124,6 +138,9 @@ class DashboardController extends Controller
         return $rating ? round($rating, 1) : 0.0;
     }
 
+    /**
+     * Total enrollments.
+     */
     private function totalEnrollments(int $instructorId): int
     {
         return Enrollment::query()
@@ -135,6 +152,9 @@ class DashboardController extends Controller
             ->count();
     }
 
+    /**
+     * Available balance.
+     */
     private function availableBalance(int $instructorId): float
     {
         $totalEarned = Payment::query()
@@ -150,6 +170,9 @@ class DashboardController extends Controller
         return max(0, (float) $totalEarned - (float) $withdrawn);
     }
 
+    /**
+     * Total earnings.
+     */
     private function totalEarnings(int $instructorId): float
     {
         $amount = Payment::query()
@@ -160,6 +183,9 @@ class DashboardController extends Controller
         return (float) $amount;
     }
 
+    /**
+     * Recent activity.
+     */
     private function recentActivity(int $instructorId)
     {
         $enrollments = Enrollment::query()

@@ -13,9 +13,13 @@ use Illuminate\Http\Request;
 
 /**
  * Timetable: assigns tutor + venue + session + dates to a Face-to-Face / Hybrid course cohort.
+ * @author Renatus Bernardo
  */
 class CourseAssignmentController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $assignments = CourseAssignment::with(['course:id,title,delivery_mode', 'instructor:id,name', 'branch:id,name', 'venue:id,name'])
@@ -33,11 +37,17 @@ class CourseAssignmentController extends Controller
         return view('admin.campus.timetable.index', compact('assignments', 'branches', 'instructors'));
     }
 
+    /**
+     * Show the form for creating a new resource record.
+     */
     public function create()
     {
         return view('admin.campus.timetable.form', $this->formData(new CourseAssignment(['status' => 'active', 'session' => 'morning'])));
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request)
     {
         $data = $this->validated($request);
@@ -51,11 +61,17 @@ class CourseAssignmentController extends Controller
         return redirect()->route('admin.campus.timetable.index');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(CourseAssignment $timetable)
     {
         return view('admin.campus.timetable.form', $this->formData($timetable));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, CourseAssignment $timetable)
     {
         $data = $this->validated($request);
@@ -69,6 +85,9 @@ class CourseAssignmentController extends Controller
         return redirect()->route('admin.campus.timetable.index');
     }
 
+    /**
+     * Remove the specified resource record from storage.
+     */
     public function destroy(CourseAssignment $timetable)
     {
         if ($timetable->enrollments()->exists()) {
@@ -82,6 +101,9 @@ class CourseAssignmentController extends Controller
         return back();
     }
 
+    /**
+     * Toggle status.
+     */
     public function toggleStatus(CourseAssignment $timetable)
     {
         $next = $timetable->status === 'active' ? 'completed' : 'active';

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for permission.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
 
     'models' => [

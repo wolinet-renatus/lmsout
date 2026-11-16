@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\DB;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
-use Yabacon\Paystack;
 
 /**
  * Course Enrollment Controller
@@ -33,12 +32,16 @@ use Yabacon\Paystack;
  * This controller handles the course enrollment functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class CourseEnrollmentController extends Controller
 {
     protected $fileUploadService;
     protected PaymentGatewayService $paymentGatewayService;
 
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(
         FileUploadService $fileUploadService,
         PaymentGatewayService $paymentGatewayService,
@@ -60,12 +63,18 @@ class CourseEnrollmentController extends Controller
         return $this->checkout($id);
     }
     
+    /**
+     * Process checkout bundle.
+     */
     public function processCheckoutBundle(CheckoutRequest $request, $id)
     {
         $request->merge(['type' => 'bundle']);
         return $this->processCheckout($request, $id);
     }
 
+    /**
+     * Checkout.
+     */
     public function checkout($id)
     {
         $user = Auth::user();
@@ -102,20 +111,35 @@ class CourseEnrollmentController extends Controller
             }
             $price = (float) $course->price;
         } else {
-            $course = Course::with('instructor')->findOrFail($id);
-
-            if ($course->status !== 'published' || $course->visibility !== 'public') {
-                ToastMagic::error('This course is not available for enrollment.');
-                return redirect()->route('courses.show', $course->id);
-            }
-
             if (request()->filled('invoice_id')) {
                 $campusInvoice = \App\Models\Invoice::withoutGlobalScope('branch')
                     ->with('paymentSchedules')
-                    ->where('id', request()->integer('invoice_id'))
-                    ->where('user_id', $user->id)
-                    ->where('course_id', $course->id)
-                    ->firstOrFail();
+                    ->find(request()->integer('invoice_id'));
+
+                if (! $campusInvoice) {
+                    ToastMagic::error('The requested invoice could not be found.');
+                    return redirect()->route('student.campus.invoices.index');
+                }
+
+                if ((int) $campusInvoice->user_id !== (int) $user->id) {
+                    ToastMagic::error('You do not have permission to pay this invoice.');
+                    return redirect()->route('student.campus.invoices.index');
+                }
+
+                if ($campusInvoice->course_id && (int) $campusInvoice->course_id !== (int) $id) {
+                    return redirect()->route('courses.checkout', array_filter([
+                        'id'         => $campusInvoice->course_id,
+                        'invoice_id' => $campusInvoice->id,
+                        'pay'        => request()->input('pay'),
+                    ]));
+                }
+
+                $course = Course::with('instructor')->findOrFail($campusInvoice->course_id ?? $id);
+
+                if ($course->status !== 'published' || $course->visibility !== 'public') {
+                    ToastMagic::error('This course is not available for enrollment.');
+                    return redirect()->route('courses.show', $course->id);
+                }
 
                 if ($campusInvoice->balance <= 0) {
                     ToastMagic::info('This invoice is already fully paid.');
@@ -130,16 +154,33 @@ class CourseEnrollmentController extends Controller
                 $price = (request()->input('pay') === 'balance' || ! $nextSched)
                     ? (float) $campusInvoice->balance
                     : round((float) $nextSched->amount_due - (float) $nextSched->amount_paid, 2);
-            } elseif ($course->requiresApplicantForm()) {
-                return redirect()->route('courses.apply', $course->id);
             } else {
-                $existingEnrollment = Enrollment::where('user_id', $user->id)
+                $course = Course::with('instructor')->findOrFail($id);
+
+                if ($course->status !== 'published' || $course->visibility !== 'public') {
+                    ToastMagic::error('This course is not available for enrollment.');
+                    return redirect()->route('courses.show', $course->id);
+                }
+
+                if ($course->requiresApplicantForm()) {
+                    return redirect()->route('courses.apply', $course->id);
+                }
+
+                $existingEnrollment = Enrollment::with('payment')
+                    ->where('user_id', $user->id)
                     ->where('course_id', $course->id)
                     ->first();
 
                 if ($existingEnrollment) {
-                    ToastMagic::info('You are already enrolled in this course.');
-                    return redirect()->route('courses.show', $course->id);
+                    if (in_array($existingEnrollment->status, [Enrollment::STATUS_APPROVED, Enrollment::STATUS_COMPLETED], true)) {
+                        ToastMagic::info('You are already enrolled in this course.');
+                        return redirect()->route('courses.show', $course->id);
+                    }
+
+                    if ($existingEnrollment->payment && $existingEnrollment->payment->payment_method === Payment::PAYMENT_METHOD_OFFLINE) {
+                        ToastMagic::warning('You have a pending offline payment request. Please wait for admin approval.');
+                        return redirect()->route('courses.show', $course->id);
+                    }
                 }
 
                 $price = $this->calculatePrice($course);
@@ -164,15 +205,10 @@ class CourseEnrollmentController extends Controller
         $offlineInstructions = $offlineGateway && $offlineGateway->is_enabled ? $offlineGateway->offline_instructions : null;
 
         $gatewayDescriptions = [
-            'razorpay'    => 'Pay securely with credit/debit card, UPI, or net banking via Razorpay.',
             'stripe'      => 'Pay securely with credit/debit card via Stripe.',
-            'paystack'    => 'Pay securely with credit/debit card or bank transfer via Paystack.',
             'flutterwave' => 'Pay securely with multiple methods via Flutterwave.',
             'paypal'      => 'Pay securely with PayPal account or credit/debit card.',
-            'sslcommerz'  => 'Pay with cards or mobile banking via SSLCommerz.',
-            'mollie'      => 'Pay securely with multiple payment methods via Mollie.',
-            'bkash'       => 'Pay securely with bKash mobile banking.',
-            'xpay'        => 'Pay securely with credit/debit card via XPay (Pakistan).',
+            'pesapal'     => 'Pay securely with M-Pesa, Tigo Pesa, Airtel Money, HaloPesa, or card via Pesapal.',
         ];
 
         return view('checkout', compact('course', 'price', 'onlineGateways', 'offlineGateway', 'offlineInstructions', 'gatewayDescriptions', 'isBundle', 'campusInvoice'));
@@ -224,10 +260,31 @@ class CourseEnrollmentController extends Controller
             if ($request->filled('invoice_id')) {
                 $campusInvoice = \App\Models\Invoice::withoutGlobalScope('branch')
                     ->with('paymentSchedules')
-                    ->where('id', $request->integer('invoice_id'))
-                    ->where('user_id', $user->id)
-                    ->where('course_id', $course->id)
-                    ->firstOrFail();
+                    ->find($request->integer('invoice_id'));
+
+                if (! $campusInvoice || (int) $campusInvoice->user_id !== (int) $user->id || ($campusInvoice->course_id && (int) $campusInvoice->course_id !== (int) $course->id)) {
+                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                        return response()->json(['success' => false, 'message' => 'Invoice could not be matched to this course.'], 422);
+                    }
+                    ToastMagic::error('Invoice could not be matched to this course.');
+                    return redirect()->route('student.campus.invoices.index');
+                }
+
+                if ($campusInvoice->balance <= 0) {
+                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                        return response()->json(['success' => false, 'message' => 'This invoice is already fully paid.'], 422);
+                    }
+                    ToastMagic::info('This invoice is already fully paid.');
+                    return redirect()->route('student.campus.invoices.index');
+                }
+
+                if (strtolower((string) $request->payment_method) !== Payment::PAYMENT_METHOD_OFFLINE && ! $course->allow_online_f2f_payment) {
+                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                        return response()->json(['success' => false, 'message' => 'Online payment is disabled for this course. Please use Control Number ' . $campusInvoice->control_number . '.'], 422);
+                    }
+                    ToastMagic::warning('Online payment is disabled for this course.');
+                    return redirect()->route('courses.apply.confirmation', $campusInvoice->id);
+                }
 
                 $nextSched = $campusInvoice->paymentSchedules->where('status', '!=', 'paid')->sortBy('installment_number')->first();
                 $price = ($request->input('pay') === 'balance' || ! $nextSched)
@@ -301,6 +358,9 @@ class CourseEnrollmentController extends Controller
                 $discountAmount = $this->couponService->calculateDiscount($appliedCoupon, $price);
                 $price = max(0, $price - $discountAmount);
             } catch (\Exception $e) {
+                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+                }
                 ToastMagic::error($e->getMessage());
                 return redirect()->back()->withInput();
             }
@@ -316,6 +376,9 @@ class CourseEnrollmentController extends Controller
         }
 
         if ($price > 0 && !$this->paymentGatewayService->isEnabled($paymentMethod)) {
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Selected payment method is not available.'], 422);
+            }
             ToastMagic::error('Selected payment method is not available.');
             return redirect()->back()->withInput();
         }
@@ -340,48 +403,7 @@ class CourseEnrollmentController extends Controller
                     }
                 }
             }
-            if ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_RAZORPAY) {
-                $razorpayOrder = $this->createRazorpayOrder($price, $courseIdToUse, $user->id);
-
-                $enrollment = Enrollment::firstOrCreate([
-                    'user_id' => $user->id,
-                    'course_id' => $courseIdToUse,
-                ], [
-                    'status' => Enrollment::STATUS_PENDING,
-                ]);
-
-                $payment = Payment::create([
-                    'enrollment_id' => $enrollment->id,
-                    'bundle_id' => $isBundle ? $course->id : null,
-                    'payment_method' => Payment::PAYMENT_METHOD_RAZORPAY,
-                    'amount' => $price,
-                    'status' => Payment::STATUS_PENDING,
-                    'razorpay_order_id' => $razorpayOrder['id'],
-                    'coupon_id' => $appliedCoupon?->id,
-                    'discount_amount' => $discountAmount,
-                ]);
-
-                $enrollment->update(['payment_id' => $payment->id]);
-
-                DB::commit();
-
-                return response()->json([
-                    'success' => true,
-                    'order_id' => $razorpayOrder['id'],
-                    'amount' => $razorpayOrder['amount'],
-                    'key' => $this->credentials('razorpay')['key'] ?? '',
-                    'name' => config('app.name'),
-                    'description' => 'Course Enrollment: ' . $course->title,
-                    'prefill' => [
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'contact' => $user->phone ?? '',
-                    ],
-                    'callback_url' => route('payment.razorpay.callback'),
-                    'enrollment_id' => $enrollment->id,
-                    'bundle_id' => $isBundle ? $course->id : null,
-                ]);
-            } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_STRIPE) {
+            if ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_STRIPE) {
                 $stripeCheckoutSession = $this->createStripeCheckoutSession($price, $course, $user->id);
 
                 $enrollment = Enrollment::firstOrCreate([
@@ -392,17 +414,20 @@ class CourseEnrollmentController extends Controller
                 ]);
 
                 $payment = Payment::create([
+                    'user_id' => $user->id,
                     'enrollment_id' => $enrollment->id,
                     'bundle_id' => $isBundle ? $course->id : null,
                     'payment_method' => Payment::PAYMENT_METHOD_STRIPE,
                     'amount' => $price,
                     'status' => Payment::STATUS_PENDING,
+                    'verification_status' => 'pending',
                     'stripe_payment_intent_id' => $stripeCheckoutSession['session_id'],
                     'coupon_id' => $appliedCoupon?->id,
                     'discount_amount' => $discountAmount,
                 ]);
 
                 $enrollment->update(['payment_id' => $payment->id]);
+                app(\App\Services\SrsWorkflowService::class)->ensureInvoiceForPayment($payment);
 
                 DB::commit();
 
@@ -410,37 +435,6 @@ class CourseEnrollmentController extends Controller
                     'success' => true,
                     'session_id' => $stripeCheckoutSession['session_id'],
                     'checkout_url' => $stripeCheckoutSession['url'],
-                ]);
-            } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_PAYSTACK) {
-                $paystackTransaction = $this->createPaystackTransaction($price, $course, $user);
-
-                $enrollment = Enrollment::firstOrCreate([
-                    'user_id' => $user->id,
-                    'course_id' => $courseIdToUse,
-                ], [
-                    'status' => Enrollment::STATUS_PENDING,
-                ]);
-
-                $payment = Payment::create([
-                    'enrollment_id' => $enrollment->id,
-                    'bundle_id' => $isBundle ? $course->id : null,
-                    'payment_method' => Payment::PAYMENT_METHOD_PAYSTACK,
-                    'amount' => $price,
-                    'status' => Payment::STATUS_PENDING,
-                    'paystack_reference' => $paystackTransaction['reference'],
-                    'paystack_access_code' => $paystackTransaction['access_code'],
-                    'coupon_id' => $appliedCoupon?->id,
-                    'discount_amount' => $discountAmount,
-                ]);
-
-                $enrollment->update(['payment_id' => $payment->id]);
-
-                DB::commit();
-
-                return response()->json([
-                    'success' => true,
-                    'authorization_url' => $paystackTransaction['authorization_url'],
-                    'reference' => $paystackTransaction['reference'],
                 ]);
             } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_FLUTTERWAVE) {
                 $flutterwaveTransaction = $this->createFlutterwaveTransaction($price, $course, $user);
@@ -453,17 +447,20 @@ class CourseEnrollmentController extends Controller
                 ]);
 
                 $payment = Payment::create([
+                    'user_id' => $user->id,
                     'enrollment_id' => $enrollment->id,
                     'bundle_id' => $isBundle ? $course->id : null,
                     'payment_method' => Payment::PAYMENT_METHOD_FLUTTERWAVE,
                     'amount' => $price,
                     'status' => Payment::STATUS_PENDING,
+                    'verification_status' => 'pending',
                     'flutterwave_tx_ref' => $flutterwaveTransaction['tx_ref'],
                     'coupon_id' => $appliedCoupon?->id,
                     'discount_amount' => $discountAmount,
                 ]);
 
                 $enrollment->update(['payment_id' => $payment->id]);
+                app(\App\Services\SrsWorkflowService::class)->ensureInvoiceForPayment($payment);
 
                 DB::commit();
 
@@ -483,17 +480,20 @@ class CourseEnrollmentController extends Controller
                 ]);
 
                 $payment = Payment::create([
+                    'user_id' => $user->id,
                     'enrollment_id' => $enrollment->id,
                     'bundle_id' => $isBundle ? $course->id : null,
                     'payment_method' => Payment::PAYMENT_METHOD_PAYPAL,
                     'amount' => $price,
                     'status' => Payment::STATUS_PENDING,
+                    'verification_status' => 'pending',
                     'paypal_order_id' => $paypalOrder['order_id'],
                     'coupon_id' => $appliedCoupon?->id,
                     'discount_amount' => $discountAmount,
                 ]);
 
                 $enrollment->update(['payment_id' => $payment->id]);
+                app(\App\Services\SrsWorkflowService::class)->ensureInvoiceForPayment($payment);
 
                 DB::commit();
 
@@ -502,72 +502,8 @@ class CourseEnrollmentController extends Controller
                     'checkout_url' => $paypalOrder['approve_url'],
                     'order_id' => $paypalOrder['order_id'],
                 ]);
-            } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_SSLCOMMERZ) {
-                // Pass $courseIdToUse so the tran_id encodes the real enrollment course_id
-                $sslcommerzSession = $this->createSslcommerzSession($price, $course, $user, $courseIdToUse);
-
-                $enrollment = Enrollment::firstOrCreate([
-                    'user_id' => $user->id,
-                    'course_id' => $courseIdToUse,
-                ], [
-                    'status' => Enrollment::STATUS_PENDING,
-                ]);
-
-                $payment = Payment::create([
-                    'enrollment_id' => $enrollment->id,
-                    'bundle_id' => $isBundle ? $course->id : null,
-                    'payment_method' => Payment::PAYMENT_METHOD_SSLCOMMERZ,
-                    'amount' => $price,
-                    'status' => Payment::STATUS_PENDING,
-                    'sslcommerz_tran_id' => $sslcommerzSession['tran_id'],
-                    'sslcommerz_session_key' => $sslcommerzSession['session_key'] ?? null,
-                    'coupon_id' => $appliedCoupon?->id,
-                    'discount_amount' => $discountAmount,
-                ]);
-
-                $enrollment->update(['payment_id' => $payment->id]);
-
-                DB::commit();
-
-                return response()->json([
-                    'success' => true,
-                    'checkout_url' => $sslcommerzSession['gateway_url'],
-                    'tran_id' => $sslcommerzSession['tran_id'],
-                ]);
-            } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_MOLLIE) {
-                $molliePayment = $this->createMolliePayment($price, $course, $user);
-
-                $enrollment = Enrollment::firstOrCreate([
-                    'user_id' => $user->id,
-                    'course_id' => $courseIdToUse,
-                ], [
-                    'status' => Enrollment::STATUS_PENDING,
-                ]);
-
-                $payment = Payment::create([
-                    'enrollment_id' => $enrollment->id,
-                    'bundle_id' => $isBundle ? $course->id : null,
-                    'payment_method' => Payment::PAYMENT_METHOD_MOLLIE,
-                    'amount' => $price,
-                    'status' => Payment::STATUS_PENDING,
-                    'mollie_payment_id' => $molliePayment['payment_id'],
-                    'coupon_id' => $appliedCoupon?->id,
-                    'discount_amount' => $discountAmount,
-                ]);
-
-                $enrollment->update(['payment_id' => $payment->id]);
-
-                DB::commit();
-
-                session(['mollie_payment_id' => $molliePayment['payment_id']]);
-
-                return response()->json([
-                    'success' => true,
-                    'checkout_url' => $molliePayment['checkout_url'],
-                    'payment_id' => $molliePayment['payment_id'],
-                ]);
-            } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_BKASH) {
-                $bkashPayment = $this->createBkashPayment($price, $course, $user, $courseIdToUse);
+            } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_PESAPAL) {
+                $pesapalService = app(\App\Services\PesapalService::class);
 
                 $enrollment = Enrollment::firstOrCreate([
                     'user_id'   => $user->id,
@@ -576,57 +512,45 @@ class CourseEnrollmentController extends Controller
                     'status' => Enrollment::STATUS_PENDING,
                 ]);
 
+                $merchantReference = 'PSP-C' . $courseIdToUse . '-U' . $user->id . '-' . time();
+                $pesapalOrder = $pesapalService->submitOrder([
+                    'merchant_reference' => $merchantReference,
+                    'currency'           => base_currency_code() ?: 'TZS',
+                    'amount'             => $price,
+                    'description'        => ($isBundle ? 'Bundle: ' : 'Course: ') . $course->title,
+                    'callback_url'       => route('payment.pesapal.callback'),
+                    'ipn_url'            => route('payment.pesapal.ipn'),
+                    'customer_name'      => $user->name,
+                    'customer_email'     => $user->email,
+                    'customer_phone'     => $user->phone ?? '',
+                ]);
+
                 $payment = Payment::create([
-                    'enrollment_id'  => $enrollment->id,
-                    'bundle_id'      => $isBundle ? $course->id : null,
-                    'payment_method' => Payment::PAYMENT_METHOD_BKASH,
-                    'amount'         => $price,
-                    'status'         => Payment::STATUS_PENDING,
-                    'bkash_payment_id' => $bkashPayment['paymentID'],
-                    'coupon_id'      => $appliedCoupon?->id,
-                    'discount_amount' => $discountAmount,
+                    'user_id'                    => $user->id,
+                    'enrollment_id'              => $enrollment->id,
+                    'bundle_id'                  => $isBundle ? $course->id : null,
+                    'payment_method'             => Payment::PAYMENT_METHOD_PESAPAL,
+                    'amount'                     => $price,
+                    'status'                     => Payment::STATUS_PENDING,
+                    'verification_status'        => 'pending',
+                    'pesapal_order_tracking_id'  => $pesapalOrder['order_tracking_id'],
+                    'pesapal_merchant_reference' => $pesapalOrder['merchant_reference'],
+                    'coupon_id'                  => $appliedCoupon?->id,
+                    'discount_amount'            => $discountAmount,
                 ]);
 
                 $enrollment->update(['payment_id' => $payment->id]);
+                app(\App\Services\SrsWorkflowService::class)->ensureInvoiceForPayment($payment);
 
                 DB::commit();
 
                 return response()->json([
-                    'success'      => true,
-                    'checkout_url' => $bkashPayment['bkashURL'],
-                    'payment_id'   => $bkashPayment['paymentID'],
-                ]);
-            } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_XPAY) {
-                $xpaySession = $this->createXpaySession($price, $course, $user, $courseIdToUse);
-
-                $enrollment = Enrollment::firstOrCreate([
-                    'user_id'   => $user->id,
-                    'course_id' => $courseIdToUse,
-                ], [
-                    'status' => Enrollment::STATUS_PENDING,
-                ]);
-
-                $payment = Payment::create([
-                    'enrollment_id'  => $enrollment->id,
-                    'bundle_id'      => $isBundle ? $course->id : null,
-                    'payment_method' => Payment::PAYMENT_METHOD_XPAY,
-                    'amount'         => $price,
-                    'status'         => Payment::STATUS_PENDING,
-                    'xpay_order_id'  => $xpaySession['order_id'],
-                    'coupon_id'      => $appliedCoupon?->id,
-                    'discount_amount' => $discountAmount,
-                ]);
-
-                $enrollment->update(['payment_id' => $payment->id]);
-
-                DB::commit();
-
-                return response()->json([
-                    'success'       => true,
-                    'checkout_url'  => $xpaySession['checkout_url'],
-                    'order_id'      => $xpaySession['order_id'],
-                    'enrollment_id' => $enrollment->id,
-                    'bundle_id'     => $isBundle ? $course->id : null,
+                    'success'            => true,
+                    'checkout_url'       => $pesapalOrder['redirect_url'],
+                    'order_tracking_id'  => $pesapalOrder['order_tracking_id'],
+                    'merchant_reference' => $pesapalOrder['merchant_reference'],
+                    'enrollment_id'      => $enrollment->id,
+                    'bundle_id'          => $isBundle ? $course->id : null,
                 ]);
             } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_OFFLINE) {
                 $receiptPath = null;
@@ -642,11 +566,13 @@ class CourseEnrollmentController extends Controller
                 ]);
 
                 $payment = Payment::create([
+                    'user_id' => $user->id,
                     'enrollment_id' => $enrollment->id,
                     'bundle_id' => $isBundle ? $course->id : null,
                     'payment_method' => Payment::PAYMENT_METHOD_OFFLINE,
                     'amount' => $price,
                     'status' => Payment::STATUS_PENDING,
+                    'verification_status' => 'pending',
                     'receipt_file' => $receiptPath,
                     'transaction_id' => $request->transaction_id,
                     'coupon_id' => $appliedCoupon?->id,
@@ -654,6 +580,7 @@ class CourseEnrollmentController extends Controller
                 ]);
 
                 $enrollment->update(['payment_id' => $payment->id]);
+                app(\App\Services\SrsWorkflowService::class)->ensureInvoiceForPayment($payment);
 
                 DB::commit();
 
@@ -726,77 +653,6 @@ class CourseEnrollmentController extends Controller
     }
 
     /**
-     * Handle Razorpay payment callback
-     */
-    public function razorpayCallback(Request $request)
-    {
-        $request->validate([
-            'razorpay_order_id'  => 'required|string',
-            'razorpay_payment_id'=> 'required|string',
-            'razorpay_signature' => 'required|string',
-            'enrollment_id'      => 'nullable|exists:enrollments,id',
-        ]);
-
-        if (!$request->enrollment_id) {
-            ToastMagic::error('Invalid payment callback. No enrollment found.');
-            return redirect()->route('courses');
-        }
-
-        $enrollment = Enrollment::with('payment')->findOrFail($request->enrollment_id);
-
-        if (!$enrollment->payment || $enrollment->payment->razorpay_order_id !== $request->razorpay_order_id) {
-            ToastMagic::error('Invalid payment details.');
-            return redirect()->route('courses.show', $enrollment->course_id);
-        }
-
-        $isValid = $this->verifyRazorpaySignature(
-            $request->razorpay_order_id,
-            $request->razorpay_payment_id,
-            $request->razorpay_signature
-        );
-
-        DB::beginTransaction();
-
-        try {
-            if ($isValid) {
-                $enrollment->payment->update([
-                    'razorpay_payment_id' => $request->razorpay_payment_id,
-                    'razorpay_signature'  => $request->razorpay_signature,
-                    'status'              => Payment::STATUS_COMPLETED,
-                ]);
-
-                $enrollment->update([
-                    'status'      => Enrollment::STATUS_APPROVED,
-                    'enrolled_at' => now(),
-                ]);
-
-                $this->processRevenueShare($enrollment);
-
-                DB::commit();
-
-                $this->sendEnrollmentNotifications($enrollment);
-
-                ToastMagic::success('Payment successful! You have been enrolled in the course.');
-                return redirect()->route('enrollment.success', $enrollment->id);
-            } else {
-                $enrollment->payment->update([
-                    'status' => Payment::STATUS_FAILED,
-                ]);
-
-                DB::commit();
-
-                ToastMagic::error('Payment verification failed. Please contact support.');
-                return redirect()->route('courses.show', $enrollment->course_id);
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            ToastMagic::error('An error occurred processing your payment. Please contact support.');
-            return redirect()->route('courses.show', $enrollment->course_id);
-        }
-    }
-
-
-    /**
      * Display success page
      */
     public function success($id)
@@ -820,7 +676,7 @@ class CourseEnrollmentController extends Controller
     }
 
     /**
-     * Calculate course price
+     * Calculate course price in the platform base currency.
      */
     private function calculatePrice(Course $course): float
     {
@@ -828,73 +684,9 @@ class CourseEnrollmentController extends Controller
             return 0;
         }
 
-        return $course->sale_price ? (float) $course->sale_price : (float) $course->regular_price;
-    }
+        $rawPrice = $course->sale_price ? (float) $course->sale_price : (float) $course->regular_price;
 
-    /**
-     * Create Razorpay order
-     */
-    private function createRazorpayOrder(float $amount, int $courseId, int $userId): array
-    {
-        $credentials = $this->credentials('razorpay');
-        $apiKey = $credentials['key'] ?? null;
-        $apiSecret = $credentials['secret'] ?? null;
-
-        if (!$apiKey || !$apiSecret) {
-            throw new \RuntimeException('Razorpay credentials are not configured.');
-        }
-
-        $amountInPaise = (int) ($amount * 100);
-
-        $ch = curl_init('https://api.razorpay.com/v1/orders');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_USERPWD, $apiKey . ':' . $apiSecret);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'amount' => $amountInPaise,
-            'currency' => 'INR',
-            'receipt' => 'course_' . $courseId . '_user_' . $userId . '_' . time(),
-            'notes' => [
-                'course_id' => $courseId,
-                'user_id' => $userId,
-            ],
-        ]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200) {
-            throw new \Exception('Failed to create Razorpay order.');
-        }
-
-        $orderData = json_decode($response, true);
-
-        if (!isset($orderData['id'])) {
-            throw new \Exception('Invalid response from Razorpay.');
-        }
-
-        return $orderData;
-    }
-
-    /**
-     * Verify Razorpay signature
-     */
-    private function verifyRazorpaySignature(string $orderId, string $paymentId, string $signature): bool
-    {
-        $apiSecret = $this->credentials('razorpay')['secret'] ?? null;
-
-        if (!$apiSecret) {
-            return false;
-        }
-
-        $payload = $orderId . '|' . $paymentId;
-        $expectedSignature = hash_hmac('sha256', $payload, $apiSecret);
-
-        return hash_equals($expectedSignature, $signature);
+        return convert_currency($rawPrice, $course->getPriceCurrencyCode(), base_currency_code());
     }
 
     /**
@@ -1036,139 +828,6 @@ class CourseEnrollmentController extends Controller
             DB::rollBack();
             ToastMagic::error('An error occurred processing your payment. Please contact support.');
             return redirect()->route('courses');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            ToastMagic::error('An error occurred processing your payment. Please contact support.');
-            return redirect()->route('courses');
-        }
-    }
-
-    /**
-     * Create Paystack transaction
-     */
-    private function createPaystackTransaction(float $amount, $course, $user): array
-    {
-        $courseIdToUse = $course->id;
-        $secretKey = $this->credentials('paystack')['secret_key'] ?? null;
-
-        if (!$secretKey) {
-            throw new \RuntimeException('Paystack secret key is not configured.');
-        }
-
-        $paystack = new Paystack($secretKey);
-
-        $reference = 'course_' . $courseIdToUse . '_user_' . $user->id . '_' . time();
-        $amountInKobo = (int) ($amount * 100);
-
-        try {
-            $transaction = $paystack->transaction->initialize([
-                'email' => $user->email,
-                'amount' => $amountInKobo,
-                'reference' => $reference,
-                'callback_url' => route('payment.paystack.callback'),
-                'metadata' => [
-                    'course_id' => $courseIdToUse,
-                    'user_id' => $user->id,
-                    'course_title' => $course->title,
-                ],
-            ]);
-
-            if (!$transaction->status || !$transaction->data) {
-                throw new \Exception('Failed to initialize Paystack transaction.');
-            }
-
-            return [
-                'reference' => $transaction->data->reference,
-                'access_code' => $transaction->data->access_code,
-                'authorization_url' => $transaction->data->authorization_url,
-            ];
-        } catch (\Exception $e) {
-            throw new \Exception('Failed to create Paystack transaction: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Handle Paystack payment callback
-     */
-    public function paystackCallback(Request $request)
-    {
-        $request->validate([
-            'reference' => 'required|string',
-        ]);
-
-        $secretKey = $this->credentials('paystack')['secret_key'] ?? null;
-        if (!$secretKey) {
-            ToastMagic::error('Paystack configuration error.');
-            return redirect()->route('courses');
-        }
-
-        $paystack = new Paystack($secretKey);
-
-        try {
-            $transaction = $paystack->transaction->verify([
-                'reference' => $request->reference,
-            ]);
-
-            if (!$transaction->status || !$transaction->data) {
-                ToastMagic::error('Invalid payment transaction.');
-                return redirect()->route('courses');
-            }
-
-            $paymentData = $transaction->data;
-
-            $metadata = $paymentData->metadata ?? null;
-
-            if (!$metadata || !isset($metadata->course_id) || !isset($metadata->user_id)) {
-                ToastMagic::error('Invalid payment transaction metadata.');
-                return redirect()->route('courses');
-            }
-
-            $courseId = $metadata->course_id;
-            $userId = $metadata->user_id;
-
-            $enrollment = Enrollment::with('payment')
-                ->where('user_id', $userId)
-                ->where('course_id', $courseId)
-                ->whereHas('payment', function ($query) use ($request) {
-                    $query->where('paystack_reference', $request->reference);
-                })
-                ->first();
-
-            if (!$enrollment || !$enrollment->payment) {
-                ToastMagic::error('Enrollment not found.');
-                return redirect()->route('courses.show', $courseId);
-            }
-
-            DB::beginTransaction();
-
-            if ($paymentData->status === 'success' && $paymentData->gateway_response === 'Successful') {
-                $enrollment->payment->update([
-                    'status' => Payment::STATUS_COMPLETED,
-                ]);
-
-                $enrollment->update([
-                    'status' => Enrollment::STATUS_APPROVED,
-                    'enrolled_at' => now(),
-                ]);
-
-                $this->processRevenueShare($enrollment);
-
-                DB::commit();
-
-                $this->sendEnrollmentNotifications($enrollment);
-
-                ToastMagic::success('Payment successful! You have been enrolled in the course.');
-                return redirect()->route('enrollment.success', $enrollment->id);
-            } else {
-                $enrollment->payment->update([
-                    'status' => Payment::STATUS_FAILED,
-                ]);
-
-                DB::commit();
-
-                ToastMagic::error('Payment was not successful. Please try again.');
-                return redirect()->route('courses.show', $courseId);
-            }
         } catch (\Exception $e) {
             DB::rollBack();
             ToastMagic::error('An error occurred processing your payment. Please contact support.');
@@ -1626,994 +1285,310 @@ class CourseEnrollmentController extends Controller
     }
 
     /**
-     * Create SSLCommerz transaction session
+     * Credentials.
      */
-    private function createSslcommerzSession(float $amount, $course, $user, ?int $courseIdOverride = null): array
-    {
-        // Use the actual course_id for the enrollment (not bundle ID) so the callback can find the enrollment
-        $courseIdToUse = $courseIdOverride ?? $course->id;
-        $credentials = $this->credentials('sslcommerz');
-        $storeId = $credentials['store_id'] ?? null;
-        $storePassword = $credentials['store_password'] ?? null;
-        $mode = $credentials['mode'] ?? 'sandbox';
-
-        if (!$storeId || !$storePassword) {
-            throw new \RuntimeException('SSLCommerz credentials are not configured.');
-        }
-
-        $baseUrl = $mode === 'live'
-            ? 'https://securepay.sslcommerz.com'
-            : 'https://sandbox.sslcommerz.com';
-
-        $tranId = 'course_' . $courseIdToUse . '_user_' . $user->id . '_' . time();
-        $amountInTaka = number_format($amount, 2, '.', '');
-
-        $phone = $user->phone;
-        if (empty($phone) || trim($phone) === '') {
-            $phone = '01700000000';
-        }
-
-        $postData = [
-            'store_id' => $storeId,
-            'store_passwd' => $storePassword,
-            'total_amount' => $amountInTaka,
-            'currency' => 'BDT',
-            'tran_id' => $tranId,
-            'success_url' => route('payment.sslcommerz.callback') . '?status=success',
-            'fail_url' => route('payment.sslcommerz.callback') . '?status=fail',
-            'cancel_url' => route('payment.sslcommerz.callback') . '?status=cancel',
-            'cus_name' => $user->name,
-            'cus_email' => $user->email,
-            'cus_phone' => $phone,
-            'cus_add1' => '',
-            'cus_city' => '',
-            'cus_country' => 'Bangladesh',
-            'shipping_method' => 'NO',
-            'product_name' => 'Course Enrollment: ' . $course->title,
-            'product_category' => 'Education',
-            'product_profile' => 'general',
-        ];
-
-        $ch = curl_init($baseUrl . '/gwprocess/v4/api.php');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('SSLCommerz cURL error: ' . $curlError);
-        }
-
-        if ($httpCode !== 200) {
-            throw new \Exception('Failed to create SSLCommerz session. HTTP Code: ' . $httpCode);
-        }
-
-        $responseData = json_decode($response, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            parse_str($response, $responseData);
-        }
-
-        if (!isset($responseData['status']) || $responseData['status'] !== 'SUCCESS') {
-            $errorMsg = $responseData['failedreason'] ?? $responseData['error'] ?? 'Unknown error';
-            throw new \Exception('SSLCommerz error: ' . $errorMsg . ' (Response: ' . substr($response, 0, 200) . ')');
-        }
-
-        if (!isset($responseData['GatewayPageURL'])) {
-            throw new \Exception('SSLCommerz did not return GatewayPageURL. Response: ' . substr($response, 0, 200));
-        }
-
-        return [
-            'tran_id' => $tranId,
-            'session_key' => $responseData['sessionkey'] ?? null,
-            'gateway_url' => $responseData['GatewayPageURL'],
-        ];
-    }
-
-    /**
-     * Validate SSLCommerz transaction
-     */
-    private function validateSslcommerzTransaction(?string $valId, string $tranId): array
-    {
-        $credentials = $this->credentials('sslcommerz');
-        $storeId = $credentials['store_id'] ?? null;
-        $storePassword = $credentials['store_password'] ?? null;
-        $mode = $credentials['mode'] ?? 'sandbox';
-
-        if (!$storeId || !$storePassword) {
-            throw new \RuntimeException('SSLCommerz credentials are not configured.');
-        }
-
-        $baseUrl = $mode === 'live'
-            ? 'https://securepay.sslcommerz.com'
-            : 'https://sandbox.sslcommerz.com';
-
-        if ($valId) {
-            $postData = [
-                'val_id' => $valId,
-                'store_id' => $storeId,
-                'store_passwd' => $storePassword,
-                'format' => 'json',
-            ];
-        } else {
-            $postData = [
-                'tran_id' => $tranId,
-                'store_id' => $storeId,
-                'store_passwd' => $storePassword,
-                'format' => 'json',
-            ];
-        }
-
-        $ch = curl_init($baseUrl . '/validator/api/validationserverAPI.php');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('SSLCommerz validation cURL error: ' . $curlError);
-        }
-
-        if ($httpCode !== 200) {
-            throw new \Exception('Failed to validate SSLCommerz transaction. HTTP Code: ' . $httpCode);
-        }
-
-        $validationData = json_decode($response, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Invalid JSON response from SSLCommerz validation API.');
-        }
-
-        if (!isset($validationData['status']) || $validationData['status'] !== 'VALID') {
-            $errorMsg = $validationData['error'] ?? $validationData['failedreason'] ?? 'Unknown error';
-            throw new \Exception('SSLCommerz validation failed: ' . $errorMsg);
-        }
-
-        if (!isset($validationData['tran_id']) || $validationData['tran_id'] !== $tranId) {
-            throw new \Exception('Transaction ID mismatch in validation response.');
-        }
-
-        return $validationData;
-    }
-
-    /**
-     * Handle SSLCommerz payment callback
-     */
-    public function sslcommerzCallback(Request $request)
-    {
-        $status = $request->query('status') ?? $request->input('status');
-        $tranId = $request->input('tran_id') ?? $request->query('tran_id');
-        $valId = $request->input('val_id') ?? $request->query('val_id');
-
-        if (!$status || !in_array($status, ['success', 'fail', 'cancel'])) {
-
-            ToastMagic::error('Invalid payment callback.');
-            return redirect()->route('courses');
-        }
-
-        try {
-            if ($status === 'cancel') {
-                ToastMagic::error('Payment was canceled.');
-                return redirect()->route('courses');
-            }
-
-            if (!$tranId) {
-                ToastMagic::error('Invalid payment callback - missing transaction ID.');
-                return redirect()->route('courses');
-            }
-
-            // Look up payment directly by tran_id
-            $payment = Payment::where('sslcommerz_tran_id', $tranId)->first();
-
-            if (!$payment) {
-                ToastMagic::error('Payment record not found.');
-                return redirect()->route('home');
-            }
-
-            $enrollment = $payment->enrollment ? $payment->enrollment->load('payment') : null;
-            if (!$enrollment || !$enrollment->payment) {
-                ToastMagic::error('Enrollment not found.');
-                return redirect()->route('courses');
-            }
-            $courseId = $enrollment->course_id;
-            $userId = $enrollment->user_id;
-
-            DB::beginTransaction();
-
-            if ($status === 'fail') {
-                $enrollment->payment->update([
-                    'status' => Payment::STATUS_FAILED,
-                ]);
-
-                DB::commit();
-
-                ToastMagic::error('Payment was not successful. Please try again.');
-                return redirect()->route('courses.show', $courseId);
-            }
-
-            if ($status === 'success') {
-                try {
-                    $postStatus = $request->input('status');
-                    $paidAmount = (float) ($request->input('amount') ?? 0);
-
-                    if ($postStatus !== 'VALID') {
-
-                        throw new \Exception('Transaction status is not VALID: ' . $postStatus);
-                    }
-
-                    if (abs($paidAmount - $enrollment->payment->amount) > 0.01) {
-
-                        throw new \Exception('Amount mismatch.');
-                    }
-
-                    $finalValId = $valId;
-                    if ($valId) {
-                        try {
-                            $validationData = $this->validateSslcommerzTransaction($valId, $tranId);
-                            $finalValId = $validationData['val_id'] ?? $valId;
-                        } catch (\Exception $validationError) {
-                        }
-                    }
-
-                    $enrollment->payment->update([
-                        'sslcommerz_val_id' => $finalValId,
-                        'status' => Payment::STATUS_COMPLETED,
-                    ]);
-
-                    $enrollment->update([
-                        'status' => Enrollment::STATUS_APPROVED,
-                        'enrolled_at' => now(),
-                    ]);
-
-                    $this->processRevenueShare($enrollment);
-
-                    DB::commit();
-
-                    $this->sendEnrollmentNotifications($enrollment);
-
-                    $user = User::find($userId);
-                    if (!$user) {
-
-                        throw new \Exception('User not found.');
-                    }
-
-                    if (!Auth::check() || Auth::id() !== $userId) {
-                        Auth::login($user, true);
-                    }
-
-                    ToastMagic::success('Payment successful! You have been enrolled in the course.');
-                    return redirect()->route('enrollment.success', $enrollment->id);
-                } catch (\Exception $e) {
-                    DB::rollBack();
-
-                    if ($enrollment && $enrollment->payment) {
-                        DB::beginTransaction();
-                        $enrollment->payment->update([
-                            'status' => Payment::STATUS_FAILED,
-                        ]);
-                        DB::commit();
-                    }
-
-                    ToastMagic::error('Payment validation failed. Please contact support.');
-                    return redirect()->route('courses.show', $courseId);
-                }
-            } else {
-                $enrollment->payment->update([
-                    'status' => Payment::STATUS_FAILED,
-                ]);
-
-                DB::commit();
-
-                ToastMagic::error('Payment was not successful. Please try again.');
-                return redirect()->route('courses.show', $courseId);
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            ToastMagic::error('An error occurred processing your payment. Please contact support.');
-            return redirect()->route('courses');
-        }
-    }
-
-    /**
-     * Create Mollie payment
-     */
-    private function createMolliePayment(float $amount, $course, $user): array
-    {
-        $courseIdToUse = $course->id;
-        $apiKey = $this->credentials('mollie')['api_key'] ?? null;
-
-        if (!$apiKey) {
-            throw new \RuntimeException('Mollie API key is not configured.');
-        }
-
-        $baseUrl = 'https://api.mollie.com/v2/payments';
-        $amountValue = number_format($amount, 2, '.', '');
-
-        // Mollie requires currency. Default to EUR if not set.
-        $currency = strtoupper($this->settingsRepository->get('platform.general.default_currency', 'EUR'));
-
-        // If currency is not USD, EUR, or GBP, fallback to EUR
-        if (!in_array($currency, ['USD', 'EUR', 'GBP'])) {
-            $currency = 'EUR';
-        }
-
-        $paymentData = [
-            'amount' => [
-                'currency' => $currency,
-                'value' => $amountValue,
-            ],
-            'description' => 'Course Enrollment: ' . $course->title,
-            'redirectUrl' => route('payment.mollie.callback'),
-            'metadata' => [
-                'course_id' => $courseIdToUse,
-                'user_id' => $user->id,
-                'course_title' => $course->title,
-            ],
-        ];
-
-        $ch = curl_init($baseUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $apiKey,
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('Mollie cURL error: ' . $curlError);
-        }
-
-        if ($httpCode !== 201) {
-            throw new \Exception('Failed to create Mollie payment. HTTP Code: ' . $httpCode);
-        }
-
-        $responseData = json_decode($response, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Invalid JSON response from Mollie API.');
-        }
-
-        if (!isset($responseData['id']) || !isset($responseData['_links']['checkout']['href'])) {
-            $errorMsg = $responseData['detail'] ?? $responseData['title'] ?? 'Unknown error';
-            throw new \Exception('Mollie error: ' . $errorMsg);
-        }
-
-        return [
-            'payment_id' => $responseData['id'],
-            'checkout_url' => $responseData['_links']['checkout']['href'],
-        ];
-    }
-
-    /**
-     * Handle Mollie payment callback
-     */
-    public function mollieCallback(Request $request)
-    {
-        $paymentId = $request->query('id')
-            ?? $request->input('id')
-            ?? session('mollie_payment_id');
-
-        if (!$paymentId) {
-            $userId = Auth::id();
-            if ($userId) {
-                $enrollment = Enrollment::with('payment')
-                    ->where('user_id', $userId)
-                    ->whereHas('payment', function ($query) {
-                        $query->where('payment_method', Payment::PAYMENT_METHOD_MOLLIE)
-                            ->where('status', Payment::STATUS_PENDING);
-                    })
-                    ->latest()
-                    ->first();
-
-                if ($enrollment && $enrollment->payment && $enrollment->payment->mollie_payment_id) {
-                    $paymentId = $enrollment->payment->mollie_payment_id;
-                }
-            }
-        }
-
-        if (!$paymentId) {
-            ToastMagic::error('Invalid payment callback.');
-            return redirect()->route('courses');
-        }
-
-        session()->forget('mollie_payment_id');
-
-        try {
-            $apiKey = $this->credentials('mollie')['api_key'] ?? null;
-            if (!$apiKey) {
-                ToastMagic::error('Mollie configuration error.');
-                return redirect()->route('courses');
-            }
-
-            $payment = Payment::where('mollie_payment_id', $paymentId)->first();
-            $enrollment = $payment ? $payment->enrollment : null;
-
-            if (!$payment) {
-                ToastMagic::error('Payment record not found.');
-                return redirect()->route('courses');
-            }
-
-            $baseUrl = 'https://api.mollie.com/v2/payments/' . $paymentId;
-
-            $ch = curl_init($baseUrl);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $apiKey,
-            ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-
-            if ($curlError) {
-                throw new \Exception('Mollie verification cURL error: ' . $curlError);
-            }
-
-            if ($httpCode !== 200) {
-                throw new \Exception('Failed to verify Mollie payment. HTTP Code: ' . $httpCode);
-            }
-
-            $paymentData = json_decode($response, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new \Exception('Invalid JSON response from Mollie API.');
-            }
-
-            DB::beginTransaction();
-
-            if ($paymentData['status'] === 'paid') {
-                $paidAmount = (float) ($paymentData['amount']['value'] ?? 0);
-                if (abs($paidAmount - $payment->amount) > 0.01) {
-                    throw new \Exception('Amount mismatch.');
-                }
-
-                if (!$enrollment) {
-                    throw new \Exception('Enrollment record not found.');
-                }
-
-                $payment->update([
-                    'status' => Payment::STATUS_COMPLETED,
-                ]);
-
-                $enrollment->update([
-                    'status' => Enrollment::STATUS_APPROVED,
-                    'enrolled_at' => now(),
-                ]);
-
-                $this->processRevenueShare($enrollment);
-
-                DB::commit();
-
-                $this->sendEnrollmentNotifications($enrollment);
-
-                $userId = $enrollment->user_id;
-                $user = User::find($userId);
-                if (!$user) {
-                    throw new \Exception('User not found.');
-                }
-
-                if (!Auth::check() || Auth::id() !== $userId) {
-                    Auth::login($user, true);
-                }
-
-                ToastMagic::success('Payment successful! You have been enrolled in the course.');
-                return redirect()->route('enrollment.success', $enrollment->id);
-            } elseif ($paymentData['status'] === 'failed' || $paymentData['status'] === 'canceled' || $paymentData['status'] === 'expired') {
-                $enrollment->payment->update([
-                    'status' => Payment::STATUS_FAILED,
-                ]);
-
-                DB::commit();
-
-                ToastMagic::error('Payment was not successful. Please try again.');
-                return redirect()->route('courses.show', $enrollment->course_id);
-            } else {
-                DB::rollBack();
-                ToastMagic::error('Payment is still pending.');
-                return redirect()->route('courses.show', $enrollment->course_id);
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            ToastMagic::error('An error occurred processing your payment. Please contact support.');
-            return redirect()->route('courses');
-        }
-    }
-
     private function credentials(string $identifier): array
     {
         return $this->paymentGatewayService->credentialsFor($identifier);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  XPay helpers
-    // ─────────────────────────────────────────────────────────────
-
     /**
-     * Create an XPay checkout session and return order_id + checkout_url.
-     *
-     * XPay API base URLs:
-     *   Sandbox : https://sandbox.xpay.com.pk/api/v1
-     *   Live    : https://api.xpay.com.pk/api/v1
+     * Handle Pesapal browser redirect callback after customer checkout.
      */
-    private function createXpaySession(float $amount, $course, $user, ?int $courseIdOverride = null): array
+    public function pesapalCallback(Request $request)
     {
-        $courseIdToUse = $courseIdOverride ?? $course->id;
-        $credentials   = $this->credentials('xpay');
-        $storeId       = $credentials['store_id'] ?? null;
-        $apiKey        = $credentials['api_key']  ?? null;
-        $mode          = $credentials['mode']      ?? 'sandbox';
+        $orderTrackingId = trim((string) ($request->input('OrderTrackingId')
+            ?? $request->query('OrderTrackingId')
+            ?? $request->input('orderTrackingId')
+            ?? $request->query('orderTrackingId', '')));
+        $merchantReference = trim((string) ($request->input('OrderMerchantReference')
+            ?? $request->query('OrderMerchantReference')
+            ?? $request->input('orderMerchantReference')
+            ?? $request->query('orderMerchantReference', '')));
 
-        if (!$storeId || !$apiKey) {
-            throw new \RuntimeException('XPay credentials (store_id / api_key) are not configured.');
+        if ($orderTrackingId === '' && $merchantReference === '') {
+            ToastMagic::error('Invalid Pesapal payment callback — missing OrderTrackingId.');
+            return redirect()->route('courses');
         }
 
-        $baseUrl = $mode === 'live'
-            ? 'https://api.xpay.com.pk/api/v1'
-            : 'https://sandbox.xpay.com.pk/api/v1';
+        $payment = $this->findPesapalPayment($orderTrackingId, $merchantReference);
 
-        $orderId = 'XPAY_' . $courseIdToUse . '_' . $user->id . '_' . time();
-
-        $payload = [
-            'store_id'    => $storeId,
-            'order_id'    => $orderId,
-            'amount'      => number_format($amount, 2, '.', ''),
-            'currency'    => 'PKR',
-            'description' => 'Course Enrollment: ' . $course->title,
-            'customer'    => [
-                'name'  => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone ?? '',
-            ],
-            'callback_url' => route('payment.xpay.callback'),
-            'metadata'    => [
-                'course_id' => $courseIdToUse,
-                'user_id'   => $user->id,
-            ],
-        ];
-
-        $ch = curl_init($baseUrl . '/checkout/create');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $apiKey,
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-        $response  = curl_exec($ch);
-        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('XPay create session cURL error: ' . $curlError);
+        if (! $payment) {
+            ToastMagic::error('Pesapal payment record not found.');
+            return redirect()->route('courses');
         }
 
-        if ($httpCode !== 200 && $httpCode !== 201) {
-            throw new \Exception('Failed to create XPay checkout session. HTTP ' . $httpCode . '. Response: ' . substr($response, 0, 300));
+        $trackingLookup = $orderTrackingId !== '' ? $orderTrackingId : (string) $payment->pesapal_order_tracking_id;
+
+        try {
+            if ($payment->status === Payment::STATUS_COMPLETED) {
+                $enrollment = $this->completePesapalPayment($payment, []);
+                return $this->redirectAfterPesapalCompletion($payment, $enrollment);
+            }
+
+            $pesapalService = app(\App\Services\PesapalService::class);
+            $statusData = $pesapalService->getTransactionStatus($trackingLookup);
+
+            if ($pesapalService->isCompletedStatus($statusData)) {
+                $paidAmount = (float) ($statusData['amount'] ?? $payment->amount);
+                if (abs($paidAmount - (float) $payment->amount) >= 0.01) {
+                    throw new \RuntimeException('Pesapal paid amount mismatch.');
+                }
+
+                $enrollment = $this->completePesapalPayment($payment, $statusData);
+
+                return $this->redirectAfterPesapalCompletion($payment, $enrollment);
+            }
+
+            if ($pesapalService->isFailedStatus($statusData)) {
+                $payment->update([
+                    'status' => Payment::STATUS_FAILED,
+                    'verification_status' => 'rejected',
+                ]);
+                ToastMagic::error('Pesapal payment was not completed (' . ($statusData['payment_status_description'] ?? 'Failed') . ').');
+
+                return $payment->enrollment?->course_id
+                    ? redirect()->route('courses.show', $payment->enrollment->course_id)
+                    : redirect()->route('courses');
+            }
+
+            ToastMagic::warning('Pesapal payment is still pending confirmation.');
+
+            return $payment->enrollment?->course_id
+                ? redirect()->route('courses.show', $payment->enrollment->course_id)
+                : redirect()->route('courses');
+        } catch (\Throwable $e) {
+            ToastMagic::error('Unable to verify Pesapal payment: ' . $e->getMessage());
+
+            return redirect()->route('courses');
         }
-
-        $responseData = json_decode($response, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Invalid JSON response from XPay API.');
-        }
-
-        // XPay returns { success: true, data: { checkout_url: '...', order_id: '...' } }
-        // Adjust field names if XPay's actual response differs.
-        $checkoutUrl = $responseData['data']['checkout_url']
-            ?? $responseData['checkout_url']
-            ?? $responseData['url']
-            ?? null;
-
-        $returnedOrderId = $responseData['data']['order_id']
-            ?? $responseData['order_id']
-            ?? $orderId;
-
-        if (!$checkoutUrl) {
-            $errorMsg = $responseData['message'] ?? $responseData['error'] ?? 'Unknown error';
-            throw new \Exception('XPay session creation error: ' . $errorMsg);
-        }
-
-        return [
-            'order_id'     => $returnedOrderId,
-            'checkout_url' => $checkoutUrl,
-        ];
     }
 
     /**
-     * Handle XPay payment callback (redirect from XPay checkout page).
-     *
-     * XPay will redirect to this URL with query params including:
-     *   order_id, status, transaction_id
+     * Poll Pesapal payment status asynchronously while checkout iframe is open.
      */
-    public function xpayCallback(\Illuminate\Http\Request $request)
+    public function pesapalStatus(Request $request)
     {
-        $orderId       = $request->query('order_id') ?? $request->input('order_id');
-        $status        = strtolower($request->query('status') ?? $request->input('status') ?? '');
-        $transactionId = $request->query('transaction_id') ?? $request->input('transaction_id');
+        $orderTrackingId = trim((string) ($request->query('order_tracking_id')
+            ?? $request->query('OrderTrackingId', '')));
+        $merchantReference = trim((string) ($request->query('merchant_reference')
+            ?? $request->query('OrderMerchantReference', '')));
 
-        if (!$orderId) {
-            ToastMagic::error('Invalid XPay callback — missing order_id.');
-            return redirect()->route('courses');
+        if ($orderTrackingId === '' && $merchantReference === '') {
+            return response()->json(['status' => 'invalid'], 422);
         }
 
-        if ($status === 'cancel' || $status === 'cancelled') {
-            ToastMagic::error('XPay payment was cancelled.');
-            return redirect()->route('courses');
+        $payment = $this->findPesapalPayment($orderTrackingId, $merchantReference);
+        if (! $payment) {
+            return response()->json(['status' => 'not_found'], 404);
         }
 
-        if ($status === 'failed' || $status === 'failure') {
-            ToastMagic::error('XPay payment failed. Please try again.');
-            return redirect()->route('courses');
-        }
-
-        $payment = Payment::where('xpay_order_id', $orderId)->first();
-
-        if (!$payment) {
-            ToastMagic::error('XPay payment record not found.');
-            return redirect()->route('courses');
-        }
-
-        $enrollment = $payment->enrollment;
-        $courseId   = $enrollment?->course_id;
-        $userId     = $payment->user_id;
-
-        // Verify payment with XPay API
-        DB::beginTransaction();
-
-        try {
-            $credentials = $this->credentials('xpay');
-            $apiKey      = $credentials['api_key'] ?? null;
-            $mode        = $credentials['mode']     ?? 'sandbox';
-
-            $baseUrl = $mode === 'live'
-                ? 'https://api.xpay.com.pk/api/v1'
-                : 'https://sandbox.xpay.com.pk/api/v1';
-
-            $ch = curl_init($baseUrl . '/checkout/verify/' . $orderId);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $apiKey,
+        if ($payment->status === Payment::STATUS_COMPLETED) {
+            $enrollment = $this->completePesapalPayment($payment, []);
+            return response()->json([
+                'status' => 'completed',
+                'redirect_url' => $enrollment
+                    ? route('enrollment.success', $enrollment->id)
+                    : route('student.campus.invoices.index'),
             ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-            $response  = curl_exec($ch);
-            $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-
-            if ($curlError) {
-                throw new \Exception('XPay verify cURL error: ' . $curlError);
-            }
-
-            $verifyData = json_decode($response, true) ?? [];
-
-            $verifiedStatus = strtolower(
-                $verifyData['data']['status']
-                ?? $verifyData['status']
-                ?? $status
-            );
-
-            $verifiedTxId = $verifyData['data']['transaction_id']
-                ?? $verifyData['transaction_id']
-                ?? $transactionId;
-
-            if ($verifiedStatus === 'success' || $verifiedStatus === 'paid' || $verifiedStatus === 'completed') {
-                $payment->update([
-                    'xpay_transaction_id' => $verifiedTxId,
-                    'status'              => Payment::STATUS_COMPLETED,
-                ]);
-
-                DB::commit();
-
-                $user = User::find($userId);
-                if ($user && (!Auth::check() || Auth::id() !== $userId)) {
-                    Auth::login($user, true);
-                }
-
-                if (!$enrollment) {
-                    ToastMagic::error('Enrollment not found.');
-                    return redirect()->route('courses');
-                }
-
-                $enrollment->update([
-                    'status'      => Enrollment::STATUS_APPROVED,
-                    'enrolled_at' => now(),
-                ]);
-
-                $this->processRevenueShare($enrollment);
-
-                $this->sendEnrollmentNotifications($enrollment);
-
-                ToastMagic::success('Payment successful! You have been enrolled in the course.');
-                return redirect()->route('enrollment.success', $enrollment->id);
-            } else {
-                $payment->update(['status' => Payment::STATUS_FAILED]);
-
-                DB::commit();
-
-                ToastMagic::error('XPay payment was not completed. Status: ' . $verifiedStatus);
-                return redirect()->route('courses.show', $courseId);
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            ToastMagic::error('An error occurred processing your XPay payment. Please contact support.');
-            return redirect()->route('courses');
         }
-    }
-    // ─────────────────────────────────────────────────────────────
-
-
-    // ─────────────────────────────────────────────────────────────
-
-    /**
-     * Obtain a short-lived bKash token.
-     */
-    private function getBkashToken(): array
-    {
-        $credentials = $this->credentials('bkash');
-        $appKey      = $credentials['app_key']    ?? null;
-        $appSecret   = $credentials['app_secret'] ?? null;
-        $username    = $credentials['username']   ?? null;
-        $password    = $credentials['password']   ?? null;
-        $mode        = $credentials['mode']       ?? 'sandbox';
-
-        if (!$appKey || !$appSecret || !$username || !$password) {
-            throw new \RuntimeException('bKash credentials are not configured.');
-        }
-
-        $baseUrl = $mode === 'live'
-            ? 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized/checkout'
-            : 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout';
-
-        $ch = curl_init($baseUrl . '/token/grant');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'app_key'    => $appKey,
-            'app_secret' => $appSecret,
-        ]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'username: ' . $username,
-            'password: ' . $password,
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('bKash token cURL error: ' . $curlError);
-        }
-
-        if ($httpCode !== 200) {
-            throw new \Exception('Failed to obtain bKash token. HTTP ' . $httpCode);
-        }
-
-        $data = json_decode($response, true);
-
-        if (!isset($data['id_token'])) {
-            throw new \Exception('Invalid bKash token response: ' . substr($response, 0, 200));
-        }
-
-        $data['base_url'] = $baseUrl;
-        $data['app_key']  = $appKey;
-
-        return $data;
-    }
-
-    /**
-     * Create a bKash payment and return paymentID + bkashURL.
-     */
-    private function createBkashPayment(float $amount, $course, $user, ?int $courseIdOverride = null): array
-    {
-        $courseIdToUse = $courseIdOverride ?? $course->id;
-        $tokenData     = $this->getBkashToken();
-        $idToken       = $tokenData['id_token'];
-        $baseUrl       = $tokenData['base_url'];
-        $appKey        = $tokenData['app_key'];
-
-        $invoiceNumber = 'BKASH_' . $courseIdToUse . '_' . $user->id . '_' . time();
-
-        $paymentData = [
-            'mode'            => '0011',
-            'payerReference'  => (string) $user->id,
-            'callbackURL'     => route('payment.bkash.callback'),
-            'amount'          => number_format($amount, 2, '.', ''),
-            'currency'        => 'BDT',
-            'intent'          => 'sale',
-            'merchantInvoiceNumber' => $invoiceNumber,
-        ];
-
-        $ch = curl_init($baseUrl . '/create');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: ' . $idToken,
-            'X-APP-Key: ' . $appKey,
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response  = curl_exec($ch);
-        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('bKash create payment cURL error: ' . $curlError);
-        }
-
-        if ($httpCode !== 200) {
-            throw new \Exception('Failed to create bKash payment. HTTP ' . $httpCode);
-        }
-
-        $responseData = json_decode($response, true);
-
-        if (!isset($responseData['paymentID']) || !isset($responseData['bkashURL'])) {
-            $errorMsg = $responseData['statusMessage'] ?? $responseData['errorMessage'] ?? 'Unknown error';
-            throw new \Exception('bKash payment creation error: ' . $errorMsg);
-        }
-
-        return [
-            'paymentID' => $responseData['paymentID'],
-            'bkashURL'  => $responseData['bkashURL'],
-        ];
-    }
-
-    /**
-     * Execute a bKash payment after user approval.
-     */
-    private function executeBkashPayment(string $paymentId): array
-    {
-        $tokenData = $this->getBkashToken();
-        $idToken   = $tokenData['id_token'];
-        $baseUrl   = $tokenData['base_url'];
-        $appKey    = $tokenData['app_key'];
-
-        $ch = curl_init($baseUrl . '/execute');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['paymentID' => $paymentId]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: ' . $idToken,
-            'X-APP-Key: ' . $appKey,
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response  = curl_exec($ch);
-        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('bKash execute payment cURL error: ' . $curlError);
-        }
-
-        if ($httpCode !== 200) {
-            throw new \Exception('Failed to execute bKash payment. HTTP ' . $httpCode);
-        }
-
-        return json_decode($response, true) ?? [];
-    }
-
-    /**
-     * Handle bKash payment callback (redirect from bKash checkout).
-     */
-    public function bkashCallback(\Illuminate\Http\Request $request)
-    {
-        $paymentId = $request->query('paymentID');
-        $status    = $request->query('status');
-
-        if (!$paymentId) {
-            ToastMagic::error('Invalid bKash callback — missing paymentID.');
-            return redirect()->route('courses');
-        }
-
-        if ($status === 'cancel') {
-            ToastMagic::error('bKash payment was cancelled.');
-            return redirect()->route('courses');
-        }
-
-        if ($status === 'failure') {
-            ToastMagic::error('bKash payment failed. Please try again.');
-            return redirect()->route('courses');
-        }
-
-        $payment = Payment::where('bkash_payment_id', $paymentId)->first();
-
-        if (!$payment) {
-            ToastMagic::error('bKash payment record not found.');
-            return redirect()->route('courses');
-        }
-
-        $enrollment = $payment->enrollment;
-        $courseId   = $enrollment?->course_id;
-        $userId     = $payment->user_id;
-
-        DB::beginTransaction();
 
         try {
-            $executeData = $this->executeBkashPayment($paymentId);
+            $pesapalService = app(\App\Services\PesapalService::class);
+            $trackingLookup = $orderTrackingId !== '' ? $orderTrackingId : (string) $payment->pesapal_order_tracking_id;
+            $statusData = $pesapalService->getTransactionStatus($trackingLookup);
 
-            $transactionStatus = $executeData['transactionStatus'] ?? $executeData['statusMessage'] ?? '';
-            $trxId             = $executeData['trxID'] ?? null;
-
-            if (strtolower($transactionStatus) === 'completed') {
+            if ($pesapalService->isCompletedStatus($statusData)) {
+                $paidAmount = (float) ($statusData['amount'] ?? $payment->amount);
+                if (abs($paidAmount - (float) $payment->amount) < 0.01) {
+                    $enrollment = $this->completePesapalPayment($payment, $statusData);
+                    return response()->json([
+                        'status' => 'completed',
+                        'redirect_url' => $enrollment
+                            ? route('enrollment.success', $enrollment->id)
+                            : route('student.campus.invoices.index'),
+                    ]);
+                }
+            } elseif ($pesapalService->isFailedStatus($statusData)) {
                 $payment->update([
-                    'bkash_trx_id' => $trxId,
-                    'status'       => Payment::STATUS_COMPLETED,
+                    'status' => Payment::STATUS_FAILED,
+                    'verification_status' => 'rejected',
                 ]);
-
-                DB::commit();
-
-                $user = User::find($userId);
-                if ($user && (!Auth::check() || Auth::id() !== $userId)) {
-                    Auth::login($user, true);
-                }
-
-                if (!$enrollment) {
-                    ToastMagic::error('Enrollment not found.');
-                    return redirect()->route('courses');
-                }
-
-                $enrollment->update([
-                    'status'      => Enrollment::STATUS_APPROVED,
-                    'enrolled_at' => now(),
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => (string) ($statusData['payment_status_description'] ?? 'Payment was not completed.'),
                 ]);
-
-                $this->processRevenueShare($enrollment);
-
-                $this->sendEnrollmentNotifications($enrollment);
-
-                ToastMagic::success('Payment successful! You have been enrolled in the course.');
-                return redirect()->route('enrollment.success', $enrollment->id);
-            } else {
-                $payment->update(['status' => Payment::STATUS_FAILED]);
-
-                DB::commit();
-
-                ToastMagic::error('bKash payment was not completed. Status: ' . $transactionStatus);
-                return redirect()->route('courses');
             }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            ToastMagic::error('An error occurred processing your bKash payment. Please contact support.');
-            return redirect()->route('courses');
+        } catch (\Throwable) {
+        }
+
+        return response()->json(['status' => 'pending']);
+    }
+
+    /**
+     * Handle asynchronous Pesapal API 3.0 IPN webhook notifications.
+     */
+    public function pesapalIpn(Request $request)
+    {
+        $orderTrackingId = trim((string) ($request->input('OrderTrackingId')
+            ?? $request->query('OrderTrackingId')
+            ?? $request->input('orderTrackingId')
+            ?? $request->query('orderTrackingId', '')));
+        $merchantReference = trim((string) ($request->input('OrderMerchantReference')
+            ?? $request->query('OrderMerchantReference')
+            ?? $request->input('orderMerchantReference')
+            ?? $request->query('orderMerchantReference', '')));
+        $notificationType = (string) ($request->input('OrderNotificationType') ?? $request->query('OrderNotificationType', 'IPNCHANGE'));
+
+        if ($orderTrackingId === '' && $merchantReference === '') {
+            return response()->json([
+                'orderNotificationType'  => $notificationType,
+                'orderTrackingId'        => $orderTrackingId,
+                'orderMerchantReference' => $merchantReference,
+                'status'                 => 500,
+            ], 400);
+        }
+
+        $payment = $this->findPesapalPayment($orderTrackingId, $merchantReference);
+
+        if (! $payment) {
+            return response()->json([
+                'orderNotificationType'  => $notificationType,
+                'orderTrackingId'        => $orderTrackingId,
+                'orderMerchantReference' => $merchantReference,
+                'status'                 => 500,
+            ], 404);
+        }
+
+        try {
+            $pesapalService = app(\App\Services\PesapalService::class);
+            $trackingLookup = $orderTrackingId !== '' ? $orderTrackingId : (string) $payment->pesapal_order_tracking_id;
+            $statusData = $pesapalService->getTransactionStatus($trackingLookup);
+
+            if ($pesapalService->isCompletedStatus($statusData)) {
+                $paidAmount = (float) ($statusData['amount'] ?? $payment->amount);
+                if (abs($paidAmount - (float) $payment->amount) < 0.01) {
+                    $this->completePesapalPayment($payment, $statusData);
+                }
+            } elseif ($pesapalService->isFailedStatus($statusData) && $payment->status !== Payment::STATUS_COMPLETED) {
+                $payment->update([
+                    'status' => Payment::STATUS_FAILED,
+                    'verification_status' => 'rejected',
+                ]);
+            }
+
+            return response()->json([
+                'orderNotificationType'  => $notificationType,
+                'orderTrackingId'        => $trackingLookup,
+                'orderMerchantReference' => $merchantReference ?: ($payment->pesapal_merchant_reference ?? ''),
+                'status'                 => 200,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Pesapal IPN error: ' . $e->getMessage());
+
+            return response()->json([
+                'orderNotificationType'  => $notificationType,
+                'orderTrackingId'        => $orderTrackingId,
+                'orderMerchantReference' => $merchantReference,
+                'status'                 => 500,
+            ], 500);
         }
     }
 
+    /**
+     * Finalize a Pesapal payment and approve associated course, invoice, or bundle enrollments idempotently.
+     *
+     * @param array<string, mixed> $statusData
+     */
+    private function completePesapalPayment(Payment $payment, array $statusData): ?Enrollment
+    {
+        $newlyCompleted = false;
+
+        $enrollment = DB::transaction(function () use ($payment, $statusData, &$newlyCompleted) {
+            $lockedPayment = Payment::withoutGlobalScope('branch')->with('enrollment')->lockForUpdate()->findOrFail($payment->id);
+            $alreadyCompleted = $lockedPayment->status === Payment::STATUS_COMPLETED;
+
+            $confirmationCode = (string) ($statusData['confirmation_code'] ?? $lockedPayment->pesapal_confirmation_code ?? '');
+            $paymentAccount = (string) ($statusData['payment_account'] ?? $lockedPayment->pesapal_payment_account ?? '');
+
+            $lockedPayment->update([
+                'pesapal_confirmation_code' => $confirmationCode !== '' ? $confirmationCode : null,
+                'pesapal_payment_account'   => $paymentAccount !== '' ? $paymentAccount : null,
+                'transaction_id'            => $confirmationCode !== '' ? $confirmationCode : ($lockedPayment->transaction_id ?: $lockedPayment->pesapal_order_tracking_id),
+                'payment_date'              => $lockedPayment->payment_date ?? now()->toDateString(),
+                'verification_status'       => 'verified',
+                'status'                    => Payment::STATUS_COMPLETED,
+            ]);
+
+            $invoice = $lockedPayment->invoice_id
+                ? \App\Models\Invoice::withoutGlobalScope('branch')->with('enrollment')->find($lockedPayment->invoice_id)
+                : null;
+            $enrollment = $lockedPayment->enrollment ?? $invoice?->enrollment;
+
+            if ($enrollment && ! $lockedPayment->enrollment_id) {
+                $lockedPayment->forceFill(['enrollment_id' => $enrollment->id])->saveQuietly();
+            }
+
+            if (! $alreadyCompleted) {
+                $newlyCompleted = true;
+            }
+
+            app(\App\Services\SrsWorkflowService::class)->finalizeCompletedPayment($lockedPayment->fresh());
+
+            return $enrollment?->fresh();
+        });
+
+        if ($newlyCompleted && $enrollment) {
+            $this->sendEnrollmentNotifications($enrollment);
+        }
+
+        return $enrollment;
+    }
+
+    /**
+     * Find a Pesapal payment by tracking ID or merchant reference bypassing branch scope.
+     */
+    private function findPesapalPayment(string $orderTrackingId, string $merchantReference = ''): ?Payment
+    {
+        return Payment::withoutGlobalScope('branch')
+            ->where(function ($q) use ($orderTrackingId, $merchantReference): void {
+                if ($orderTrackingId !== '') {
+                    $q->where('pesapal_order_tracking_id', $orderTrackingId);
+                    if ($merchantReference !== '') {
+                        $q->orWhere('pesapal_merchant_reference', $merchantReference);
+                    }
+                } elseif ($merchantReference !== '') {
+                    $q->where('pesapal_merchant_reference', $merchantReference);
+                }
+            })
+            ->first();
+    }
+
+    /**
+     * Restore student auth session if needed and redirect cleanly after Pesapal completion.
+     */
+    private function redirectAfterPesapalCompletion(Payment $payment, ?Enrollment $enrollment)
+    {
+        $userId = $payment->user_id ?? $enrollment?->user_id;
+        if ($userId) {
+            $user = User::find($userId);
+            if ($user && (! Auth::check() || (int) Auth::id() !== (int) $userId)) {
+                Auth::login($user, true);
+            }
+        }
+
+        ToastMagic::success('Payment successful! Your payment is completed and enrollment is active.');
+
+        if ($enrollment) {
+            return redirect()->route('enrollment.success', $enrollment->id);
+        }
+
+        return redirect()->route('student.campus.invoices.index');
+    }
+
+    /**
+     * Send enrollment notifications.
+     */
     private function sendEnrollmentNotifications(Enrollment $enrollment, ?Course $course = null, ?User $student = null): void
     {
         try {
@@ -2636,6 +1611,9 @@ class CourseEnrollmentController extends Controller
         }
     }
 
+    /**
+     * Process revenue share.
+     */
     private function processRevenueShare(Enrollment $enrollment): void
     {
         if (!$enrollment->payment_id) {

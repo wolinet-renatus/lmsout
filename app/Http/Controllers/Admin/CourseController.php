@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
  * This controller handles the management of courses.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class CourseController extends Controller
 {

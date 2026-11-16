@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Student Campus Portal Routes
+ *
+ * Defines student registration and authenticated learner portal routes for
+ * course player, quizzes, assignments, campus invoices, QR check-in, and AI chat.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Student\RegisterController;
 use App\Http\Controllers\Student\DashboardController;
@@ -29,6 +38,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/live-summary', [DashboardController::class, 'liveSummary'])->name('dashboard.live');
     Route::get('/my-courses', [MyCoursesController::class, 'index'])->name('my-courses');
 
     // Assignments routes
@@ -39,6 +49,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
     // Payments routes
     Route::get('/payments', [PaymentsController::class, 'index'])->name('payments');
+    Route::get('/payments/live-status', [PaymentsController::class, 'liveStatus'])->name('payments.live');
 
     // Certificates routes
     Route::get('/certificates', [CertificatesController::class, 'index'])->name('certificates');
@@ -82,8 +93,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications/feed', [NotificationController::class, 'feed'])->name('notifications.feed');
     Route::get('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     // Community Q&A routes
     Route::prefix('community')->name('community.')->group(function () {
@@ -124,11 +136,13 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // Campus Invoices, Installments, Receipts, Timetable, Attendance & QR Check-In
     Route::prefix('campus')->name('campus.')->group(function () {
         Route::get('/invoices', [\App\Http\Controllers\Student\CampusController::class, 'invoices'])->name('invoices.index');
+        Route::get('/invoices/live-status', [\App\Http\Controllers\Student\CampusController::class, 'liveInvoices'])->name('invoices.live');
         Route::get('/payments/{payment}/receipt', [\App\Http\Controllers\Student\CampusController::class, 'receipt'])->name('invoices.receipt.show');
         Route::post('/invoices/{invoice}/control-number', [\App\Http\Controllers\Student\CampusController::class, 'generateControlNumber'])->name('invoices.control-number');
         Route::post('/invoices/{invoice}/receipt', [\App\Http\Controllers\Student\CampusController::class, 'uploadReceipt'])->name('invoices.receipt');
         Route::delete('/enrollments/{enrollment}', [\App\Http\Controllers\Student\CampusController::class, 'unenroll'])->name('enrollments.destroy');
         Route::get('/timetable', [\App\Http\Controllers\Student\CampusController::class, 'timetable'])->name('timetable');
+        Route::get('/timetable/live-status', [\App\Http\Controllers\Student\CampusController::class, 'liveTimetable'])->name('timetable.live');
         Route::get('/attendance', [\App\Http\Controllers\Student\CampusController::class, 'attendance'])->name('attendance');
         Route::get('/checkin/{token}', [\App\Http\Controllers\Student\CampusController::class, 'checkIn'])->name('checkin');
         Route::get('/certificates/{enrollment}/pdf', [\App\Http\Controllers\Student\CampusController::class, 'downloadCertificatePdf'])->name('certificates.pdf');

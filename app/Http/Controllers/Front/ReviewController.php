@@ -20,9 +20,13 @@ use Illuminate\Support\Facades\Auth;
  * This controller handles the review functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class ReviewController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private NotificationPreferenceService $notificationPreferenceService)
     {
     }

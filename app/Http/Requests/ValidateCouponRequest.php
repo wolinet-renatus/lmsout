@@ -10,6 +10,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * Validates request parameter for coupon code verification during checkout.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class ValidateCouponRequest extends FormRequest
 {

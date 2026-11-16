@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Set Locale Middleware
+ *
+ * Resolves the active UI language from query string, session, user preference,
+ * or system default and shares supported language packs with public/portal views.
+ *
+ * @package App\Http\Middleware
+ * @author Renatus Bernardo
+ */
 class SetLocale
 {
     /**
@@ -16,44 +25,7 @@ class SetLocale
     public static function getSupportedLocales(): array
     {
         return \Illuminate\Support\Facades\Cache::rememberForever('active_system_locales', function () {
-            $allLocales = [
-                'en' => ['name' => 'English', 'native' => 'English', 'flag' => '🇺🇸'],
-                'bn' => ['name' => 'Bengali', 'native' => 'বাংলা',  'flag' => '🇧🇩'],
-                'es' => ['name' => 'Spanish', 'native' => 'Español', 'flag' => '🇪🇸'],
-                'hi' => ['name' => 'Hindi', 'native' => 'हिन्दी',   'flag' => '🇮🇳'],
-                'fr' => ['name' => 'French',  'native' => 'Français','flag' => '🇫🇷'],
-                'de' => ['name' => 'German',  'native' => 'Deutsch', 'flag' => '🇩🇪'],
-                'it' => ['name' => 'Italian', 'native' => 'Italiano', 'flag' => '🇮🇹'],
-                'ja' => ['name' => 'Japanese','native' => '日本語',  'flag' => '🇯🇵'],
-                'pt' => ['name' => 'Portuguese','native' => 'Português','flag' => '🇵🇹'],
-                'ru' => ['name' => 'Russian', 'native' => 'Русский', 'flag' => '🇷🇺'],
-                'zh' => ['name' => 'Chinese', 'native' => '中文',    'flag' => '🇨🇳'],
-                'tr' => ['name' => 'Turkish', 'native' => 'Türkçe',  'flag' => '🇹🇷'],
-            ];
-
-            $locales = [];
-            $langDir = resource_path('lang');
-            if (is_dir($langDir)) {
-                foreach (scandir($langDir) as $dir) {
-                    if ($dir === '.' || $dir === '..' || $dir === 'vendor') {
-                        continue;
-                    }
-                    if (is_dir($langDir . '/' . $dir)) {
-                        $locales[$dir] = $allLocales[$dir] ?? [
-                            'name' => strtoupper($dir),
-                            'native' => strtoupper($dir),
-                            'flag' => '🏳️',
-                        ];
-                    }
-                }
-            }
-
-            // Sort by name
-            uasort($locales, function ($a, $b) {
-                return strcmp($a['name'], $b['name']);
-            });
-
-            return $locales;
+            return app(\App\Services\LanguageManagerService::class)->getSupportedLocales();
         });
     }
 
@@ -62,7 +34,21 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Skip for admin routes — admin area stays in the default locale
+        $supportedCurrencies = supported_switch_currencies();
+        if ($request->filled('currency')) {
+            $requestedCurrency = normalize_currency_code((string) $request->query('currency'));
+            if (isset($supportedCurrencies[$requestedCurrency])) {
+                session()->put('active_currency', $requestedCurrency);
+            }
+        }
+
+        $activeCurrency = active_currency_code();
+        View::share('activeCurrency', $activeCurrency);
+        View::share('currencyCode', $activeCurrency);
+        View::share('currencySymbol', currency_symbol($activeCurrency));
+        View::share('exchangeRateUsdToTzs', usd_to_tzs_rate());
+
+        // Skip locale switching for admin routes — admin area stays in the default locale
         if ($request->is('admin/*') || $request->routeIs('admin.*')) {
             return $next($request);
         }

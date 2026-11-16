@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents a menu item.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class MenuItem extends Model
 {
@@ -35,30 +36,45 @@ class MenuItem extends Model
 
     protected $appends = ['resolved_url'];
 
+    /**
+     * Eloquent belongsTo relationship for Menu.
+     */
     public function menu(): BelongsTo
     {
         return $this->belongsTo(Menu::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Parent.
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');
     }
 
+    /**
+     * Eloquent hasMany relationship for Children.
+     */
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')->where('is_active', true)->orderBy('order');
     }
 
+    /**
+     * Query scope to filter records by Active.
+     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
+    /**
+     * Accessor for computed Resolved url attribute.
+     */
     public function getResolvedUrlAttribute(): string
     {
         if ($this->url) {
-            return $this->url;
+            return resolve_app_url($this->url);
         }
 
         if ($this->route_name) {

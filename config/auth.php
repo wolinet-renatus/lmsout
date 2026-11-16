@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for auth.
+ *
+ * @author Renatus Bernardo
+ */
+
 return [
 
     /*

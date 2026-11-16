@@ -18,9 +18,15 @@ use Spatie\Permission\Models\Role;
 /**
  * Single source of truth for Face-to-Face / Hybrid intake (SCMS Applicants Form),
  * shared by the Admin/Registrar desk and the public self-application page.
+ *
+ * @package App\Services
+ * @author Renatus Bernardo
  */
 class CampusApplicationService
 {
+    /**
+     * Inject SRS workflow service for fee calculation, control numbers, and installment splits.
+     */
     public function __construct(private SrsWorkflowService $srs)
     {
     }
@@ -243,6 +249,9 @@ class CampusApplicationService
         });
     }
 
+    /**
+     * Compute the remaining amount due on the next unpaid installment (or full balance).
+     */
     public function firstInstallmentAmount(Invoice $invoice): float
     {
         $next = $invoice->paymentSchedules()->where('status', '!=', 'paid')->orderBy('installment_number')->first();
@@ -250,6 +259,9 @@ class CampusApplicationService
         return $next ? round((float) $next->amount_due - (float) $next->amount_paid, 2) : (float) $invoice->balance;
     }
 
+    /**
+     * Generate a unique institutional invoice number with the configured prefix.
+     */
     public function nextInvoiceNumber(): string
     {
         $prefix = generateInvoicePrefix();
@@ -260,6 +272,9 @@ class CampusApplicationService
         return $candidate;
     }
 
+    /**
+     * Parse numeric week duration from a course duration label (e.g., "4 Weeks").
+     */
     private function weeksFromLabel(?string $label): int
     {
         if ($label && preg_match('/(\d+)/', $label, $m)) {

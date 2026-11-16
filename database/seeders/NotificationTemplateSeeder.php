@@ -5,8 +5,16 @@ namespace Database\Seeders;
 use App\Models\NotificationTemplate;
 use Illuminate\Database\Seeder;
 
+/**
+ * Notification template seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class NotificationTemplateSeeder extends Seeder
 {
+    /**
+     * Execute the database seeder.
+     */
     public function run(): void
     {
         $templates = [

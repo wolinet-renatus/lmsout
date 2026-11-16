@@ -11,9 +11,13 @@ use Illuminate\Validation\Rule;
  * This request validates the data for checkout.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class CheckoutRequest extends FormRequest
 {
+    /**
+     * Determine whether the current user is authorized to perform this request.
+     */
     public function authorize(): bool
     {
         /** @var \App\Models\User|null $user */
@@ -21,6 +25,9 @@ class CheckoutRequest extends FormRequest
         return $user !== null && $user->isStudent();
     }
 
+    /**
+     * Define the validation rules applied to the incoming request.
+     */
     public function rules(): array
     {
         $paymentMethod = $this->input('payment_method');
@@ -41,7 +48,7 @@ class CheckoutRequest extends FormRequest
         }
         
         $rules = [
-            'payment_method' => [$isFree ? 'nullable' : 'required', Rule::in(['razorpay', 'offline', 'stripe', 'paystack', 'flutterwave', 'paypal', 'sslcommerz', 'mollie', 'bkash', 'xpay'])],
+            'payment_method' => [$isFree ? 'nullable' : 'required', Rule::in(['offline', 'stripe', 'flutterwave', 'paypal', 'pesapal'])],
         ];
 
         if ($paymentMethod === 'offline') {
@@ -52,6 +59,9 @@ class CheckoutRequest extends FormRequest
         return $rules;
     }
 
+    /**
+     * Define custom validation error messages for the request.
+     */
     public function messages(): array
     {
         return [

@@ -11,12 +11,23 @@ use App\Services\SrsWorkflowService;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 
+/**
+ * Invoice controller — manages campus & short-course operations within the admin portal.
+ *
+ * @author Renatus Bernardo
+ */
 class InvoiceController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private SrsWorkflowService $srs)
     {
     }
 
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $base = Invoice::query();
@@ -47,6 +58,9 @@ class InvoiceController extends Controller
         return view('admin.campus.invoices.index', compact('invoices', 'stats', 'branches', 'pendingVerifications'));
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(Invoice $invoice)
     {
         $invoice->load(['user', 'applicant.country', 'course', 'branch', 'enrollment.venue', 'paymentSchedules', 'payments' => fn ($q) => $q->latest()]);
@@ -54,6 +68,9 @@ class InvoiceController extends Controller
         return view('admin.campus.invoices.show', compact('invoice'));
     }
 
+    /**
+     * Record payment.
+     */
     public function recordPayment(Request $request, Invoice $invoice)
     {
         $data = $request->validate([
@@ -82,6 +99,9 @@ class InvoiceController extends Controller
         return back();
     }
 
+    /**
+     * Verify payment.
+     */
     public function verifyPayment(Request $request, Payment $payment)
     {
         $action = $request->validate(['action' => ['required', 'in:approve,reject']])['action'];
@@ -97,6 +117,9 @@ class InvoiceController extends Controller
         return back();
     }
 
+    /**
+     * Regenerate control number.
+     */
     public function regenerateControlNumber(Invoice $invoice)
     {
         if ($invoice->payment_status === 'paid') {

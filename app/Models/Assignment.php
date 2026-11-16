@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * This model represents an assignment.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Assignment extends Model
 {

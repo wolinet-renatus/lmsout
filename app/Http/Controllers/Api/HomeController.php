@@ -8,6 +8,11 @@ use App\Models\Course;
 use App\Models\CourseCategory;
 use Illuminate\Http\Request;
 
+/**
+ * Home controller API Controller — handles public and authenticated Sanctum REST endpoints.
+ *
+ * @author Renatus Bernardo
+ */
 class HomeController extends Controller
 {
     /**

@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
  * This controller handles the management of certificates.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class CertificateController extends Controller
 {

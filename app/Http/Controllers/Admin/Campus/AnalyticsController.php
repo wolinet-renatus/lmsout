@@ -12,9 +12,13 @@ use Illuminate\View\View;
 
 /**
  * Operational & Executive Analytics Controller (migrated from SCMS AnalyticsController, SRS R2/R4/R5).
+ * @author Renatus Bernardo
  */
 class AnalyticsController extends Controller
 {
+    /**
+     * Branches.
+     */
     public function branches(Request $request): View
     {
         $effectiveBranch = auth()->user()?->effectiveBranchId($request->integer('branch_id') ?: null);
@@ -47,6 +51,9 @@ class AnalyticsController extends Controller
         return view('admin.campus.analytics.branches', compact('branches'));
     }
 
+    /**
+     * Discounts.
+     */
     public function discounts(Request $request): View
     {
         $effectiveBranch = auth()->user()?->effectiveBranchId($request->integer('branch_id') ?: null);
@@ -66,6 +73,9 @@ class AnalyticsController extends Controller
         return view('admin.campus.analytics.discounts', compact('discountedInvoices', 'totalWaived', 'branches', 'effectiveBranch'));
     }
 
+    /**
+     * Tutor workload.
+     */
     public function tutorWorkload(Request $request): View
     {
         $effectiveBranch = auth()->user()?->effectiveBranchId($request->integer('branch_id') ?: null);
@@ -100,6 +110,9 @@ class AnalyticsController extends Controller
         return view('admin.campus.analytics.tutor-workload', compact('tutors', 'branches', 'effectiveBranch'));
     }
 
+    /**
+     * Active classes.
+     */
     public function activeClasses(Request $request): View
     {
         $effectiveBranch = auth()->user()?->effectiveBranchId($request->integer('branch_id') ?: null);

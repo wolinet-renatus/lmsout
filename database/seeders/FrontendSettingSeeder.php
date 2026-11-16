@@ -5,6 +5,11 @@ namespace Database\Seeders;
 use App\Models\FrontendSetting;
 use Illuminate\Database\Seeder;
 
+/**
+ * Frontend setting seeder — seeds baseline institutional, RBAC, or reference records.
+ *
+ * @author Renatus Bernardo
+ */
 class FrontendSettingSeeder extends Seeder
 {
     /**
@@ -179,14 +184,14 @@ class FrontendSettingSeeder extends Seeder
             'heading' => 'Skill up with courses designed by experts',
             'description' => 'Build a learning plan that fits your day-to-day life. Explore immersive classes, guided projects, and live sessions to keep your skills sharp.',
             'cta_label' => 'Explore Courses',
-            'cta_url' => route('courses'),
+            'cta_url' => '/courses',
         ]);
 
         FrontendSetting::setValue('pages.home.testimonial', [
             'title' => 'Students Reviews',
             'subtitle' => 'What learners say about our platform',
             'cta_label' => 'All Testimonials',
-            'cta_url' => route('testimonials.index'),
+            'cta_url' => '/testimonials',
         ]);
 
         FrontendSetting::setValue('pages.home.about', [
@@ -194,7 +199,7 @@ class FrontendSettingSeeder extends Seeder
             'heading' => 'Transforming Learning Into Lasting Impact',
             'description' => 'We partner with expert instructors to create immersive learning pathways that deliver measurable results for students and teams around the globe.',
             'cta_label' => 'Explore More',
-            'cta_url' => route('about'),
+            'cta_url' => '/about',
             'author_name' => 'Ronald Richards',
             'author_title' => 'Co-Founder',
         ]);
@@ -203,9 +208,9 @@ class FrontendSettingSeeder extends Seeder
             'heading' => 'Act Fast: 50% Off for the First 50 Students!',
             'description' => 'The ability to learn at my own pace was a game-changer for me. The flexible schedule allowed me to balance my studies with work and personal life, making it possible.',
             'primary_label' => 'Become a Student',
-            'primary_url' => route('register'),
+            'primary_url' => '/register',
             'secondary_label' => 'Become a Teacher',
-            'secondary_url' => route('instructor.register'),
+            'secondary_url' => '/become-instructor',
         ]);
 
         FrontendSetting::setValue('pages.home.features', [
@@ -250,7 +255,7 @@ class FrontendSettingSeeder extends Seeder
             'heading' => 'Transforming Learning Into Lasting Impact',
             'description' => 'OUT is a learning platform built for growth. We pair committed instructors with curious learners, crafting programs that inspire action, unlock career opportunities, and deliver measurable outcomes.',
             'cta_label' => 'Explore Courses',
-            'cta_url' => route('courses'),
+            'cta_url' => '/courses',
             'author_name' => 'OUT Team',
             'author_title' => 'Committed to lifelong learning',
         ]);
@@ -301,9 +306,9 @@ class FrontendSettingSeeder extends Seeder
             'heading' => 'Start your learning journey today.',
             'description' => 'Find the perfect course, connect with expert instructors, and build the skills you need to grow.',
             'primary_label' => 'Browse Courses',
-            'primary_url' => route('courses'),
+            'primary_url' => '/courses',
             'secondary_label' => 'Meet Our Teachers',
-            'secondary_url' => route('instructors.index'),
+            'secondary_url' => '/instructors',
         ]);
     }
 }

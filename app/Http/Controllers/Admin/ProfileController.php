@@ -19,11 +19,18 @@ use Illuminate\Validation\Rule;
  * This controller handles the management of the admin profile.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class ProfileController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private FileUploadService $fileUploadService) {}
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Request $request): View
     {
         $user = $request->user();
@@ -44,6 +51,9 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();

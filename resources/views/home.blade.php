@@ -6,21 +6,21 @@
     /* ==========================================================================
        Home Page Redesign (Matching Modern LMS Reference Layout & Brand Palette)
        ========================================================================== */
-    .edux-home {
+    .lmsout-home {
         font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         color: #0f172a;
         background-color: #ffffff;
     }
 
     /* 1. Gradient Hero Section */
-    .edux-home-hero {
+    .lmsout-home-hero {
         background: linear-gradient(135deg, var(--theme) 0%, var(--theme-2, #228ddd) 100%);
         padding: 56px 0 68px;
         color: #ffffff;
         position: relative;
         overflow: hidden;
     }
-    .edux-home-hero__eyebrow {
+    .lmsout-home-hero__eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 7px;
@@ -33,13 +33,13 @@
         border-radius: 999px;
         margin-bottom: 16px;
     }
-    .edux-home-hero__eyebrow-dot {
+    .lmsout-home-hero__eyebrow-dot {
         width: 7px;
         height: 7px;
         border-radius: 50%;
         background: var(--theme-yellow, #f4ed2d);
     }
-    .edux-home-hero__title {
+    .lmsout-home-hero__title {
         font-size: 38px;
         font-weight: 800;
         line-height: 1.16;
@@ -47,18 +47,18 @@
         color: #ffffff;
         margin: 0 0 14px;
     }
-    .edux-home-hero__title span {
+    .lmsout-home-hero__title span {
         color: var(--theme-yellow, #f4ed2d);
         display: block;
     }
-    .edux-home-hero__desc {
+    .lmsout-home-hero__desc {
         font-size: 14px;
         color: rgba(255, 255, 255, 0.86);
         line-height: 1.6;
         margin: 0 0 22px;
         max-width: 500px;
     }
-    .edux-home-hero__search {
+    .lmsout-home-hero__search {
         background: #ffffff;
         border-radius: 999px;
         padding: 5px 5px 5px 18px;
@@ -69,11 +69,11 @@
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
         margin-bottom: 14px;
     }
-    .edux-home-hero__search i {
+    .lmsout-home-hero__search i {
         color: #94a3b8;
         font-size: 13px;
     }
-    .edux-home-hero__search input {
+    .lmsout-home-hero__search input {
         flex: 1;
         border: 0;
         outline: none;
@@ -82,7 +82,7 @@
         background: transparent;
         min-width: 0;
     }
-    .edux-home-hero__search button {
+    .lmsout-home-hero__search button {
         background: var(--theme);
         color: #ffffff;
         border: 0;
@@ -93,10 +93,10 @@
         cursor: pointer;
         transition: opacity 0.15s ease;
     }
-    .edux-home-hero__search button:hover {
+    .lmsout-home-hero__search button:hover {
         opacity: 0.92;
     }
-    .edux-home-hero__tags {
+    .lmsout-home-hero__tags {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -105,7 +105,7 @@
         font-size: 11.5px;
         color: rgba(255, 255, 255, 0.78);
     }
-    .edux-home-hero__tag {
+    .lmsout-home-hero__tag {
         background: rgba(255, 255, 255, 0.14);
         border: 1px solid rgba(255, 255, 255, 0.22);
         color: #ffffff;
@@ -116,21 +116,21 @@
         text-decoration: none;
         transition: background-color 0.15s ease;
     }
-    .edux-home-hero__tag:hover {
+    .lmsout-home-hero__tag:hover {
         background: rgba(255, 255, 255, 0.25);
         color: #ffffff;
     }
-    .edux-home-hero__trust {
+    .lmsout-home-hero__trust {
         display: flex;
         align-items: center;
         gap: 10px;
         margin-bottom: 20px;
     }
-    .edux-home-hero__avatars {
+    .lmsout-home-hero__avatars {
         display: flex;
         align-items: center;
     }
-    .edux-home-hero__avatar-dot {
+    .lmsout-home-hero__avatar-dot {
         width: 26px;
         height: 26px;
         border-radius: 50%;
@@ -143,33 +143,33 @@
         justify-content: center;
         margin-left: -7px;
     }
-    .edux-home-hero__avatar-dot:first-child {
+    .lmsout-home-hero__avatar-dot:first-child {
         margin-left: 0;
     }
-    .edux-home-hero__trust-text {
+    .lmsout-home-hero__trust-text {
         font-size: 12px;
         color: rgba(255, 255, 255, 0.92);
     }
-    .edux-home-hero__trust-stars {
+    .lmsout-home-hero__trust-stars {
         color: #fbbf24;
         font-size: 11px;
         margin-right: 4px;
     }
-    .edux-home-hero__mini-stats {
+    .lmsout-home-hero__mini-stats {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
         gap: 22px;
         padding-top: 8px;
     }
-    .edux-home-hero__mini-stat {
+    .lmsout-home-hero__mini-stat {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 12px;
         color: rgba(255, 255, 255, 0.85);
     }
-    .edux-home-hero__mini-stat-icon {
+    .lmsout-home-hero__mini-stat-icon {
         width: 28px;
         height: 28px;
         border-radius: 8px;
@@ -180,7 +180,7 @@
         font-size: 12px;
         color: #ffffff;
     }
-    .edux-home-hero__mini-stat strong {
+    .lmsout-home-hero__mini-stat strong {
         display: block;
         font-size: 13px;
         font-weight: 800;
@@ -189,12 +189,12 @@
     }
 
     /* Right Hero Showcase Card */
-    .edux-home-hero__visual {
+    .lmsout-home-hero__visual {
         position: relative;
         max-width: 440px;
         margin: 0 auto;
     }
-    .edux-home-hero__card {
+    .lmsout-home-hero__card {
         background: #ffffff;
         border-radius: 18px;
         padding: 12px;
@@ -202,7 +202,7 @@
         transform: rotate(1.5deg);
         color: #0f172a;
     }
-    .edux-home-hero__card-thumb {
+    .lmsout-home-hero__card-thumb {
         position: relative;
         height: 200px;
         border-radius: 12px;
@@ -210,12 +210,12 @@
         background: #0f172a;
         margin-bottom: 12px;
     }
-    .edux-home-hero__card-thumb img {
+    .lmsout-home-hero__card-thumb img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-    .edux-home-hero__card-play {
+    .lmsout-home-hero__card-play {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -232,10 +232,10 @@
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
         text-decoration: none;
     }
-    .edux-home-hero__card-body {
+    .lmsout-home-hero__card-body {
         padding: 4px 6px 6px;
     }
-    .edux-home-hero__card-title {
+    .lmsout-home-hero__card-title {
         font-size: 14.5px;
         font-weight: 700;
         color: #0f172a;
@@ -243,14 +243,14 @@
         text-decoration: none;
         display: block;
     }
-    .edux-home-hero__card-meta {
+    .lmsout-home-hero__card-meta {
         display: flex;
         align-items: center;
         justify-content: space-between;
         font-size: 12px;
         color: #64748b;
     }
-    .edux-home-hero__callout {
+    .lmsout-home-hero__callout {
         position: absolute;
         background: #ffffff;
         color: #0f172a;
@@ -263,19 +263,19 @@
         font-size: 11px;
         z-index: 3;
     }
-    .edux-home-hero__callout--tr {
+    .lmsout-home-hero__callout--tr {
         top: -12px;
         right: -10px;
     }
-    .edux-home-hero__callout--bl {
+    .lmsout-home-hero__callout--bl {
         bottom: 18px;
         left: -18px;
     }
-    .edux-home-hero__callout--br {
+    .lmsout-home-hero__callout--br {
         bottom: -14px;
         right: 12px;
     }
-    .edux-home-hero__callout-icon {
+    .lmsout-home-hero__callout-icon {
         width: 26px;
         height: 26px;
         border-radius: 7px;
@@ -287,13 +287,13 @@
     }
 
     /* Shared Section Headers */
-    .edux-sec {
+    .lmsout-sec {
         padding: 56px 0;
     }
-    .edux-sec--gray {
+    .lmsout-sec--gray {
         background-color: #f8fafc;
     }
-    .edux-sec__eyebrow {
+    .lmsout-sec__eyebrow {
         display: inline-block;
         font-size: 10.5px;
         font-weight: 700;
@@ -305,14 +305,14 @@
         border-radius: 999px;
         margin-bottom: 8px;
     }
-    .edux-sec__title {
+    .lmsout-sec__title {
         font-size: 22px;
         font-weight: 800;
         color: #0f172a;
         letter-spacing: -0.02em;
         margin: 0;
     }
-    .edux-sec__header-row {
+    .lmsout-sec__header-row {
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
@@ -320,7 +320,7 @@
         gap: 12px;
         margin-bottom: 24px;
     }
-    .edux-sec__link {
+    .lmsout-sec__link {
         font-size: 12.5px;
         font-weight: 600;
         color: var(--theme);
@@ -329,13 +329,13 @@
         align-items: center;
         gap: 5px;
     }
-    .edux-sec__link:hover {
+    .lmsout-sec__link:hover {
         text-decoration: underline;
         color: var(--theme);
     }
 
     /* 2. Why Learn With Us */
-    .edux-why-card {
+    .lmsout-why-card {
         background: #ffffff;
         border: 1px solid #f1f5f9;
         border-radius: 14px;
@@ -343,7 +343,7 @@
         height: 100%;
         box-shadow: 0 2px 10px rgba(15, 23, 42, 0.02);
     }
-    .edux-why-card__icon {
+    .lmsout-why-card__icon {
         width: 36px;
         height: 36px;
         border-radius: 9px;
@@ -355,13 +355,13 @@
         font-size: 15px;
         margin-bottom: 12px;
     }
-    .edux-why-card__title {
+    .lmsout-why-card__title {
         font-size: 14px;
         font-weight: 700;
         color: #0f172a;
         margin: 0 0 5px;
     }
-    .edux-why-card__desc {
+    .lmsout-why-card__desc {
         font-size: 12px;
         color: #64748b;
         line-height: 1.5;
@@ -369,7 +369,7 @@
     }
 
     /* 3. Explore Top Categories */
-    .edux-cat-item {
+    .lmsout-cat-item {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
@@ -380,17 +380,17 @@
         text-decoration: none;
         transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .edux-cat-item:hover {
+    .lmsout-cat-item:hover {
         border-color: var(--theme);
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
     }
-    .edux-cat-item__left {
+    .lmsout-cat-item__left {
         display: flex;
         align-items: center;
         gap: 12px;
     }
-    .edux-cat-item__icon {
+    .lmsout-cat-item__icon {
         width: 38px;
         height: 38px;
         border-radius: 10px;
@@ -402,31 +402,31 @@
         font-size: 15px;
         flex-shrink: 0;
     }
-    .edux-cat-item--highlight .edux-cat-item__icon {
+    .lmsout-cat-item--highlight .lmsout-cat-item__icon {
         background: var(--theme);
         color: #ffffff;
     }
-    .edux-cat-item__name {
+    .lmsout-cat-item__name {
         font-size: 13.5px;
         font-weight: 700;
         color: #0f172a;
         margin: 0 0 2px;
     }
-    .edux-cat-item--highlight .edux-cat-item__name {
+    .lmsout-cat-item--highlight .lmsout-cat-item__name {
         color: var(--theme);
     }
-    .edux-cat-item__count {
+    .lmsout-cat-item__count {
         font-size: 11.5px;
         color: #94a3b8;
         margin: 0;
     }
-    .edux-cat-item__arrow {
+    .lmsout-cat-item__arrow {
         font-size: 11px;
         color: #cbd5e1;
     }
 
     /* 4 & 5. Course Cards (Featured & Most Popular) */
-    .edux-catalog-card {
+    .lmsout-catalog-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
@@ -437,31 +437,31 @@
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .edux-catalog-card:hover {
+    .lmsout-catalog-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
     }
-    .edux-catalog-card__thumb {
+    .lmsout-catalog-card__thumb {
         position: relative;
         height: 162px;
         background: #0f172a;
         overflow: hidden;
     }
-    .edux-catalog-card__thumb-link {
+    .lmsout-catalog-card__thumb-link {
         display: block;
         width: 100%;
         height: 100%;
     }
-    .edux-catalog-card__thumb-link img {
+    .lmsout-catalog-card__thumb-link img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.35s ease;
     }
-    .edux-catalog-card:hover .edux-catalog-card__thumb-link img {
+    .lmsout-catalog-card:hover .lmsout-catalog-card__thumb-link img {
         transform: scale(1.04);
     }
-    .edux-catalog-card__badges-tl {
+    .lmsout-catalog-card__badges-tl {
         position: absolute;
         top: 10px;
         left: 10px;
@@ -472,7 +472,7 @@
         z-index: 2;
         pointer-events: none;
     }
-    .edux-catalog-card__badge-cat {
+    .lmsout-catalog-card__badge-cat {
         background: rgba(255, 255, 255, 0.96);
         color: #0f172a;
         font-size: 10px;
@@ -480,7 +480,7 @@
         padding: 3px 9px;
         border-radius: 999px;
     }
-    .edux-catalog-card__badge-sub {
+    .lmsout-catalog-card__badge-sub {
         background: var(--theme);
         color: #ffffff;
         font-size: 9.5px;
@@ -491,13 +491,13 @@
         align-items: center;
         gap: 4px;
     }
-    .edux-catalog-card__badges-tr {
+    .lmsout-catalog-card__badges-tr {
         position: absolute;
         top: 10px;
         right: 10px;
         z-index: 2;
     }
-    .edux-catalog-card__badge-free {
+    .lmsout-catalog-card__badge-free {
         background: #10b981;
         color: #ffffff;
         font-size: 10px;
@@ -505,7 +505,7 @@
         padding: 3px 8px;
         border-radius: 999px;
     }
-    .edux-catalog-card__badge-discount {
+    .lmsout-catalog-card__badge-discount {
         background: #ef4444;
         color: #ffffff;
         font-size: 10px;
@@ -513,7 +513,7 @@
         padding: 3px 8px;
         border-radius: 999px;
     }
-    .edux-catalog-card__wish-btn {
+    .lmsout-catalog-card__wish-btn {
         position: absolute;
         bottom: 10px;
         left: 10px;
@@ -528,37 +528,37 @@
         font-size: 10.5px;
         text-decoration: none;
     }
-    .edux-catalog-card__body {
+    .lmsout-catalog-card__body {
         padding: 13px 14px 14px;
         display: flex;
         flex-direction: column;
         flex: 1;
     }
-    .edux-catalog-card__rating-row {
+    .lmsout-catalog-card__rating-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 6px;
     }
-    .edux-catalog-card__stars {
+    .lmsout-catalog-card__stars {
         display: inline-flex;
         align-items: center;
         gap: 2px;
         font-size: 10.5px;
     }
-    .edux-catalog-card__stars .is-filled { color: #f59e0b; }
-    .edux-catalog-card__stars .is-empty { color: #e2e8f0; }
-    .edux-catalog-card__rating-num {
+    .lmsout-catalog-card__stars .is-filled { color: #f59e0b; }
+    .lmsout-catalog-card__stars .is-empty { color: #e2e8f0; }
+    .lmsout-catalog-card__rating-num {
         font-size: 11.5px;
         font-weight: 700;
         color: #334155;
         margin-left: 3px;
     }
-    .edux-catalog-card__students {
+    .lmsout-catalog-card__students {
         font-size: 11px;
         color: #64748b;
     }
-    .edux-catalog-card__title {
+    .lmsout-catalog-card__title {
         font-size: 13.5px;
         font-weight: 700;
         line-height: 1.38;
@@ -570,26 +570,26 @@
         overflow: hidden;
         min-height: 38px;
     }
-    .edux-catalog-card__title a {
+    .lmsout-catalog-card__title a {
         color: inherit;
         text-decoration: none;
     }
-    .edux-catalog-card__title a:hover {
+    .lmsout-catalog-card__title a:hover {
         color: var(--theme);
     }
-    .edux-catalog-card__instructor {
+    .lmsout-catalog-card__instructor {
         display: flex;
         align-items: center;
         gap: 6px;
         margin-bottom: 9px;
     }
-    .edux-catalog-card__avatar {
+    .lmsout-catalog-card__avatar {
         width: 19px;
         height: 19px;
         border-radius: 50%;
         object-fit: cover;
     }
-    .edux-catalog-card__avatar-initials {
+    .lmsout-catalog-card__avatar-initials {
         width: 19px;
         height: 19px;
         border-radius: 50%;
@@ -601,11 +601,11 @@
         align-items: center;
         justify-content: center;
     }
-    .edux-catalog-card__instructor-name {
+    .lmsout-catalog-card__instructor-name {
         font-size: 11.5px;
         color: #64748b;
     }
-    .edux-catalog-card__meta {
+    .lmsout-catalog-card__meta {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -616,43 +616,43 @@
         margin-bottom: 10px;
         border-bottom: 1px solid #f1f5f9;
     }
-    .edux-catalog-card__meta span {
+    .lmsout-catalog-card__meta span {
         display: inline-flex;
         align-items: center;
         gap: 4px;
     }
-    .edux-catalog-card__footer {
+    .lmsout-catalog-card__footer {
         margin-top: auto;
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
         gap: 6px;
     }
-    .edux-catalog-card__sub-note {
+    .lmsout-catalog-card__sub-note {
         font-size: 10px;
         font-weight: 600;
         color: #059669;
         margin-bottom: 2px;
     }
-    .edux-catalog-card__price-row {
+    .lmsout-catalog-card__price-row {
         display: flex;
         align-items: baseline;
         gap: 5px;
     }
-    .edux-catalog-card__price {
+    .lmsout-catalog-card__price {
         font-size: 15px;
         font-weight: 800;
         color: #0f172a;
     }
-    .edux-catalog-card__price.is-free {
+    .lmsout-catalog-card__price.is-free {
         color: #059669;
     }
-    .edux-catalog-card__price-old {
+    .lmsout-catalog-card__price-old {
         font-size: 11.5px;
         color: #94a3b8;
         text-decoration: line-through;
     }
-    .edux-catalog-card__view-btn {
+    .lmsout-catalog-card__view-btn {
         border: 1.5px solid var(--theme);
         background: #ffffff;
         color: var(--theme);
@@ -662,24 +662,24 @@
         font-weight: 600;
         text-decoration: none;
     }
-    .edux-catalog-card__view-btn:hover {
+    .lmsout-catalog-card__view-btn:hover {
         background: var(--theme);
         color: #ffffff;
     }
 
     /* 6. Trusted by learners worldwide */
-    .edux-stats-box {
+    .lmsout-stats-box {
         background: #ffffff;
         border: 1px solid #f1f5f9;
         border-radius: 16px;
         padding: 28px 20px;
         box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
     }
-    .edux-stats-item {
+    .lmsout-stats-item {
         text-align: center;
         padding: 8px;
     }
-    .edux-stats-item__icon {
+    .lmsout-stats-item__icon {
         width: 36px;
         height: 36px;
         border-radius: 10px;
@@ -691,25 +691,25 @@
         font-size: 14px;
         margin-bottom: 10px;
     }
-    .edux-stats-item__num {
+    .lmsout-stats-item__num {
         font-size: 24px;
         font-weight: 800;
         color: #0f172a;
         line-height: 1.15;
         margin-bottom: 3px;
     }
-    .edux-stats-item__label {
+    .lmsout-stats-item__label {
         font-size: 11.5px;
         color: #64748b;
         margin: 0;
     }
 
     /* 7. Start learning in 3 simple steps */
-    .edux-step-item {
+    .lmsout-step-item {
         text-align: center;
         padding: 10px 18px;
     }
-    .edux-step-item__icon-wrap {
+    .lmsout-step-item__icon-wrap {
         position: relative;
         width: 48px;
         height: 48px;
@@ -723,7 +723,7 @@
         margin-bottom: 14px;
         box-shadow: 0 8px 20px rgba(1, 59, 166, 0.22);
     }
-    .edux-step-item__num {
+    .lmsout-step-item__num {
         position: absolute;
         top: -4px;
         right: -4px;
@@ -739,13 +739,13 @@
         align-items: center;
         justify-content: center;
     }
-    .edux-step-item__title {
+    .lmsout-step-item__title {
         font-size: 14px;
         font-weight: 700;
         color: #0f172a;
         margin: 0 0 5px;
     }
-    .edux-step-item__desc {
+    .lmsout-step-item__desc {
         font-size: 12px;
         color: #64748b;
         line-height: 1.5;
@@ -754,21 +754,21 @@
     }
 
     /* 8. Learn from top instructors */
-    .edux-inst-grid {
+    .lmsout-inst-grid {
         background: #ffffff;
         border: 1px solid #f1f5f9;
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 2px 12px rgba(15, 23, 42, 0.02);
     }
-    .edux-inst-cell {
+    .lmsout-inst-cell {
         padding: 24px 16px;
         text-align: center;
         border-bottom: 1px solid #f8fafc;
         border-right: 1px solid #f8fafc;
         height: 100%;
     }
-    .edux-inst-cell__avatar {
+    .lmsout-inst-cell__avatar {
         width: 64px;
         height: 64px;
         border-radius: 50%;
@@ -777,7 +777,7 @@
         padding: 2px;
         margin-bottom: 10px;
     }
-    .edux-inst-cell__initials {
+    .lmsout-inst-cell__initials {
         width: 64px;
         height: 64px;
         border-radius: 50%;
@@ -790,7 +790,7 @@
         margin-bottom: 10px;
         border: 2.5px solid rgba(1, 59, 166, 0.2);
     }
-    .edux-inst-cell__name {
+    .lmsout-inst-cell__name {
         font-size: 13.5px;
         font-weight: 700;
         color: #0f172a;
@@ -798,21 +798,21 @@
         display: block;
         margin-bottom: 2px;
     }
-    .edux-inst-cell__name:hover {
+    .lmsout-inst-cell__name:hover {
         color: var(--theme);
     }
-    .edux-inst-cell__role {
+    .lmsout-inst-cell__role {
         font-size: 11.5px;
         color: #64748b;
         margin-bottom: 6px;
     }
-    .edux-inst-cell__meta {
+    .lmsout-inst-cell__meta {
         font-size: 11px;
         color: #94a3b8;
     }
 
     /* 9. What learners say */
-    .edux-testi-card {
+    .lmsout-testi-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
@@ -822,38 +822,38 @@
         flex-direction: column;
         justify-content: space-between;
     }
-    .edux-testi-card__top {
+    .lmsout-testi-card__top {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 10px;
     }
-    .edux-testi-card__stars {
+    .lmsout-testi-card__stars {
         color: #f59e0b;
         font-size: 11px;
     }
-    .edux-testi-card__quote-icon {
+    .lmsout-testi-card__quote-icon {
         color: #e2e8f0;
         font-size: 18px;
     }
-    .edux-testi-card__text {
+    .lmsout-testi-card__text {
         font-size: 12.5px;
         color: #475569;
         line-height: 1.6;
         margin-bottom: 16px;
     }
-    .edux-testi-card__author {
+    .lmsout-testi-card__author {
         display: flex;
         align-items: center;
         gap: 10px;
     }
-    .edux-testi-card__avatar {
+    .lmsout-testi-card__avatar {
         width: 34px;
         height: 34px;
         border-radius: 50%;
         object-fit: cover;
     }
-    .edux-testi-card__initials {
+    .lmsout-testi-card__initials {
         width: 34px;
         height: 34px;
         border-radius: 50%;
@@ -865,19 +865,19 @@
         align-items: center;
         justify-content: center;
     }
-    .edux-testi-card__name {
+    .lmsout-testi-card__name {
         font-size: 12.5px;
         font-weight: 700;
         color: #0f172a;
         line-height: 1.2;
     }
-    .edux-testi-card__course {
+    .lmsout-testi-card__course {
         font-size: 11px;
         color: #94a3b8;
     }
 
     /* 11. Instructor CTA Banner + Inbox Card + Footer Newsletter */
-    .edux-teach-cta {
+    .lmsout-teach-cta {
         background: linear-gradient(135deg, var(--theme) 0%, var(--theme-2, #228ddd) 100%);
         border-radius: 18px;
         padding: 36px 28px;
@@ -886,19 +886,19 @@
         box-shadow: 0 14px 32px rgba(1, 59, 166, 0.22);
         margin-bottom: 24px;
     }
-    .edux-teach-cta__title {
+    .lmsout-teach-cta__title {
         font-size: 20px;
         font-weight: 800;
         color: #ffffff;
         margin: 0 0 6px;
     }
-    .edux-teach-cta__desc {
+    .lmsout-teach-cta__desc {
         font-size: 13px;
         color: rgba(255, 255, 255, 0.86);
         max-width: 480px;
         margin: 0 auto 16px;
     }
-    .edux-teach-cta__btn {
+    .lmsout-teach-cta__btn {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -910,12 +910,12 @@
         border-radius: 8px;
         text-decoration: none;
     }
-    .edux-teach-cta__btn:hover {
+    .lmsout-teach-cta__btn:hover {
         background: var(--theme-yellow, #f4ed2d);
         color: #0f172a;
     }
 
-    .edux-inbox-box {
+    .lmsout-inbox-box {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
@@ -926,12 +926,12 @@
         flex-wrap: wrap;
         gap: 16px;
     }
-    .edux-inbox-box__left {
+    .lmsout-inbox-box__left {
         display: flex;
         align-items: center;
         gap: 12px;
     }
-    .edux-inbox-box__icon {
+    .lmsout-inbox-box__icon {
         width: 38px;
         height: 38px;
         border-radius: 10px;
@@ -943,25 +943,25 @@
         font-size: 15px;
         flex-shrink: 0;
     }
-    .edux-inbox-box__title {
+    .lmsout-inbox-box__title {
         font-size: 14.5px;
         font-weight: 700;
         color: #0f172a;
         margin: 0 0 2px;
     }
-    .edux-inbox-box__desc {
+    .lmsout-inbox-box__desc {
         font-size: 12px;
         color: #64748b;
         margin: 0;
     }
-    .edux-inbox-box__form {
+    .lmsout-inbox-box__form {
         display: flex;
         align-items: center;
         gap: 8px;
         flex: 1;
         max-width: 360px;
     }
-    .edux-inbox-box__input {
+    .lmsout-inbox-box__input {
         flex: 1;
         height: 38px;
         border: 1px solid #e2e8f0;
@@ -970,7 +970,7 @@
         font-size: 12.5px;
         outline: none;
     }
-    .edux-inbox-box__btn {
+    .lmsout-inbox-box__btn {
         height: 38px;
         padding: 0 18px;
         border-radius: 8px;
@@ -982,11 +982,11 @@
         cursor: pointer;
     }
 
-    .edux-newsletter-strip {
+    .lmsout-newsletter-strip {
         background: #0b0f19;
         padding: 36px 0 12px;
     }
-    .edux-newsletter-banner {
+    .lmsout-newsletter-banner {
         background: linear-gradient(135deg, var(--theme) 0%, var(--theme-2, #228ddd) 100%);
         border-radius: 16px;
         padding: 28px 36px;
@@ -996,25 +996,25 @@
         flex-wrap: wrap;
         gap: 20px;
     }
-    .edux-newsletter-banner__title {
+    .lmsout-newsletter-banner__title {
         font-size: 20px;
         font-weight: 800;
         color: #ffffff;
         margin: 0 0 4px;
     }
-    .edux-newsletter-banner__desc {
+    .lmsout-newsletter-banner__desc {
         font-size: 13px;
         color: rgba(255, 255, 255, 0.85);
         margin: 0;
     }
-    .edux-newsletter-banner__form {
+    .lmsout-newsletter-banner__form {
         display: flex;
         align-items: center;
         gap: 10px;
         flex: 1;
         max-width: 440px;
     }
-    .edux-newsletter-banner__input {
+    .lmsout-newsletter-banner__input {
         flex: 1;
         height: 42px;
         border-radius: 8px;
@@ -1025,7 +1025,7 @@
         background: #ffffff;
         outline: none;
     }
-    .edux-newsletter-banner__btn {
+    .lmsout-newsletter-banner__btn {
         height: 42px;
         padding: 0 20px;
         border-radius: 8px;
@@ -1045,73 +1045,73 @@
     $instColors = ['#0d9488', '#013ba6', '#dc2626', '#7c3aed', '#0284c7', '#ea580c'];
 @endphp
 
-<div class="edux-home">
+<div class="lmsout-home">
     <!-- 1. Hero Section -->
-    <section class="edux-home-hero">
+    <section class="lmsout-home-hero">
         <div class="container">
             <div class="row align-items-center g-5">
                 <div class="col-lg-6">
-                    <div class="edux-home-hero__eyebrow">
-                        <span class="edux-home-hero__eyebrow-dot"></span>
+                    <div class="lmsout-home-hero__eyebrow">
+                        <span class="lmsout-home-hero__eyebrow-dot"></span>
                         <span>{{ $hero['preheading'] }}</span>
                     </div>
 
-                    <h1 class="edux-home-hero__title">
+                    <h1 class="lmsout-home-hero__title">
                         Learn without limits,
                         <span>grow without fear.</span>
                     </h1>
 
-                    <p class="edux-home-hero__desc">
+                    <p class="lmsout-home-hero__desc">
                         {{ $hero['description'] }}
                     </p>
 
-                    <form action="{{ route('courses') }}" method="GET" class="edux-home-hero__search">
+                    <form action="{{ route('courses') }}" method="GET" class="lmsout-home-hero__search">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" name="search" placeholder="What do you want to learn today?">
                         <button type="submit">{{ __('frontend.search') }}</button>
                     </form>
 
-                    <div class="edux-home-hero__tags">
+                    <div class="lmsout-home-hero__tags">
                         <span>Popular:</span>
                         @foreach($topCategories->take(4) as $catChip)
-                            <a href="{{ route('courses', ['category' => $catChip['name']]) }}" class="edux-home-hero__tag">
+                            <a href="{{ route('courses', ['category' => $catChip['name']]) }}" class="lmsout-home-hero__tag">
                                 {{ $catChip['name'] }}
                             </a>
                         @endforeach
                     </div>
 
-                    <div class="edux-home-hero__trust">
-                        <div class="edux-home-hero__avatars">
-                            <span class="edux-home-hero__avatar-dot" style="background: #10b981;">AL</span>
-                            <span class="edux-home-hero__avatar-dot" style="background: #f59e0b;">MK</span>
-                            <span class="edux-home-hero__avatar-dot" style="background: #ec4899;">SR</span>
-                            <span class="edux-home-hero__avatar-dot" style="background: #6366f1;">JD</span>
+                    <div class="lmsout-home-hero__trust">
+                        <div class="lmsout-home-hero__avatars">
+                            <span class="lmsout-home-hero__avatar-dot" style="background: #10b981;">AL</span>
+                            <span class="lmsout-home-hero__avatar-dot" style="background: #f59e0b;">MK</span>
+                            <span class="lmsout-home-hero__avatar-dot" style="background: #ec4899;">SR</span>
+                            <span class="lmsout-home-hero__avatar-dot" style="background: #6366f1;">JD</span>
                         </div>
-                        <div class="edux-home-hero__trust-text">
-                            <span class="edux-home-hero__trust-stars">
+                        <div class="lmsout-home-hero__trust-text">
+                            <span class="lmsout-home-hero__trust-stars">
                                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                             </span>
                             <strong>4.9/5</strong> from {{ number_format(max(120, $stats['students'] * 15)) }}+ learners
                         </div>
                     </div>
 
-                    <div class="edux-home-hero__mini-stats">
-                        <div class="edux-home-hero__mini-stat">
-                            <span class="edux-home-hero__mini-stat-icon"><i class="fa-solid fa-book-open"></i></span>
+                    <div class="lmsout-home-hero__mini-stats">
+                        <div class="lmsout-home-hero__mini-stat">
+                            <span class="lmsout-home-hero__mini-stat-icon"><i class="fa-solid fa-book-open"></i></span>
                             <div>
                                 <strong>{{ number_format($stats['courses']) }}+</strong>
                                 <span>{{ __('frontend.courses') }}</span>
                             </div>
                         </div>
-                        <div class="edux-home-hero__mini-stat">
-                            <span class="edux-home-hero__mini-stat-icon"><i class="fa-solid fa-user-graduate"></i></span>
+                        <div class="lmsout-home-hero__mini-stat">
+                            <span class="lmsout-home-hero__mini-stat-icon"><i class="fa-solid fa-user-graduate"></i></span>
                             <div>
                                 <strong>{{ number_format($stats['students']) }}+</strong>
                                 <span>{{ __('frontend.students') }}</span>
                             </div>
                         </div>
-                        <div class="edux-home-hero__mini-stat">
-                            <span class="edux-home-hero__mini-stat-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
+                        <div class="lmsout-home-hero__mini-stat">
+                            <span class="lmsout-home-hero__mini-stat-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
                             <div>
                                 <strong>{{ number_format($stats['instructors']) }}+</strong>
                                 <span>{{ __('frontend.instructors') }}</span>
@@ -1121,9 +1121,9 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <div class="edux-home-hero__visual">
-                        <div class="edux-home-hero__callout edux-home-hero__callout--tr">
-                            <span class="edux-home-hero__callout-icon" style="background: rgba(1, 59, 166, 0.1); color: var(--theme);">
+                    <div class="lmsout-home-hero__visual">
+                        <div class="lmsout-home-hero__callout lmsout-home-hero__callout--tr">
+                            <span class="lmsout-home-hero__callout-icon" style="background: rgba(1, 59, 166, 0.1); color: var(--theme);">
                                 <i class="fa-solid fa-award"></i>
                             </span>
                             <div>
@@ -1132,27 +1132,27 @@
                             </div>
                         </div>
 
-                        <div class="edux-home-hero__card">
-                            <div class="edux-home-hero__card-thumb">
+                        <div class="lmsout-home-hero__card">
+                            <div class="lmsout-home-hero__card-thumb">
                                 <img src="{{ $showcaseCourse ? $showcaseCourse->thumbnail : asset('assets/front/img/home-1/courses/courses-01.jpg') }}"
                                      alt="{{ $showcaseCourse ? $showcaseCourse->title : site_name() }}">
-                                <a href="{{ $showcaseCourse ? route('courses.show', $showcaseCourse->id) : route('courses') }}" class="edux-home-hero__card-play" aria-label="View Course">
+                                <a href="{{ $showcaseCourse ? route('courses.show', $showcaseCourse->id) : route('courses') }}" class="lmsout-home-hero__card-play" aria-label="View Course">
                                     <i class="fa-solid fa-play"></i>
                                 </a>
                             </div>
-                            <div class="edux-home-hero__card-body">
-                                <a href="{{ $showcaseCourse ? route('courses.show', $showcaseCourse->id) : route('courses') }}" class="edux-home-hero__card-title">
+                            <div class="lmsout-home-hero__card-body">
+                                <a href="{{ $showcaseCourse ? route('courses.show', $showcaseCourse->id) : route('courses') }}" class="lmsout-home-hero__card-title">
                                     {{ $showcaseCourse ? $showcaseCourse->title : 'Full-Stack Web Engineering Bootcamp' }}
                                 </a>
-                                <div class="edux-home-hero__card-meta">
+                                <div class="lmsout-home-hero__card-meta">
                                     <span><i class="fa-regular fa-user me-1"></i> {{ $showcaseCourse?->instructor?->name ?? 'Expert Instructor' }}</span>
                                     <span class="fw-bold" style="color: #f59e0b;"><i class="fa-solid fa-star"></i> {{ number_format($showcaseCourse?->average_rating ?? 5.0, 1) }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="edux-home-hero__callout edux-home-hero__callout--bl">
-                            <span class="edux-home-hero__callout-icon" style="background: #dcfce7; color: #059669;">
+                        <div class="lmsout-home-hero__callout lmsout-home-hero__callout--bl">
+                            <span class="lmsout-home-hero__callout-icon" style="background: #dcfce7; color: #059669;">
                                 <i class="fa-solid fa-circle-check"></i>
                             </span>
                             <div>
@@ -1161,8 +1161,8 @@
                             </div>
                         </div>
 
-                        <div class="edux-home-hero__callout edux-home-hero__callout--br">
-                            <span class="edux-home-hero__callout-icon" style="background: #fef3c7; color: #d97706;">
+                        <div class="lmsout-home-hero__callout lmsout-home-hero__callout--br">
+                            <span class="lmsout-home-hero__callout-icon" style="background: #fef3c7; color: #d97706;">
                                 <i class="fa-solid fa-bolt"></i>
                             </span>
                             <div>
@@ -1177,38 +1177,38 @@
     </section>
 
     <!-- 2. Why learn with us -->
-    <section class="edux-sec">
+    <section class="lmsout-sec">
         <div class="container">
             <div class="text-center mb-4">
-                <h2 class="edux-sec__title">Why learn with us</h2>
+                <h2 class="lmsout-sec__title">Why learn with us</h2>
             </div>
             <div class="row g-3">
                 <div class="col-lg-3 col-md-6">
-                    <div class="edux-why-card">
-                        <div class="edux-why-card__icon"><i class="fa-solid fa-chalkboard-user"></i></div>
-                        <h3 class="edux-why-card__title">Expert Instructors</h3>
-                        <p class="edux-why-card__desc">Learn directly from seasoned industry practitioners and domain specialists.</p>
+                    <div class="lmsout-why-card">
+                        <div class="lmsout-why-card__icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <h3 class="lmsout-why-card__title">Expert Instructors</h3>
+                        <p class="lmsout-why-card__desc">Learn directly from seasoned industry practitioners and domain specialists.</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="edux-why-card">
-                        <div class="edux-why-card__icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                        <h3 class="edux-why-card__title">Self-Paced & Live</h3>
-                        <p class="edux-why-card__desc">Study on your schedule with lifetime video access and interactive live classes.</p>
+                    <div class="lmsout-why-card">
+                        <div class="lmsout-why-card__icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <h3 class="lmsout-why-card__title">Self-Paced & Live</h3>
+                        <p class="lmsout-why-card__desc">Study on your schedule with lifetime video access and interactive live classes.</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="edux-why-card">
-                        <div class="edux-why-card__icon"><i class="fa-solid fa-certificate"></i></div>
-                        <h3 class="edux-why-card__title">Verified Certificates</h3>
-                        <p class="edux-why-card__desc">Earn shareable QR-verified certificates upon completing your courses.</p>
+                    <div class="lmsout-why-card">
+                        <div class="lmsout-why-card__icon"><i class="fa-solid fa-certificate"></i></div>
+                        <h3 class="lmsout-why-card__title">Verified Certificates</h3>
+                        <p class="lmsout-why-card__desc">Earn shareable QR-verified certificates upon completing your courses.</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="edux-why-card">
-                        <div class="edux-why-card__icon"><i class="fa-solid fa-layer-group"></i></div>
-                        <h3 class="edux-why-card__title">Hands-On Projects</h3>
-                        <p class="edux-why-card__desc">Reinforce every concept with real-world assignments, quizzes, and feedback.</p>
+                    <div class="lmsout-why-card">
+                        <div class="lmsout-why-card__icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <h3 class="lmsout-why-card__title">Hands-On Projects</h3>
+                        <p class="lmsout-why-card__desc">Reinforce every concept with real-world assignments, quizzes, and feedback.</p>
                     </div>
                 </div>
             </div>
@@ -1216,38 +1216,38 @@
     </section>
 
     <!-- 3. Explore top categories -->
-    <section class="edux-sec edux-sec--gray">
+    <section class="lmsout-sec lmsout-sec--gray">
         <div class="container">
             <div class="mb-4">
-                <span class="edux-sec__eyebrow">CATEGORIES</span>
-                <h2 class="edux-sec__title">Explore top categories</h2>
+                <span class="lmsout-sec__eyebrow">CATEGORIES</span>
+                <h2 class="lmsout-sec__title">Explore top categories</h2>
             </div>
             <div class="row g-3">
                 @foreach($topCategories->take(5) as $catItem)
                     <div class="col-lg-4 col-md-6">
-                        <a href="{{ route('courses', ['category' => $catItem['name']]) }}" class="edux-cat-item">
-                            <div class="edux-cat-item__left">
-                                <span class="edux-cat-item__icon"><i class="{{ $catItem['icon_class'] }}"></i></span>
+                        <a href="{{ route('courses', ['category' => $catItem['name']]) }}" class="lmsout-cat-item">
+                            <div class="lmsout-cat-item__left">
+                                <span class="lmsout-cat-item__icon"><i class="{{ $catItem['icon_class'] }}"></i></span>
                                 <div>
-                                    <h3 class="edux-cat-item__name">{{ $catItem['name'] }}</h3>
-                                    <p class="edux-cat-item__count">{{ $catItem['courses_count'] }} {{ $catItem['courses_count'] === 1 ? 'course' : 'courses' }}</p>
+                                    <h3 class="lmsout-cat-item__name">{{ $catItem['name'] }}</h3>
+                                    <p class="lmsout-cat-item__count">{{ $catItem['courses_count'] }} {{ $catItem['courses_count'] === 1 ? 'course' : 'courses' }}</p>
                                 </div>
                             </div>
-                            <i class="fa-solid fa-chevron-right edux-cat-item__arrow"></i>
+                            <i class="fa-solid fa-chevron-right lmsout-cat-item__arrow"></i>
                         </a>
                     </div>
                 @endforeach
 
                 <div class="col-lg-4 col-md-6">
-                    <a href="{{ route('courses') }}" class="edux-cat-item edux-cat-item--highlight">
-                        <div class="edux-cat-item__left">
-                            <span class="edux-cat-item__icon"><i class="fa-solid fa-table-cells-large"></i></span>
+                    <a href="{{ route('courses') }}" class="lmsout-cat-item lmsout-cat-item--highlight">
+                        <div class="lmsout-cat-item__left">
+                            <span class="lmsout-cat-item__icon"><i class="fa-solid fa-table-cells-large"></i></span>
                             <div>
-                                <h3 class="edux-cat-item__name">Browse All Categories</h3>
-                                <p class="edux-cat-item__count">Explore full catalog &rarr;</p>
+                                <h3 class="lmsout-cat-item__name">Browse All Categories</h3>
+                                <p class="lmsout-cat-item__count">Explore full catalog &rarr;</p>
                             </div>
                         </div>
-                        <i class="fa-solid fa-chevron-right edux-cat-item__arrow"></i>
+                        <i class="fa-solid fa-chevron-right lmsout-cat-item__arrow"></i>
                     </a>
                 </div>
             </div>
@@ -1255,14 +1255,14 @@
     </section>
 
     <!-- 4. Featured courses (4-Column Grid) -->
-    <section class="edux-sec">
+    <section class="lmsout-sec">
         <div class="container">
-            <div class="edux-sec__header-row">
+            <div class="lmsout-sec__header-row">
                 <div>
-                    <span class="edux-sec__eyebrow">HANDPICKED FOR YOU</span>
-                    <h2 class="edux-sec__title">Featured courses</h2>
+                    <span class="lmsout-sec__eyebrow">HANDPICKED FOR YOU</span>
+                    <h2 class="lmsout-sec__title">Featured courses</h2>
                 </div>
-                <a href="{{ route('courses') }}" class="edux-sec__link">
+                <a href="{{ route('courses') }}" class="lmsout-sec__link">
                     View all <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
@@ -1276,14 +1276,14 @@
     </section>
 
     <!-- 5. Most popular (4-Column Grid) -->
-    <section class="edux-sec edux-sec--gray">
+    <section class="lmsout-sec lmsout-sec--gray">
         <div class="container">
-            <div class="edux-sec__header-row">
+            <div class="lmsout-sec__header-row">
                 <div>
-                    <span class="edux-sec__eyebrow">TRENDING NOW</span>
-                    <h2 class="edux-sec__title">Most popular</h2>
+                    <span class="lmsout-sec__eyebrow">TRENDING NOW</span>
+                    <h2 class="lmsout-sec__title">Most popular</h2>
                 </div>
-                <a href="{{ route('courses', ['sort' => 'popular']) }}" class="edux-sec__link">
+                <a href="{{ route('courses', ['sort' => 'popular']) }}" class="lmsout-sec__link">
                     See all <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
@@ -1297,39 +1297,39 @@
     </section>
 
     <!-- 6. Trusted by learners worldwide -->
-    <section class="edux-sec">
+    <section class="lmsout-sec">
         <div class="container">
             <div class="text-center mb-4">
-                <h2 class="edux-sec__title">Trusted by learners worldwide</h2>
+                <h2 class="lmsout-sec__title">Trusted by learners worldwide</h2>
             </div>
-            <div class="edux-stats-box">
+            <div class="lmsout-stats-box">
                 <div class="row g-3">
                     <div class="col-6 col-md-3">
-                        <div class="edux-stats-item">
-                            <span class="edux-stats-item__icon"><i class="fa-solid fa-book-open"></i></span>
-                            <div class="edux-stats-item__num">{{ number_format($stats['courses']) }}</div>
-                            <p class="edux-stats-item__label">{{ __('frontend.courses_published') }}</p>
+                        <div class="lmsout-stats-item">
+                            <span class="lmsout-stats-item__icon"><i class="fa-solid fa-book-open"></i></span>
+                            <div class="lmsout-stats-item__num">{{ number_format($stats['courses']) }}</div>
+                            <p class="lmsout-stats-item__label">{{ __('frontend.courses_published') }}</p>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="edux-stats-item">
-                            <span class="edux-stats-item__icon"><i class="fa-solid fa-user-graduate"></i></span>
-                            <div class="edux-stats-item__num">{{ number_format($stats['students']) }}</div>
-                            <p class="edux-stats-item__label">Active Learners</p>
+                        <div class="lmsout-stats-item">
+                            <span class="lmsout-stats-item__icon"><i class="fa-solid fa-user-graduate"></i></span>
+                            <div class="lmsout-stats-item__num">{{ number_format($stats['students']) }}</div>
+                            <p class="lmsout-stats-item__label">Active Learners</p>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="edux-stats-item">
-                            <span class="edux-stats-item__icon"><i class="fa-solid fa-chalkboard-user"></i></span>
-                            <div class="edux-stats-item__num">{{ number_format($stats['instructors']) }}</div>
-                            <p class="edux-stats-item__label">{{ __('frontend.expert_instructors') }}</p>
+                        <div class="lmsout-stats-item">
+                            <span class="lmsout-stats-item__icon"><i class="fa-solid fa-chalkboard-user"></i></span>
+                            <div class="lmsout-stats-item__num">{{ number_format($stats['instructors']) }}</div>
+                            <p class="lmsout-stats-item__label">{{ __('frontend.expert_instructors') }}</p>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="edux-stats-item">
-                            <span class="edux-stats-item__icon"><i class="fa-solid fa-award"></i></span>
-                            <div class="edux-stats-item__num">{{ number_format($stats['enrollments']) }}</div>
-                            <p class="edux-stats-item__label">{{ __('frontend.enrollments_completed') }}</p>
+                        <div class="lmsout-stats-item">
+                            <span class="lmsout-stats-item__icon"><i class="fa-solid fa-award"></i></span>
+                            <div class="lmsout-stats-item__num">{{ number_format($stats['enrollments']) }}</div>
+                            <p class="lmsout-stats-item__label">{{ __('frontend.enrollments_completed') }}</p>
                         </div>
                     </div>
                 </div>
@@ -1338,41 +1338,41 @@
     </section>
 
     <!-- 7. Start learning in 3 simple steps -->
-    <section class="edux-sec edux-sec--gray">
+    <section class="lmsout-sec lmsout-sec--gray">
         <div class="container">
             <div class="text-center mb-4">
-                <span class="edux-sec__eyebrow">HOW IT WORKS</span>
-                <h2 class="edux-sec__title">Start learning in 3 simple steps</h2>
+                <span class="lmsout-sec__eyebrow">HOW IT WORKS</span>
+                <h2 class="lmsout-sec__title">Start learning in 3 simple steps</h2>
             </div>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="edux-step-item">
-                        <div class="edux-step-item__icon-wrap">
+                    <div class="lmsout-step-item">
+                        <div class="lmsout-step-item__icon-wrap">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <span class="edux-step-item__num">1</span>
+                            <span class="lmsout-step-item__num">1</span>
                         </div>
-                        <h3 class="edux-step-item__title">Find your course</h3>
-                        <p class="edux-step-item__desc">Explore courses across technology, design, business, and data science.</p>
+                        <h3 class="lmsout-step-item__title">Find your course</h3>
+                        <p class="lmsout-step-item__desc">Explore courses across technology, design, business, and data science.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="edux-step-item">
-                        <div class="edux-step-item__icon-wrap">
+                    <div class="lmsout-step-item">
+                        <div class="lmsout-step-item__icon-wrap">
                             <i class="fa-solid fa-circle-play"></i>
-                            <span class="edux-step-item__num">2</span>
+                            <span class="lmsout-step-item__num">2</span>
                         </div>
-                        <h3 class="edux-step-item__title">Learn at your pace</h3>
-                        <p class="edux-step-item__desc">Watch HD lessons, practice with quizzes, and complete hands-on assignments.</p>
+                        <h3 class="lmsout-step-item__title">Learn at your pace</h3>
+                        <p class="lmsout-step-item__desc">Watch HD lessons, practice with quizzes, and complete hands-on assignments.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="edux-step-item">
-                        <div class="edux-step-item__icon-wrap">
+                    <div class="lmsout-step-item">
+                        <div class="lmsout-step-item__icon-wrap">
                             <i class="fa-solid fa-award"></i>
-                            <span class="edux-step-item__num">3</span>
+                            <span class="lmsout-step-item__num">3</span>
                         </div>
-                        <h3 class="edux-step-item__title">Get certified</h3>
-                        <p class="edux-step-item__desc">Receive an official verifiable certificate to highlight your new skills.</p>
+                        <h3 class="lmsout-step-item__title">Get certified</h3>
+                        <p class="lmsout-step-item__desc">Receive an official verifiable certificate to highlight your new skills.</p>
                     </div>
                 </div>
             </div>
@@ -1380,16 +1380,16 @@
     </section>
 
     <!-- 8. Learn from top instructors -->
-    <section class="edux-sec">
+    <section class="lmsout-sec">
         <div class="container">
             <div class="text-center mb-4">
-                <span class="edux-sec__eyebrow">INSTRUCTORS</span>
-                <h2 class="edux-sec__title mb-1">Learn from top instructors</h2>
-                <a href="{{ route('instructors.index') }}" class="edux-sec__link">
+                <span class="lmsout-sec__eyebrow">INSTRUCTORS</span>
+                <h2 class="lmsout-sec__title mb-1">Learn from top instructors</h2>
+                <a href="{{ route('instructors.index') }}" class="lmsout-sec__link">
                     View all <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
-            <div class="edux-inst-grid">
+            <div class="lmsout-inst-grid">
                 <div class="row g-0">
                     @foreach($featuredInstructors as $instIdx => $instructor)
                         @php
@@ -1401,19 +1401,19 @@
                             $instBg = $instColors[$instIdx % count($instColors)];
                         @endphp
                         <div class="col-lg-4 col-md-6">
-                            <div class="edux-inst-cell">
+                            <div class="lmsout-inst-cell">
                                 @if(!empty($instructor['avatar']))
-                                    <img src="{{ $instructor['avatar'] }}" alt="{{ $instructor['name'] }}" class="edux-inst-cell__avatar">
+                                    <img src="{{ $instructor['avatar'] }}" alt="{{ $instructor['name'] }}" class="lmsout-inst-cell__avatar">
                                 @else
-                                    <span class="edux-inst-cell__initials" style="background: {{ $instBg }};">
+                                    <span class="lmsout-inst-cell__initials" style="background: {{ $instBg }};">
                                         {{ $instInitials ?: 'IN' }}
                                     </span>
                                 @endif
-                                <a href="{{ route('instructors.show', $instructor['id']) }}" class="edux-inst-cell__name">
+                                <a href="{{ route('instructors.show', $instructor['id']) }}" class="lmsout-inst-cell__name">
                                     {{ $instructor['name'] }}
                                 </a>
-                                <div class="edux-inst-cell__role">{{ $instructor['headline'] }}</div>
-                                <div class="edux-inst-cell__meta">
+                                <div class="lmsout-inst-cell__role">{{ $instructor['headline'] }}</div>
+                                <div class="lmsout-inst-cell__meta">
                                     {{ $instructor['courses_count'] }} {{ $instructor['courses_count'] === 1 ? 'course' : 'courses' }}
                                     &bull; {{ number_format($instructor['students_count']) }} {{ $instructor['students_count'] === 1 ? 'student' : 'students' }}
                                 </div>
@@ -1426,11 +1426,11 @@
     </section>
 
     <!-- 9. What learners say -->
-    <section class="edux-sec edux-sec--gray">
+    <section class="lmsout-sec lmsout-sec--gray">
         <div class="container">
             <div class="text-center mb-4">
-                <span class="edux-sec__eyebrow">TESTIMONIALS</span>
-                <h2 class="edux-sec__title">What learners say</h2>
+                <span class="lmsout-sec__eyebrow">TESTIMONIALS</span>
+                <h2 class="lmsout-sec__title">What learners say</h2>
             </div>
             <div class="row g-4">
                 @forelse($testimonials->take(3) as $tIdx => $testi)
@@ -1442,25 +1442,25 @@
                             ->implode('');
                     @endphp
                     <div class="col-lg-4 col-md-6">
-                        <div class="edux-testi-card">
+                        <div class="lmsout-testi-card">
                             <div>
-                                <div class="edux-testi-card__top">
-                                    <div class="edux-testi-card__stars">
+                                <div class="lmsout-testi-card__top">
+                                    <div class="lmsout-testi-card__stars">
                                         @for($s = 1; $s <= 5; $s++)
                                             <i class="fa-solid fa-star"></i>
                                         @endfor
                                     </div>
-                                    <i class="fa-solid fa-quote-right edux-testi-card__quote-icon"></i>
+                                    <i class="fa-solid fa-quote-right lmsout-testi-card__quote-icon"></i>
                                 </div>
-                                <p class="edux-testi-card__text">"{{ $testi['comment'] }}"</p>
+                                <p class="lmsout-testi-card__text">"{{ $testi['comment'] }}"</p>
                             </div>
-                            <div class="edux-testi-card__author">
-                                <span class="edux-testi-card__initials" style="background: {{ $instColors[$tIdx % count($instColors)] }};">
+                            <div class="lmsout-testi-card__author">
+                                <span class="lmsout-testi-card__initials" style="background: {{ $instColors[$tIdx % count($instColors)] }};">
                                     {{ $tInitials ?: 'ST' }}
                                 </span>
                                 <div>
-                                    <div class="edux-testi-card__name">{{ $testi['student_name'] }}</div>
-                                    <div class="edux-testi-card__course">{{ Str::limit($testi['course_title'] ?? 'Verified Learner', 34) }}</div>
+                                    <div class="lmsout-testi-card__name">{{ $testi['student_name'] }}</div>
+                                    <div class="lmsout-testi-card__course">{{ Str::limit($testi['course_title'] ?? 'Verified Learner', 34) }}</div>
                                 </div>
                             </div>
                         </div>
@@ -1473,30 +1473,30 @@
     </section>
 
     <!-- 11. Become Instructor CTA + Inbox Card -->
-    <section class="edux-sec pt-2">
+    <section class="lmsout-sec pt-2">
         <div class="container">
-            <div class="edux-teach-cta">
-                <h2 class="edux-teach-cta__title">Ready to share what you know?</h2>
-                <p class="edux-teach-cta__desc">
+            <div class="lmsout-teach-cta">
+                <h2 class="lmsout-teach-cta__title">Ready to share what you know?</h2>
+                <p class="lmsout-teach-cta__desc">
                     Become an instructor on {{ site_name() }}, reach learners worldwide, and earn revenue from every course enrollment.
                 </p>
-                <a href="{{ Route::has('instructor.become') ? route('instructor.become') : route('register') }}" class="edux-teach-cta__btn">
+                <a href="{{ Route::has('instructor.become') ? route('instructor.become') : route('register') }}" class="lmsout-teach-cta__btn">
                     Start teaching <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
 
-            <div class="edux-inbox-box">
-                <div class="edux-inbox-box__left">
-                    <span class="edux-inbox-box__icon"><i class="fa-regular fa-envelope"></i></span>
+            <div class="lmsout-inbox-box">
+                <div class="lmsout-inbox-box__left">
+                    <span class="lmsout-inbox-box__icon"><i class="fa-regular fa-envelope"></i></span>
                     <div>
-                        <h3 class="edux-inbox-box__title">Get new courses in your inbox</h3>
-                        <p class="edux-inbox-box__desc">Monthly digest of newly launched courses, study guides, and member offers.</p>
+                        <h3 class="lmsout-inbox-box__title">Get new courses in your inbox</h3>
+                        <p class="lmsout-inbox-box__desc">Monthly digest of newly launched courses, study guides, and member offers.</p>
                     </div>
                 </div>
-                <form action="{{ route('newsletter.subscribe') }}" method="POST" class="edux-inbox-box__form">
+                <form action="{{ route('newsletter.subscribe') }}" method="POST" class="lmsout-inbox-box__form">
                     @csrf
-                    <input type="email" name="email" class="edux-inbox-box__input" placeholder="Enter your email..." required>
-                    <button type="submit" class="edux-inbox-box__btn">Subscribe</button>
+                    <input type="email" name="email" class="lmsout-inbox-box__input" placeholder="Enter your email..." required>
+                    <button type="submit" class="lmsout-inbox-box__btn">Subscribe</button>
                 </form>
             </div>
         </div>

@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
  * This controller handles the management of quiz attempts.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class QuizAttemptController extends Controller
 {

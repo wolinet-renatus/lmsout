@@ -11,14 +11,21 @@ use Illuminate\Validation\Rule;
  * This request validates the data for submitting an assignment.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class SubmitAssignmentRequest extends FormRequest
 {
+    /**
+     * Determine whether the current user is authorized to perform this request.
+     */
     public function authorize(): bool
     {
         return (bool) ($this->user()?->isStudent());
     }
 
+    /**
+     * Define the validation rules applied to the incoming request.
+     */
     public function rules(): array
     {
         return [
@@ -29,6 +36,9 @@ class SubmitAssignmentRequest extends FormRequest
         ];
     }
 
+    /**
+     * Define custom validation error messages for the request.
+     */
     public function messages(): array
     {
         return [

@@ -9,6 +9,11 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Verification controller — handles authentication, verification, and password security flows.
+ *
+ * @author Renatus Bernardo
+ */
 class VerificationController extends Controller
 {
     /**

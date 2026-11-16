@@ -89,11 +89,16 @@
                                             <span class="badge badge-success">Free</span>
                                         @else
                                             @if ($course->sale_price)
-                                                <strong>{{ currency_format($course->sale_price) }}</strong>
+                                                <strong>{{ $course->formatPrice($course->sale_price) }}</strong>
                                                 <small
-                                                    class="text-muted text-decoration-line-through ml-2">{{ currency_format($course->regular_price ?? 0) }}</small>
+                                                    class="text-muted text-decoration-line-through ml-2">{{ $course->formatPrice($course->regular_price ?? 0) }}</small>
                                             @else
-                                                <strong>{{ currency_format($course->regular_price ?? 0) }}</strong>
+                                                <strong>{{ $course->formatPrice($course->regular_price ?? 0) }}</strong>
+                                            @endif
+                                            @if ($course->getPriceCurrencyCode() !== currency_code())
+                                                <small class="text-muted ml-2">
+                                                    (Base: {{ currency_format($course->sale_price ?: ($course->regular_price ?? 0), 2, 'code', $course->getPriceCurrencyCode(), $course->getPriceCurrencyCode(), false) }})
+                                                </small>
                                             @endif
                                         @endif
                                     </p>

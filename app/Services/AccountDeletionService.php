@@ -12,9 +12,13 @@ use Illuminate\Support\Facades\Storage;
  * This service is responsible for deleting a user's account.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class AccountDeletionService
 {
+    /**
+     * Delete user.
+     */
     public function deleteUser(User $user): void
     {
         $profilePhoto = $user->profile_photo;

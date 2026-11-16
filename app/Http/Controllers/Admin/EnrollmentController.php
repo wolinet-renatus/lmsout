@@ -17,6 +17,7 @@ use Carbon\Carbon;
  * This controller handles the management of enrollments.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class EnrollmentController extends Controller
 {

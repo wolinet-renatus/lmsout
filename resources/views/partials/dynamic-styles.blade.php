@@ -47,11 +47,11 @@
     }
 
     /* ==========================================================================
-       2. Clean, Compact, Sticky Header Navigation Bar (.edux-navbar)
+       2. Clean, Compact, Sticky Header Navigation Bar (.lmsout-navbar)
        ========================================================================== */
-    header#header-sticky.edux-navbar,
-    header#header-sticky.header-1.edux-navbar,
-    header#header-sticky.header-1.edux-navbar.sticky {
+    header#header-sticky.lmsout-navbar,
+    header#header-sticky.header-1.lmsout-navbar,
+    header#header-sticky.header-1.lmsout-navbar.sticky {
         position: -webkit-sticky !important;
         position: sticky !important;
         top: 0 !important;
@@ -72,16 +72,16 @@
         align-items: center !important;
         transition: box-shadow 0.2s ease, background-color 0.2s ease !important;
     }
-    header#header-sticky.edux-navbar.sticky {
+    header#header-sticky.lmsout-navbar.sticky {
         box-shadow: 0 6px 24px rgba(1, 59, 166, 0.09) !important;
         border-bottom-color: rgba(34, 141, 221, 0.25) !important;
     }
-    .edux-navbar .container,
-    .edux-navbar .mega-menu-wrapper {
+    .lmsout-navbar .container,
+    .lmsout-navbar .mega-menu-wrapper {
         width: 100%;
         height: 100%;
     }
-    .edux-navbar .header-main.edux-navbar__inner {
+    .lmsout-navbar .header-main.lmsout-navbar__inner {
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
@@ -90,18 +90,18 @@
         padding: 0 !important;
         margin: 0 !important;
     }
-    .edux-navbar__logo-wrap {
+    .lmsout-navbar__logo-wrap {
         padding: 0 !important;
         margin: 0 !important;
         flex-shrink: 0;
     }
-    a.edux-header-brand {
+    a.lmsout-header-brand {
         display: inline-flex !important;
         align-items: center !important;
         gap: 10px !important;
         text-decoration: none !important;
     }
-    .edux-header-brand__badge {
+    .lmsout-header-brand__badge {
         width: 40px !important;
         height: 40px !important;
         border-radius: 10px !important;
@@ -114,7 +114,7 @@
         padding: 3px !important;
         flex-shrink: 0 !important;
     }
-    img.edux-header-brand__img {
+    img.lmsout-header-brand__img {
         width: 32px !important;
         height: 32px !important;
         max-width: 32px !important;
@@ -122,7 +122,7 @@
         object-fit: contain !important;
         display: block !important;
     }
-    .edux-header-brand__name {
+    .lmsout-header-brand__name {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
         font-size: 17px !important;
         font-weight: 800 !important;
@@ -131,17 +131,17 @@
         line-height: 1.1 !important;
         white-space: nowrap !important;
     }
-    .edux-header-brand__dot {
+    .lmsout-header-brand__dot {
         color: var(--theme-2, #228ddd) !important;
     }
 
     /* Center Menu Links */
-    .edux-navbar .mean__menu-wrapper {
+    .lmsout-navbar .mean__menu-wrapper {
         flex: 1;
         display: flex;
         justify-content: center;
     }
-    .edux-navbar .main-menu ul {
+    .lmsout-navbar .main-menu ul {
         display: flex !important;
         align-items: center !important;
         gap: 4px !important;
@@ -149,12 +149,12 @@
         padding: 0 !important;
         list-style: none !important;
     }
-    .edux-navbar .main-menu ul li {
+    .lmsout-navbar .main-menu ul li {
         margin: 0 !important;
         padding: 0 !important;
         position: relative;
     }
-    .edux-navbar .main-menu ul > li > a {
+    .lmsout-navbar .main-menu ul > li > a {
         display: inline-flex !important;
         align-items: center !important;
         gap: 5px !important;
@@ -167,15 +167,15 @@
         line-height: 1.2 !important;
         transition: background-color 0.15s ease, color 0.15s ease !important;
     }
-    .edux-navbar .main-menu ul > li > a:hover,
-    .edux-navbar .main-menu ul > li.is-active > a,
-    .edux-navbar .main-menu ul > li > a.is-active,
-    .edux-navbar .main-menu ul > li > a.active {
+    .lmsout-navbar .main-menu ul > li > a:hover,
+    .lmsout-navbar .main-menu ul > li.is-active > a,
+    .lmsout-navbar .main-menu ul > li > a.is-active,
+    .lmsout-navbar .main-menu ul > li > a.active {
         background: rgba(1, 59, 166, 0.08) !important;
         color: var(--theme) !important;
     }
     /* Dropdown Submenu in Header */
-    .edux-navbar .main-menu ul li .submenu {
+    .lmsout-navbar .main-menu ul li .submenu {
         position: absolute !important;
         top: calc(100% + 8px) !important;
         left: 0 !important;
@@ -192,16 +192,16 @@
         transition: all 0.18s ease !important;
         z-index: 1050 !important;
     }
-    .edux-navbar .main-menu ul li:hover > .submenu {
+    .lmsout-navbar .main-menu ul li:hover > .submenu {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
     }
-    .edux-navbar .main-menu ul li .submenu li {
+    .lmsout-navbar .main-menu ul li .submenu li {
         display: block !important;
         width: 100% !important;
     }
-    .edux-navbar .main-menu ul li .submenu li a {
+    .lmsout-navbar .main-menu ul li .submenu li a {
         display: block !important;
         width: 100% !important;
         padding: 8px 12px !important;
@@ -210,19 +210,19 @@
         color: #334155 !important;
         border-radius: 7px !important;
     }
-    .edux-navbar .main-menu ul li .submenu li a:hover {
+    .lmsout-navbar .main-menu ul li .submenu li a:hover {
         background: #f8fafc !important;
         color: var(--theme) !important;
     }
 
     /* Right Navbar Actions */
-    .edux-navbar__actions {
+    .lmsout-navbar__actions {
         display: flex !important;
         align-items: center !important;
         gap: 10px !important;
         flex-shrink: 0;
     }
-    .edux-navbar__search-pill {
+    .lmsout-navbar__search-pill {
         height: 36px;
         padding: 0 10px 0 12px;
         border-radius: 999px;
@@ -237,16 +237,16 @@
         cursor: pointer;
         transition: border-color 0.15s ease, background-color 0.15s ease;
     }
-    .edux-navbar__search-pill:hover {
+    .lmsout-navbar__search-pill:hover {
         border-color: var(--theme-2, #228ddd);
         background: #ffffff;
         color: #0f172a;
     }
-    .edux-navbar__search-pill i {
+    .lmsout-navbar__search-pill i {
         font-size: 12px;
         color: #94a3b8;
     }
-    .edux-navbar__search-pill kbd {
+    .lmsout-navbar__search-pill kbd {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 4px;
@@ -256,7 +256,7 @@
         color: #94a3b8;
         font-family: inherit;
     }
-    .edux-navbar__lang {
+    .lmsout-navbar__lang {
         display: inline-flex;
         align-items: center;
         gap: 5px;
@@ -269,11 +269,11 @@
         border: 1px solid #e2e8f0;
         white-space: nowrap;
     }
-    .edux-navbar__lang i {
+    .lmsout-navbar__lang i {
         color: var(--theme-2, #228ddd);
         font-size: 12px;
     }
-    .edux-navbar__lang select {
+    .lmsout-navbar__lang select {
         border: 0;
         background: transparent;
         font-size: 11.5px;
@@ -282,7 +282,7 @@
         outline: none;
         cursor: pointer;
     }
-    .edux-navbar__cta-btn {
+    .lmsout-navbar__cta-btn {
         height: 36px;
         padding: 0 15px;
         border-radius: 9px;
@@ -298,12 +298,12 @@
         box-shadow: 0 2px 8px rgba(1, 59, 166, 0.2);
         transition: background-color 0.15s ease, transform 0.15s ease;
     }
-    .edux-navbar__cta-btn:hover {
+    .lmsout-navbar__cta-btn:hover {
         background: var(--theme-2, #228ddd);
         color: #ffffff !important;
         transform: translateY(-1px);
     }
-    .edux-navbar__Burger {
+    .lmsout-navbar__Burger {
         width: 36px;
         height: 36px;
         border-radius: 8px;
@@ -327,9 +327,9 @@
     }
 
     /* ==========================================================================
-       3. Logo-Resembling Architectural Footer (.edux-brand-footer)
+       3. Logo-Resembling Architectural Footer (.lmsout-brand-footer)
        ========================================================================== */
-    .edux-brand-footer {
+    .lmsout-brand-footer {
         position: relative;
         background: linear-gradient(180deg, #04153b 0%, #03102e 100%);
         color: rgba(255, 255, 255, 0.82);
@@ -338,7 +338,7 @@
         overflow: hidden;
         font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    .edux-brand-footer__top-shape {
+    .lmsout-brand-footer__top-shape {
         position: relative;
         width: 100%;
         height: 54px;
@@ -346,13 +346,13 @@
         margin-bottom: 12px;
         pointer-events: none;
     }
-    .edux-brand-footer__top-shape svg {
+    .lmsout-brand-footer__top-shape svg {
         width: 100%;
         height: 100%;
         display: block;
     }
     /* Signature Yellow Sphere (#f4ed2d) & Sky-Blue Ring (#228ddd) echoing the brand logo */
-    .edux-brand-footer__sun-orb {
+    .lmsout-brand-footer__sun-orb {
         position: absolute;
         top: 8px;
         left: 7%;
@@ -362,7 +362,7 @@
         background: var(--theme-yellow, #f4ed2d);
         box-shadow: 0 0 24px rgba(244, 237, 45, 0.65);
     }
-    .edux-brand-footer__arc-ring {
+    .lmsout-brand-footer__arc-ring {
         position: absolute;
         top: -2px;
         left: calc(7% - 10px);
@@ -375,7 +375,7 @@
         transform: rotate(-15deg);
         opacity: 0.85;
     }
-    .edux-brand-footer__watermark {
+    .lmsout-brand-footer__watermark {
         position: absolute;
         right: -50px;
         bottom: -40px;
@@ -386,7 +386,7 @@
     }
 
     /* Floating Newsletter Banner inside Footer */
-    .edux-brand-footer__newsletter {
+    .lmsout-brand-footer__newsletter {
         position: relative;
         background: linear-gradient(135deg, var(--theme, #013ba6) 0%, var(--theme-2, #228ddd) 100%);
         border: 1px solid rgba(255, 255, 255, 0.16);
@@ -401,7 +401,7 @@
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
         overflow: hidden;
     }
-    .edux-brand-footer__newsletter::after {
+    .lmsout-brand-footer__newsletter::after {
         content: '';
         position: absolute;
         top: -36px;
@@ -412,28 +412,28 @@
         border: 14px solid rgba(244, 237, 45, 0.18);
         pointer-events: none;
     }
-    .edux-brand-footer__newsletter-badge {
+    .lmsout-brand-footer__newsletter-badge {
         display: none;
     }
-    .edux-brand-footer__newsletter-title {
+    .lmsout-brand-footer__newsletter-title {
         font-size: 20px;
         font-weight: 800;
         color: #ffffff;
         margin: 0 0 4px;
     }
-    .edux-brand-footer__newsletter-desc {
+    .lmsout-brand-footer__newsletter-desc {
         font-size: 13px;
         color: rgba(255, 255, 255, 0.88);
         margin: 0;
     }
-    .edux-brand-footer__newsletter-form {
+    .lmsout-brand-footer__newsletter-form {
         display: flex;
         align-items: center;
         gap: 10px;
         flex: 1;
         max-width: 430px;
     }
-    .edux-brand-footer__newsletter-input {
+    .lmsout-brand-footer__newsletter-input {
         flex: 1;
         height: 42px;
         border-radius: 9px;
@@ -445,7 +445,7 @@
         outline: none;
         min-width: 0;
     }
-    .edux-brand-footer__newsletter-btn {
+    .lmsout-brand-footer__newsletter-btn {
         height: 42px;
         padding: 0 20px;
         border-radius: 9px;
@@ -458,23 +458,23 @@
         white-space: nowrap;
         transition: transform 0.15s ease, background-color 0.15s ease;
     }
-    .edux-brand-footer__newsletter-btn:hover {
+    .lmsout-brand-footer__newsletter-btn:hover {
         background: #ffffff;
         transform: translateY(-1px);
     }
 
     /* Footer Columns */
-    .edux-brand-footer__main {
+    .lmsout-brand-footer__main {
         padding-bottom: 36px;
     }
-    .edux-brand-footer__logo-link {
+    .lmsout-brand-footer__logo-link {
         display: inline-flex;
         align-items: center;
         gap: 12px;
         text-decoration: none;
         margin-bottom: 14px;
     }
-    .edux-brand-footer__logo-emblem {
+    .lmsout-brand-footer__logo-emblem {
         width: 46px;
         height: 46px;
         border-radius: 12px;
@@ -487,21 +487,21 @@
         padding: 4px;
         flex-shrink: 0;
     }
-    .edux-brand-footer__logo-emblem img {
+    .lmsout-brand-footer__logo-emblem img {
         width: 36px !important;
         height: 36px !important;
         object-fit: contain !important;
     }
-    .edux-brand-footer__logo-text {
+    .lmsout-brand-footer__logo-text {
         font-size: 16px;
         font-weight: 800;
         color: #ffffff;
         line-height: 1.25;
     }
-    .edux-brand-footer__logo-dot {
+    .lmsout-brand-footer__logo-dot {
         color: var(--theme-yellow, #f4ed2d);
     }
-    .edux-brand-footer__heading {
+    .lmsout-brand-footer__heading {
         font-size: 12px;
         font-weight: 800;
         text-transform: uppercase;
@@ -511,7 +511,7 @@
         position: relative;
         padding-bottom: 8px;
     }
-    .edux-brand-footer__heading::after {
+    .lmsout-brand-footer__heading::after {
         content: '';
         position: absolute;
         bottom: 0;
@@ -523,7 +523,7 @@
     }
 
     /* Our Identity List */
-    .edux-brand-footer__identity-list {
+    .lmsout-brand-footer__identity-list {
         list-style: none;
         padding: 0;
         margin: 0;
@@ -531,7 +531,7 @@
         flex-direction: column;
         gap: 7px;
     }
-    .edux-brand-footer__identity-list li {
+    .lmsout-brand-footer__identity-list li {
         display: flex;
         align-items: flex-start;
         gap: 9px;
@@ -539,7 +539,7 @@
         color: rgba(255, 255, 255, 0.8);
         line-height: 1.45;
     }
-    .edux-id-dot {
+    .lmsout-id-dot {
         width: 7px;
         height: 7px;
         border-radius: 50%;
@@ -550,7 +550,7 @@
     }
 
     /* Shortcuts & Important Links */
-    .edux-brand-footer__links {
+    .lmsout-brand-footer__links {
         list-style: none;
         padding: 0;
         margin: 0;
@@ -558,7 +558,7 @@
         flex-direction: column;
         gap: 9px;
     }
-    .edux-brand-footer__links li a {
+    .lmsout-brand-footer__links li a {
         color: rgba(255, 255, 255, 0.78);
         font-size: 12.5px;
         font-weight: 500;
@@ -569,17 +569,17 @@
         line-height: 1.4;
         transition: color 0.15s ease, transform 0.15s ease;
     }
-    .edux-brand-footer__links li a:hover {
+    .lmsout-brand-footer__links li a:hover {
         color: var(--theme-yellow, #f4ed2d);
         transform: translateX(3px);
     }
-    .edux-ext-icon {
+    .lmsout-ext-icon {
         font-size: 9.5px;
         opacity: 0.65;
     }
 
     /* Contact Us List */
-    .edux-brand-footer__contact {
+    .lmsout-brand-footer__contact {
         list-style: none;
         padding: 0;
         margin: 0;
@@ -587,7 +587,7 @@
         flex-direction: column;
         gap: 9px;
     }
-    .edux-brand-footer__contact li {
+    .lmsout-brand-footer__contact li {
         display: flex;
         align-items: flex-start;
         gap: 10px;
@@ -595,7 +595,7 @@
         color: rgba(255, 255, 255, 0.82);
         line-height: 1.45;
     }
-    .edux-brand-footer__contact li i {
+    .lmsout-brand-footer__contact li i {
         color: #228ddd;
         font-size: 13px;
         margin-top: 3px;
@@ -603,22 +603,22 @@
         text-align: center;
         flex-shrink: 0;
     }
-    .edux-brand-footer__contact li a {
+    .lmsout-brand-footer__contact li a {
         color: rgba(255, 255, 255, 0.85);
         text-decoration: none;
         transition: color 0.15s ease;
     }
-    .edux-brand-footer__contact li a:hover {
+    .lmsout-brand-footer__contact li a:hover {
         color: var(--theme-yellow, #f4ed2d);
     }
 
     /* Social Icons */
-    .edux-brand-footer__socials {
+    .lmsout-brand-footer__socials {
         display: flex;
         align-items: center;
         gap: 8px;
     }
-    .edux-brand-footer__socials a {
+    .lmsout-brand-footer__socials a {
         width: 32px;
         height: 32px;
         border-radius: 50%;
@@ -632,7 +632,7 @@
         text-decoration: none;
         transition: all 0.15s ease;
     }
-    .edux-brand-footer__socials a:hover {
+    .lmsout-brand-footer__socials a:hover {
         background: var(--theme-yellow, #f4ed2d);
         border-color: var(--theme-yellow, #f4ed2d);
         color: #04153b;
@@ -640,7 +640,7 @@
     }
 
     /* Footer Bottom Bar */
-    .edux-brand-footer__bottom {
+    .lmsout-brand-footer__bottom {
         border-top: 1px solid rgba(34, 141, 221, 0.22);
         padding-top: 20px;
         display: flex;
@@ -649,49 +649,49 @@
         flex-wrap: wrap;
         gap: 12px;
     }
-    .edux-brand-footer__copy {
+    .lmsout-brand-footer__copy {
         font-size: 12px;
         color: rgba(255, 255, 255, 0.65);
         margin: 0;
     }
-    .edux-brand-footer__bottom-links {
+    .lmsout-brand-footer__bottom-links {
         display: flex;
         align-items: center;
         gap: 18px;
     }
-    .edux-brand-footer__bottom-links a {
+    .lmsout-brand-footer__bottom-links a {
         font-size: 12px;
         color: rgba(255, 255, 255, 0.7);
         text-decoration: none;
         transition: color 0.15s ease;
     }
-    .edux-brand-footer__bottom-links a:hover {
+    .lmsout-brand-footer__bottom-links a:hover {
         color: var(--theme-yellow, #f4ed2d);
     }
 
     /* Hide duplicate page-level newsletter strips since footer now includes it globally */
-    .edux-newsletter-strip {
+    .lmsout-newsletter-strip {
         display: none !important;
     }
 
     /* ==========================================================================
        4. Shared Inner Page Components (Subscriptions, Events, About, Instructors, Contact)
        ========================================================================== */
-    .edux-page-wrap {
+    .lmsout-page-wrap {
         background-color: #f8fafc;
         min-height: 75vh;
         padding: 36px 0 72px;
         font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         color: #0f172a;
     }
-    .edux-page-hero {
+    .lmsout-page-hero {
         background: linear-gradient(135deg, var(--theme) 0%, var(--theme-2, #228ddd) 100%);
         padding: 48px 0 54px;
         color: #ffffff;
         position: relative;
         overflow: hidden;
     }
-    .edux-page-hero__eyebrow {
+    .lmsout-page-hero__eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -706,7 +706,7 @@
         border-radius: 999px;
         margin-bottom: 12px;
     }
-    .edux-page-hero__title {
+    .lmsout-page-hero__title {
         font-size: 32px;
         font-weight: 800;
         color: #ffffff;
@@ -714,10 +714,10 @@
         line-height: 1.22;
         margin: 0 0 10px;
     }
-    .edux-page-hero__title span {
+    .lmsout-page-hero__title span {
         color: var(--theme-yellow, #f4ed2d);
     }
-    .edux-page-hero__desc {
+    .lmsout-page-hero__desc {
         font-size: 14px;
         color: rgba(255, 255, 255, 0.88);
         line-height: 1.6;
@@ -726,7 +726,7 @@
     }
 
     /* Clean Catalog Top Header (Used on Events, Instructors) */
-    .edux-inner-header {
+    .lmsout-inner-header {
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
@@ -734,7 +734,7 @@
         gap: 16px;
         margin-bottom: 28px;
     }
-    .edux-inner-header__eyebrow {
+    .lmsout-inner-header__eyebrow {
         font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
@@ -742,7 +742,7 @@
         color: var(--theme);
         margin-bottom: 4px;
     }
-    .edux-inner-header__title {
+    .lmsout-inner-header__title {
         font-size: 28px;
         font-weight: 800;
         color: #0f172a;
@@ -750,17 +750,17 @@
         line-height: 1.2;
         margin: 0 0 4px;
     }
-    .edux-inner-header__title span {
+    .lmsout-inner-header__title span {
         color: var(--theme);
     }
-    .edux-inner-header__sub {
+    .lmsout-inner-header__sub {
         font-size: 13.5px;
         color: #64748b;
         margin: 0;
     }
 
     /* White Elevated Surface Card */
-    .edux-surface-card {
+    .lmsout-surface-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 16px;
@@ -769,14 +769,14 @@
         height: 100%;
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
-    .edux-surface-card--hover:hover {
+    .lmsout-surface-card--hover:hover {
         transform: translateY(-3px);
         box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
         border-color: #cbd5e1;
     }
 
-    /* Global Catalog & Event Cards (.edux-catalog-card) */
-    .edux-catalog-card {
+    /* Global Catalog & Event Cards (.lmsout-catalog-card) */
+    .lmsout-catalog-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
@@ -787,32 +787,32 @@
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
-    .edux-catalog-card:hover {
+    .lmsout-catalog-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
         border-color: #cbd5e1;
     }
-    .edux-catalog-card__thumb {
+    .lmsout-catalog-card__thumb {
         position: relative;
         height: 175px;
         background: #0f172a;
         overflow: hidden;
     }
-    .edux-catalog-card__thumb-link {
+    .lmsout-catalog-card__thumb-link {
         display: block;
         width: 100%;
         height: 100%;
     }
-    .edux-catalog-card__thumb-link img {
+    .lmsout-catalog-card__thumb-link img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.35s ease;
     }
-    .edux-catalog-card:hover .edux-catalog-card__thumb-link img {
+    .lmsout-catalog-card:hover .lmsout-catalog-card__thumb-link img {
         transform: scale(1.04);
     }
-    .edux-catalog-card__badges-tl {
+    .lmsout-catalog-card__badges-tl {
         position: absolute;
         top: 10px;
         left: 10px;
@@ -823,7 +823,7 @@
         z-index: 2;
         pointer-events: none;
     }
-    .edux-catalog-card__badge-cat {
+    .lmsout-catalog-card__badge-cat {
         background: rgba(255, 255, 255, 0.96);
         color: #0f172a;
         font-size: 10.5px;
@@ -832,7 +832,7 @@
         border-radius: 999px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     }
-    .edux-catalog-card__badge-sub {
+    .lmsout-catalog-card__badge-sub {
         background: var(--theme);
         color: #ffffff;
         font-size: 10px;
@@ -843,13 +843,13 @@
         align-items: center;
         gap: 4px;
     }
-    .edux-catalog-card__badges-tr {
+    .lmsout-catalog-card__badges-tr {
         position: absolute;
         top: 10px;
         right: 10px;
         z-index: 2;
     }
-    .edux-catalog-card__badge-free {
+    .lmsout-catalog-card__badge-free {
         background: #10b981;
         color: #ffffff;
         font-size: 10.5px;
@@ -857,7 +857,7 @@
         padding: 3px 9px;
         border-radius: 999px;
     }
-    .edux-catalog-card__badge-discount {
+    .lmsout-catalog-card__badge-discount {
         background: #ef4444;
         color: #ffffff;
         font-size: 10.5px;
@@ -865,7 +865,7 @@
         padding: 3px 9px;
         border-radius: 999px;
     }
-    .edux-catalog-card__wish-btn {
+    .lmsout-catalog-card__wish-btn {
         position: absolute;
         bottom: 10px;
         left: 10px;
@@ -880,37 +880,37 @@
         font-size: 11px;
         text-decoration: none;
     }
-    .edux-catalog-card__body {
+    .lmsout-catalog-card__body {
         padding: 14px 16px 16px;
         display: flex;
         flex-direction: column;
         flex: 1;
     }
-    .edux-catalog-card__rating-row {
+    .lmsout-catalog-card__rating-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 7px;
     }
-    .edux-catalog-card__stars {
+    .lmsout-catalog-card__stars {
         display: inline-flex;
         align-items: center;
         gap: 2px;
         font-size: 11px;
     }
-    .edux-catalog-card__stars .is-filled { color: #f59e0b; }
-    .edux-catalog-card__stars .is-empty { color: #e2e8f0; }
-    .edux-catalog-card__rating-num {
+    .lmsout-catalog-card__stars .is-filled { color: #f59e0b; }
+    .lmsout-catalog-card__stars .is-empty { color: #e2e8f0; }
+    .lmsout-catalog-card__rating-num {
         font-size: 12px;
         font-weight: 700;
         color: #334155;
         margin-left: 4px;
     }
-    .edux-catalog-card__students {
+    .lmsout-catalog-card__students {
         font-size: 11.5px;
         color: #64748b;
     }
-    .edux-catalog-card__title {
+    .lmsout-catalog-card__title {
         font-size: 14.5px;
         font-weight: 700;
         line-height: 1.38;
@@ -922,26 +922,26 @@
         overflow: hidden;
         min-height: 40px;
     }
-    .edux-catalog-card__title a {
+    .lmsout-catalog-card__title a {
         color: inherit;
         text-decoration: none;
     }
-    .edux-catalog-card__title a:hover {
+    .lmsout-catalog-card__title a:hover {
         color: var(--theme);
     }
-    .edux-catalog-card__instructor {
+    .lmsout-catalog-card__instructor {
         display: flex;
         align-items: center;
         gap: 7px;
         margin-bottom: 10px;
     }
-    .edux-catalog-card__avatar {
+    .lmsout-catalog-card__avatar {
         width: 20px;
         height: 20px;
         border-radius: 50%;
         object-fit: cover;
     }
-    .edux-catalog-card__avatar-initials {
+    .lmsout-catalog-card__avatar-initials {
         width: 20px;
         height: 20px;
         border-radius: 50%;
@@ -953,11 +953,11 @@
         align-items: center;
         justify-content: center;
     }
-    .edux-catalog-card__instructor-name {
+    .lmsout-catalog-card__instructor-name {
         font-size: 12px;
         color: #64748b;
     }
-    .edux-catalog-card__meta {
+    .lmsout-catalog-card__meta {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -968,43 +968,43 @@
         margin-bottom: 12px;
         border-bottom: 1px solid #f1f5f9;
     }
-    .edux-catalog-card__meta span {
+    .lmsout-catalog-card__meta span {
         display: inline-flex;
         align-items: center;
         gap: 4px;
     }
-    .edux-catalog-card__footer {
+    .lmsout-catalog-card__footer {
         margin-top: auto;
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
         gap: 8px;
     }
-    .edux-catalog-card__sub-note {
+    .lmsout-catalog-card__sub-note {
         font-size: 10.5px;
         font-weight: 600;
         color: #059669;
         margin-bottom: 3px;
     }
-    .edux-catalog-card__price-row {
+    .lmsout-catalog-card__price-row {
         display: flex;
         align-items: baseline;
         gap: 6px;
     }
-    .edux-catalog-card__price {
+    .lmsout-catalog-card__price {
         font-size: 16px;
         font-weight: 800;
         color: #0f172a;
     }
-    .edux-catalog-card__price.is-free {
+    .lmsout-catalog-card__price.is-free {
         color: #059669;
     }
-    .edux-catalog-card__price-old {
+    .lmsout-catalog-card__price-old {
         font-size: 12px;
         color: #94a3b8;
         text-decoration: line-through;
     }
-    .edux-catalog-card__view-btn {
+    .lmsout-catalog-card__view-btn {
         border: 1.5px solid var(--theme);
         background: #ffffff;
         color: var(--theme);
@@ -1014,21 +1014,21 @@
         font-weight: 600;
         text-decoration: none;
     }
-    .edux-catalog-card__view-btn:hover {
+    .lmsout-catalog-card__view-btn:hover {
         background: var(--theme);
         color: #ffffff;
     }
 
     /* Modern Form Controls (Contact Page) */
-    .edux-form-label {
+    .lmsout-form-label {
         display: block;
         font-size: 12.5px;
         font-weight: 700;
         color: #334155;
         margin-bottom: 6px;
     }
-    .edux-form-input,
-    .edux-form-textarea {
+    .lmsout-form-input,
+    .lmsout-form-textarea {
         width: 100%;
         border: 1px solid #e2e8f0;
         border-radius: 10px;
@@ -1039,13 +1039,13 @@
         outline: none;
         transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .edux-form-input:focus,
-    .edux-form-textarea:focus {
+    .lmsout-form-input:focus,
+    .lmsout-form-textarea:focus {
         border-color: var(--theme);
         background: #ffffff;
         box-shadow: 0 0 0 3px rgba(1, 59, 166, 0.08);
     }
-    .edux-btn-primary {
+    .lmsout-btn-primary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1062,12 +1062,12 @@
         cursor: pointer;
         transition: background-color 0.15s ease, transform 0.15s ease;
     }
-    .edux-btn-primary:hover {
+    .lmsout-btn-primary:hover {
         background: var(--theme-2, #228ddd);
         color: #ffffff !important;
         transform: translateY(-1px);
     }
-    .edux-btn-outline {
+    .lmsout-btn-outline {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1083,7 +1083,7 @@
         text-decoration: none !important;
         transition: all 0.15s ease;
     }
-    .edux-btn-outline:hover {
+    .lmsout-btn-outline:hover {
         background: var(--theme);
         color: #ffffff !important;
     }

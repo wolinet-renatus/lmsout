@@ -12,9 +12,13 @@ use Illuminate\Contracts\View\View;
  * This controller handles the FAQ functionality.
  *
  * @package App\Http\Controllers\Front
+ * @author Renatus Bernardo
  */
 class FaqController extends Controller
 {
+    /**
+     * invoke.
+     */
     public function __invoke(): View
     {
         $faqItems = collect(FrontendSetting::getValue('pages.faq.items', []))

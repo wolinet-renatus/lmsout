@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model tracks the usage of a coupon by a user.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class CouponUsage extends Model
 {

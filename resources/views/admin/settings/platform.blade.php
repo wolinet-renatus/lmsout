@@ -62,19 +62,39 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="default_currency">Default Currency</label>
-                            <select name="default_currency" id="default_currency"
-                                class="form-control @error('default_currency') is-invalid @enderror" required>
-                                @foreach ($currencyOptions as $code => $label)
-                                    <option value="{{ $code }}"
-                                        {{ old('default_currency', $selectedCurrency) === $code ? 'selected' : '' }}>
-                                        {{ $label }}</option>
-                                @endforeach
-                            </select>
-                            @error('default_currency')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="default_currency">Default Base Currency</label>
+                                <select name="default_currency" id="default_currency"
+                                    class="form-control @error('default_currency') is-invalid @enderror" required>
+                                    @foreach ($currencyOptions as $code => $label)
+                                        <option value="{{ $code }}"
+                                            {{ old('default_currency', $selectedCurrency) === $code ? 'selected' : '' }}>
+                                            {{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('default_currency')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="usd_to_tzs_rate">Exchange Rate (1 USD = ? TZS / TSH)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">1 USD =</span>
+                                    </div>
+                                    <input type="number" step="0.01" min="1" name="usd_to_tzs_rate" id="usd_to_tzs_rate"
+                                        class="form-control @error('usd_to_tzs_rate') is-invalid @enderror"
+                                        value="{{ old('usd_to_tzs_rate', $settings['usd_to_tzs_rate'] ?? usd_to_tzs_rate()) }}" required>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">TZS</span>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Used to convert course prices between TSH (TZS) and USD ($), e.g. 2500.</small>
+                                @error('usd_to_tzs_rate')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                     </div>
                     <div class="card-footer text-right">

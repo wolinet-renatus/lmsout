@@ -14,13 +14,20 @@ use Illuminate\Http\Request;
 /**
  * F2F / Hybrid certificate clearance (tuition balance + attendance threshold).
  * Online-course certificates remain in the existing Admin\CertificateController.
+ * @author Renatus Bernardo
  */
 class CertificateClearanceController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private SrsWorkflowService $srs)
     {
     }
 
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request)
     {
         $status = $request->input('status', 'pending');
@@ -43,6 +50,9 @@ class CertificateClearanceController extends Controller
         return view('admin.campus.certificates.index', compact('enrollments', 'branches', 'status'));
     }
 
+    /**
+     * Validate and update the specified resource record.
+     */
     public function update(Request $request, Enrollment $enrollment)
     {
         $target = $request->validate(['action' => ['required', 'in:ready,issued']])['action'];
@@ -76,6 +86,9 @@ class CertificateClearanceController extends Controller
         return back();
     }
 
+    /**
+     * Download pdf.
+     */
     public function downloadPdf(Enrollment $enrollment)
     {
         abort_unless(

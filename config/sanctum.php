@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application configuration for sanctum.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Laravel\Sanctum\Sanctum;
 
 return [

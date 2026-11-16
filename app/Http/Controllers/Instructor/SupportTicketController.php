@@ -13,9 +13,13 @@ use Illuminate\Http\Request;
 
 /**
  * Instructor Support Ticket Controller (v3.0.0)
+ * @author Renatus Bernardo
  */
 class SupportTicketController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View|JsonResponse
     {
         $userId = auth()->id();
@@ -102,11 +106,17 @@ class SupportTicketController extends Controller
         ]);
     }
 
+    /**
+     * Show the form for creating a new resource record.
+     */
     public function create(): View
     {
         return view('instructor.tickets.create');
     }
 
+    /**
+     * Validate and persist a newly created resource record.
+     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -154,6 +164,9 @@ class SupportTicketController extends Controller
             ->with('success', "Support ticket #{$ticket->ticket_number} submitted successfully.");
     }
 
+    /**
+     * Display the specified resource details.
+     */
     public function show(SupportTicket $ticket): View
     {
         abort_unless((int) $ticket->user_id === (int) auth()->id(), 403);
@@ -163,6 +176,9 @@ class SupportTicketController extends Controller
         return view('instructor.tickets.show', compact('ticket'));
     }
 
+    /**
+     * Reply.
+     */
     public function reply(Request $request, SupportTicket $ticket): RedirectResponse
     {
         abort_unless((int) $ticket->user_id === (int) auth()->id(), 403);
@@ -205,6 +221,9 @@ class SupportTicketController extends Controller
             ->with('success', 'Your reply has been sent.');
     }
 
+    /**
+     * Close.
+     */
     public function close(SupportTicket $ticket): RedirectResponse
     {
         abort_unless((int) $ticket->user_id === (int) auth()->id(), 403);

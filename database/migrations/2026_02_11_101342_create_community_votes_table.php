@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * Database migration: create community votes table.
+ *
+ * @author Renatus Bernardo
+ */
 /**
  * @file create_community_votes_table.php
  * @description Migration for community_votes table

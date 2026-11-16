@@ -15,6 +15,7 @@ use Exception;
  * Handles the business logic for coupon validation and discount calculation.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class CouponService
 {

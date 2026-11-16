@@ -10,9 +10,13 @@ use Illuminate\Foundation\Http\FormRequest;
  * Validates data for creating or updating a live class.
  *
  * @package App\Http\Requests
+ * @author Renatus Bernardo
  */
 class StoreLiveClassRequest extends FormRequest
 {
+    /**
+     * Determine whether the current user is authorized to perform this request.
+     */
     public function authorize(): bool
     {
         /** @var \App\Models\User|null $user */
@@ -20,6 +24,9 @@ class StoreLiveClassRequest extends FormRequest
         return $user !== null && $user->isApprovedInstructor();
     }
 
+    /**
+     * Define the validation rules applied to the incoming request.
+     */
     public function rules(): array
     {
         return [
@@ -36,6 +43,9 @@ class StoreLiveClassRequest extends FormRequest
         ];
     }
 
+    /**
+     * Define custom validation error messages for the request.
+     */
     public function messages(): array
     {
         return [

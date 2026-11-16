@@ -10,9 +10,13 @@ use Spatie\Activitylog\Models\Activity;
 
 /**
  * Security & Operations Audit Log Viewer (SRS Section 5.1.3 & 5.1.6).
+ * @author Renatus Bernardo
  */
 class AuditLogController extends Controller
 {
+    /**
+     * Display a listing of the resource records.
+     */
     public function index(Request $request): View
     {
         $logName = $request->query('log_name');

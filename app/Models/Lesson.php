@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * This model represents a lesson for a course.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class Lesson extends Model
 {
@@ -71,6 +72,9 @@ class Lesson extends Model
         return $this->hasMany(LessonProgress::class);
     }
 
+    /**
+     * Accessor for computed Video url attribute.
+     */
     public function getVideoUrlAttribute(): ?string
     {
         // If it's an external URL (YouTube/Vimeo), return the raw URL from attributes

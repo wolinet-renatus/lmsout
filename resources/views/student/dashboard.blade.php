@@ -36,7 +36,7 @@
                 <i class="fa-solid fa-book-open"></i>
             </div>
             <div class="out-stat-content">
-                <div class="out-stat-value">{{ $stats['total_enrollments'] }}</div>
+                <div class="out-stat-value" id="kpiEnrolled">{{ $stats['total_enrollments'] }}</div>
                 <p class="out-stat-label">{{ __('student.enrolled_courses') }}</p>
             </div>
         </div>
@@ -46,7 +46,7 @@
                 <i class="fa-solid fa-circle-check"></i>
             </div>
             <div class="out-stat-content">
-                <div class="out-stat-value">{{ $stats['completed_courses'] }}</div>
+                <div class="out-stat-value" id="kpiCompleted">{{ $stats['completed_courses'] }}</div>
                 <p class="out-stat-label">{{ __('student.completed') }}</p>
             </div>
         </div>
@@ -56,7 +56,7 @@
                 <i class="fa-solid fa-clock"></i>
             </div>
             <div class="out-stat-content">
-                <div class="out-stat-value">{{ $stats['pending_enrollments'] }}</div>
+                <div class="out-stat-value" id="kpiPending">{{ $stats['pending_enrollments'] }}</div>
                 <p class="out-stat-label">In Progress / Pending</p>
             </div>
         </div>
@@ -66,9 +66,61 @@
                 <i class="fa-solid fa-circle-play"></i>
             </div>
             <div class="out-stat-content">
-                <div class="out-stat-value">{{ $stats['total_lessons'] }}</div>
+                <div class="out-stat-value" id="kpiLessons">{{ $stats['total_lessons'] }}</div>
                 <p class="out-stat-label">{{ __('student.total_lessons') }}</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Real-Time Campus & Communication Summary Bar -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <a href="{{ route('student.notifications.index') }}" class="out-card text-decoration-none d-flex align-items-center justify-content-between p-3 h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: rgba(1, 59, 166, 0.1); color: #013ba6;">
+                        <i class="fa-solid fa-bell"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size: 13.5px;">Unread Alerts</div>
+                        <div class="text-muted" style="font-size: 12px;">Campus events &amp; billing</div>
+                    </div>
+                </div>
+                <span id="summaryUnreadNotifs" class="badge rounded-pill {{ ($stats['unread_notifications'] ?? 0) > 0 ? 'bg-danger' : 'bg-light text-muted border' }} px-3 py-2">
+                    {{ $stats['unread_notifications'] ?? 0 }}
+                </span>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('student.messages.index') }}" class="out-card text-decoration-none d-flex align-items-center justify-content-between p-3 h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: rgba(34, 141, 221, 0.12); color: #0369a1;">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size: 13.5px;">Instructor Messages</div>
+                        <div class="text-muted" style="font-size: 12px;">Direct academic inbox</div>
+                    </div>
+                </div>
+                <span id="summaryUnreadMsgs" class="badge rounded-pill {{ ($stats['unread_messages'] ?? 0) > 0 ? 'bg-primary' : 'bg-light text-muted border' }} px-3 py-2">
+                    {{ $stats['unread_messages'] ?? 0 }}
+                </span>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('student.campus.invoices.index') }}" class="out-card text-decoration-none d-flex align-items-center justify-content-between p-3 h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: rgba(217, 119, 6, 0.12); color: #b45309;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size: 13.5px;">Fee Balance Due</div>
+                        <div class="text-muted" style="font-size: 12px;">View invoices &amp; receipts</div>
+                    </div>
+                </div>
+                <span id="summaryOutstandingBalance" class="fw-bold {{ ($stats['outstanding_balance'] ?? 0) > 0 ? 'text-danger' : 'text-success' }}" style="font-size: 13.5px;">
+                    {{ currency_format($stats['outstanding_balance'] ?? 0) }}
+                </span>
+            </a>
         </div>
     </div>
 
@@ -200,9 +252,14 @@
                     <h3 class="out-card-title">
                         <i class="fa-solid fa-file-invoice-dollar text-success"></i> Invoices &amp; Control Numbers
                     </h3>
-                    <a href="{{ route('student.campus.invoices.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 12px; font-weight: 600;">
-                        All Invoices
-                    </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 11px;">
+                            <i class="fa-solid fa-signal me-1"></i> Live Sync
+                        </span>
+                        <a href="{{ route('student.campus.invoices.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 12px; font-weight: 600;">
+                            All Invoices
+                        </a>
+                    </div>
                 </div>
                 <div class="out-card-body p-0 table-responsive">
                     <table class="table table-sm table-hover mb-0 align-middle">
@@ -215,7 +272,7 @@
                                 <th class="pe-3">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="dashboardInvoicesBody">
                             @forelse($recentInvoices ?? [] as $inv)
                                 <tr>
                                     <td class="ps-3"><code>{{ $inv->invoice_number }}</code></td>
@@ -237,6 +294,51 @@
                     </table>
                 </div>
                 @include('partials.portal-card-pagination', ['paginator' => $recentInvoices ?? null])
+            </div>
+
+            <!-- Internal Notifications & Campus Events -->
+            <div class="out-card">
+                <div class="out-card-header">
+                    <h3 class="out-card-title">
+                        <i class="fa-solid fa-bell text-warning"></i> Recent Notifications &amp; Events
+                        <span id="dashboardNotifBadge" class="badge rounded-pill ms-2 {{ ($stats['unread_notifications'] ?? 0) > 0 ? 'bg-danger' : 'bg-secondary' }}" style="font-size: 11px;">
+                            {{ $stats['unread_notifications'] ?? 0 }} Unread
+                        </span>
+                    </h3>
+                    <div class="d-flex align-items-center gap-2">
+                        @if(($stats['unread_notifications'] ?? 0) > 0)
+                            <a href="{{ route('student.notifications.readAll') }}" class="btn btn-sm btn-light border rounded-pill px-3 py-1" style="font-size: 11.5px; font-weight: 600;">
+                                Mark All Read
+                            </a>
+                        @endif
+                        <a href="{{ route('student.notifications.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 12px; font-weight: 600;">
+                            View All
+                        </a>
+                    </div>
+                </div>
+                <div class="out-card-body p-3" id="dashboardNotifFeed">
+                    @forelse($recentNotifications ?? [] as $notif)
+                        @php
+                            $ndata = is_array($notif->data) ? $notif->data : [];
+                            $isUnread = $notif->read_at === null;
+                        @endphp
+                        <a href="{{ route('student.notifications.read', $notif->id) }}"
+                           class="d-flex align-items-start justify-content-between gap-3 p-2 rounded-3 text-decoration-none mb-2 border {{ $isUnread ? 'bg-light border-primary-subtle' : 'bg-white' }}">
+                            <div class="d-flex align-items-start gap-2" style="min-width: 0;">
+                                <i class="fa-solid fa-circle-dot mt-1 {{ $isUnread ? 'text-primary' : 'text-muted' }}" style="font-size: 11px;"></i>
+                                <div style="min-width: 0;">
+                                    <div class="fw-semibold text-dark text-truncate" style="font-size: 13px;">{{ $ndata['title'] ?? 'Notification' }}</div>
+                                    <div class="text-muted text-truncate" style="font-size: 12px;">{{ $ndata['message'] ?? '' }}</div>
+                                </div>
+                            </div>
+                            <span class="text-muted flex-shrink-0" style="font-size: 11px;">{{ $notif->created_at?->diffForHumans(null, true) }}</span>
+                        </a>
+                    @empty
+                        <div class="text-center text-muted py-3" style="font-size: 13px;">
+                            No recent notifications. Activity and billing updates will appear here.
+                        </div>
+                    @endforelse
+                </div>
             </div>
 
             <!-- Campus Community & Discussion Card -->
@@ -265,8 +367,71 @@
             </div>
         </div>
 
-        <!-- Right Column: Shortcuts & Advising -->
+        <!-- Right Column: Communication, Campus Timetable & Advising -->
         <div class="col-xl-4 col-lg-5">
+            <!-- Direct Messages / Instructor Inbox -->
+            <div class="out-card">
+                <div class="out-card-header">
+                    <h3 class="out-card-title">
+                        <i class="fa-solid fa-comments text-primary"></i> Direct Messages
+                    </h3>
+                    <a href="{{ route('student.messages.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 12px; font-weight: 600;">
+                        Open Inbox
+                    </a>
+                </div>
+                <div class="out-card-body p-3">
+                    @forelse($recentConversations ?? [] as $conv)
+                        @php
+                            $instructorName = $conv->instructor?->name ?? 'OUT Instructor';
+                            $lastBody = $conv->latestMessage?->body ?: ($conv->latestMessage ? 'Sent attachment' : 'Start chatting');
+                        @endphp
+                        <a href="{{ route('student.messages.show', $conv->id) }}"
+                           class="d-flex align-items-center justify-content-between gap-2 p-2 rounded-3 text-decoration-none border mb-2 {{ ($conv->unread_count ?? 0) > 0 ? 'bg-light border-primary-subtle' : 'bg-white' }}">
+                            <div style="min-width: 0;">
+                                <div class="fw-semibold text-dark text-truncate" style="font-size: 13px;">{{ $instructorName }}</div>
+                                <div class="text-muted text-truncate" style="font-size: 11.5px;">{{ \Illuminate\Support\Str::limit($lastBody, 45) }}</div>
+                            </div>
+                            @if(($conv->unread_count ?? 0) > 0)
+                                <span class="badge bg-primary rounded-pill">{{ $conv->unread_count }}</span>
+                            @else
+                                <i class="fa-solid fa-chevron-right text-muted" style="font-size: 11px;"></i>
+                            @endif
+                        </a>
+                    @empty
+                        <div class="text-center text-muted py-2" style="font-size: 12.5px;">
+                            No active instructor conversations yet.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            @if(!empty($upcomingCampusSchedule))
+                <div class="out-card">
+                    <div class="out-card-header">
+                        <h3 class="out-card-title">
+                            <i class="fa-solid fa-calendar-days text-success"></i> Campus Timetable
+                        </h3>
+                        <a href="{{ route('student.campus.timetable') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" style="font-size: 12px; font-weight: 600;">
+                            Full Schedule
+                        </a>
+                    </div>
+                    <div class="out-card-body p-3">
+                        <div class="fw-bold text-dark mb-1" style="font-size: 13.5px;">{{ $upcomingCampusSchedule->course?->title ?? 'Campus Cohort' }}</div>
+                        <div class="text-muted mb-1" style="font-size: 12px;">
+                            <i class="fa-solid fa-location-dot me-1 text-primary"></i>
+                            {{ $upcomingCampusSchedule->courseAssignment?->venue?->name ?? $upcomingCampusSchedule->venue?->name ?? 'Regional Campus Venue' }}
+                        </div>
+                        <div class="text-muted mb-2" style="font-size: 12px;">
+                            <i class="fa-solid fa-chalkboard-user me-1 text-info"></i>
+                            {{ $upcomingCampusSchedule->courseAssignment?->instructor?->name ?? 'Assigned Lecturer' }}
+                        </div>
+                        <a href="{{ route('student.campus.timetable') }}" class="btn btn-sm btn-light border rounded-pill w-100 fw-semibold" style="font-size: 12px;">
+                            View Live Session Status <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            @endif
+
             <!-- Quick Study Shortcuts -->
             <div class="out-card">
                 <div class="out-card-header">
@@ -328,4 +493,90 @@
             </div>
         </div>
     </div>
+
+    @php
+        $dashboardLiveUrl = route('student.dashboard.live');
+    @endphp
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const liveUrl = @json($dashboardLiveUrl);
+
+    function esc(s) {
+        return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function refreshDashboard() {
+        fetch(liveUrl, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (!data || !data.stats) return;
+
+                const s = data.stats;
+                const setText = function (id, val) {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = String(val ?? 0);
+                };
+                setText('kpiEnrolled', s.total_enrollments);
+                setText('kpiCompleted', s.completed_courses);
+                setText('kpiPending', s.pending_enrollments);
+                setText('kpiLessons', s.total_lessons);
+                setText('summaryUnreadNotifs', s.unread_notifications);
+                setText('summaryUnreadMsgs', s.unread_messages);
+
+                const balEl = document.getElementById('summaryOutstandingBalance');
+                if (balEl) {
+                    balEl.textContent = s.outstanding_balance_formatted;
+                    balEl.className = 'fw-bold ' + ((s.outstanding_balance || 0) > 0 ? 'text-danger' : 'text-success');
+                }
+
+                const notifBadge = document.getElementById('dashboardNotifBadge');
+                if (notifBadge) {
+                    notifBadge.textContent = (s.unread_notifications || 0) + ' Unread';
+                    notifBadge.className = 'badge rounded-pill ms-2 ' + ((s.unread_notifications || 0) > 0 ? 'bg-danger' : 'bg-secondary');
+                }
+
+                const feedEl = document.getElementById('dashboardNotifFeed');
+                if (feedEl && Array.isArray(data.notifications)) {
+                    if (data.notifications.length === 0) {
+                        feedEl.innerHTML = '<div class="text-center text-muted py-3" style="font-size: 13px;">No recent notifications. Activity and billing updates will appear here.</div>';
+                    } else {
+                        feedEl.innerHTML = data.notifications.map(function (n) {
+                            return '<a href="' + esc(n.read_url || '#') + '" class="d-flex align-items-start justify-content-between gap-3 p-2 rounded-3 text-decoration-none mb-2 border ' + (n.is_unread ? 'bg-light border-primary-subtle' : 'bg-white') + '">'
+                                + '<div class="d-flex align-items-start gap-2" style="min-width: 0;">'
+                                + '<i class="fa-solid fa-circle-dot mt-1 ' + (n.is_unread ? 'text-primary' : 'text-muted') + '" style="font-size: 11px;"></i>'
+                                + '<div style="min-width: 0;"><div class="fw-semibold text-dark text-truncate" style="font-size: 13px;">' + esc(n.title) + '</div>'
+                                + '<div class="text-muted text-truncate" style="font-size: 12px;">' + esc(n.message) + '</div></div></div>'
+                                + '<span class="text-muted flex-shrink-0" style="font-size: 11px;">' + esc(n.time_ago) + '</span></a>';
+                        }).join('');
+                    }
+                }
+
+                const invBody = document.getElementById('dashboardInvoicesBody');
+                const qs = window.location.search || '';
+                if (invBody && Array.isArray(data.invoices) && !qs.includes('search=') && !qs.includes('status=') && !qs.includes('invoices_page=')) {
+                    if (data.invoices.length === 0) {
+                        invBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No matching invoices found.</td></tr>';
+                    } else {
+                        invBody.innerHTML = data.invoices.map(function (inv) {
+                            const cls = inv.payment_status === 'paid' ? 'bg-success' : (inv.payment_status === 'partial' ? 'bg-warning text-dark' : 'bg-danger');
+                            return '<tr>'
+                                + '<td class="ps-3"><code>' + esc(inv.invoice_number) + '</code></td>'
+                                + '<td><code>' + esc(inv.control_number || '-') + '</code></td>'
+                                + '<td>' + esc(inv.course_title) + '</td>'
+                                + '<td>' + esc(inv.balance_formatted) + '</td>'
+                                + '<td class="pe-3"><span class="badge ' + cls + '">' + esc(String(inv.payment_status || 'unpaid').toUpperCase()) + '</span></td>'
+                                + '</tr>';
+                        }).join('');
+                    }
+                }
+            })
+            .catch(function () {});
+    }
+
+    setInterval(refreshDashboard, 12000);
+});
+</script>
+@endpush

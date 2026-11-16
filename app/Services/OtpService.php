@@ -14,21 +14,31 @@ use Illuminate\Support\Facades\Mail;
  * This service is responsible for handling the OTP login process.
  *
  * @package App\Services
+ * @author Renatus Bernardo
  */
 class OtpService
 {
     private const CACHE_PREFIX = 'login_otp_';
 
+    /**
+     * Enabled.
+     */
     public function enabled(): bool
     {
         return (bool) settings('authentication.security.login_otp_enabled', false);
     }
 
+    /**
+     * Expiry minutes.
+     */
     public function expiryMinutes(): int
     {
         return (int) settings('authentication.security.otp_expiry_minutes', 10);
     }
 
+    /**
+     * Send.
+     */
     public function send(User $user): string
     {
         $code = (string) random_int(100000, 999999);
@@ -44,6 +54,9 @@ class OtpService
         return $code;
     }
 
+    /**
+     * Verify.
+     */
     public function verify(User $user, string $code): bool
     {
         $payload = Cache::get($this->cacheKey($user->id));
@@ -66,11 +79,17 @@ class OtpService
         return true;
     }
 
+    /**
+     * Clear.
+     */
     public function clear(User $user): void
     {
         Cache::forget($this->cacheKey($user->id));
     }
 
+    /**
+     * Cache key.
+     */
     protected function cacheKey(int $userId): string
     {
         return self::CACHE_PREFIX . $userId;

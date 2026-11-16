@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
  * This controller handles the management of assignment submissions.
  *
  * @package App\Http\Controllers\Admin
+ * @author Renatus Bernardo
  */
 class AssignmentSubmissionController extends Controller
 {

@@ -168,33 +168,42 @@
                 @endif
 
                 @if ($videoData && ($videoData['url'] || ($videoData['embed_url'] ?? null)))
+                    @php
+                        $isExternalEmbed = !empty($videoData['is_youtube']) || !empty($videoData['is_vimeo']);
+                    @endphp
                     <!-- v3.0.0 Enhanced Video Player Controls Bar -->
-                    <div class="edux-video-toolbar d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 mb-3 px-3 py-2 rounded-3" style="background:#0f172a;color:#f8fafc;font-size:13px;">
+                    <div class="lmsout-video-toolbar d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 mb-3 px-3 py-2 rounded-3" style="background:#0f172a;color:#f8fafc;font-size:13px;">
                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <span class="text-white-50 small fw-semibold"><i class="fas fa-sliders-h me-1"></i> Player Controls:</span>
-                            <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.eduxVideoSeek && window.eduxVideoSeek(-10)" title="Rewind 10s">
-                                <i class="fas fa-undo-alt"></i> -10s
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.eduxVideoSeek && window.eduxVideoSeek(10)" title="Forward 10s">
-                                <i class="fas fa-redo-alt"></i> +10s
-                            </button>
-                            <div class="d-inline-flex align-items-center gap-1 ms-1">
-                                <label for="edux-speed-select" class="text-white-50 small mb-0">Speed:</label>
-                                <select id="edux-speed-select" class="form-select form-select-sm bg-dark text-white border-secondary py-0 px-2" style="width:auto;font-size:12px;height:26px;" onchange="window.eduxSetVideoSpeed && window.eduxSetVideoSpeed(this.value)">
-                                    <option value="0.5">0.5x</option>
-                                    <option value="0.75">0.75x</option>
-                                    <option value="1" selected>1.0x (Normal)</option>
-                                    <option value="1.25">1.25x</option>
-                                    <option value="1.5">1.5x</option>
-                                    <option value="2">2.0x</option>
-                                </select>
-                            </div>
+                            @if (!$isExternalEmbed)
+                                <span class="text-white-50 small fw-semibold"><i class="fas fa-sliders-h me-1"></i> Player Controls:</span>
+                                <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.lmsoutVideoSeek && window.lmsoutVideoSeek(-10)" title="Rewind 10s">
+                                    <i class="fas fa-undo-alt"></i> -10s
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.lmsoutVideoSeek && window.lmsoutVideoSeek(10)" title="Forward 10s">
+                                    <i class="fas fa-redo-alt"></i> +10s
+                                </button>
+                                <div class="d-inline-flex align-items-center gap-1 ms-1">
+                                    <label for="lmsout-speed-select" class="text-white-50 small mb-0">Speed:</label>
+                                    <select id="lmsout-speed-select" class="form-select form-select-sm bg-dark text-white border-secondary py-0 px-2" style="width:auto;font-size:12px;height:26px;" onchange="window.lmsoutSetVideoSpeed && window.lmsoutSetVideoSpeed(this.value)">
+                                        <option value="0.5">0.5x</option>
+                                        <option value="0.75">0.75x</option>
+                                        <option value="1" selected>1.0x (Normal)</option>
+                                        <option value="1.25">1.25x</option>
+                                        <option value="1.5">1.5x</option>
+                                        <option value="2">2.0x</option>
+                                    </select>
+                                </div>
+                            @else
+                                <span class="text-white-50 small fw-semibold"><i class="fas fa-video me-1"></i> {{ !empty($videoData['is_youtube']) ? 'YouTube Player' : 'Vimeo Player' }}</span>
+                            @endif
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.eduxTogglePiP && window.eduxTogglePiP()" title="Picture-in-Picture">
-                                <i class="fas fa-clone me-1"></i> PiP
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.eduxToggleTheater && window.eduxToggleTheater()" title="Toggle Theater Mode (T)">
+                            @if (!$isExternalEmbed)
+                                <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.lmsoutTogglePiP && window.lmsoutTogglePiP()" title="Picture-in-Picture">
+                                    <i class="fas fa-clone me-1"></i> PiP
+                                </button>
+                            @endif
+                            <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size:12px;" onclick="window.lmsoutToggleTheater && window.lmsoutToggleTheater()" title="Toggle Theater Mode (T)">
                                 <i class="fas fa-expand-alt me-1"></i> Theater Mode
                             </button>
                         </div>
@@ -211,7 +220,7 @@
                 <div class="lesson-actions mt-4">
                     <button id="mark-complete-btn" class="theme-btn style-2" data-lesson-id="{{ $lesson->id }}"
                         data-course-id="{{ $lesson->topic->course_id }}"
-                        {{ $progress && $progress->is_completed ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : '' }}>
+                        {!! $progress && $progress->is_completed ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : '' !!}>
                         @if ($progress && $progress->is_completed)
                             {{ __('student.completed_status') }} <i class="fas fa-check-circle"></i>
                         @else

@@ -9,8 +9,16 @@ use App\Services\ChatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Chat controller — handles student campus portal workflows and learning progress.
+ *
+ * @author Renatus Bernardo
+ */
 class ChatController extends Controller
 {
+    /**
+     * Initialize dependencies for this class.
+     */
     public function __construct(private ChatService $chatService)
     {
     }

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model represents the progress of a lesson for a user.
  *
  * @package App\Models
+ * @author Renatus Bernardo
  */
 class LessonProgress extends Model
 {
@@ -31,21 +32,33 @@ class LessonProgress extends Model
         'progress_percentage' => 'integer',
     ];
 
+    /**
+     * Eloquent belongsTo relationship for User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Lesson.
+     */
     public function lesson(): BelongsTo
     {
         return $this->belongsTo(Lesson::class);
     }
 
+    /**
+     * Eloquent belongsTo relationship for Enrollment.
+     */
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(Enrollment::class);
     }
 
+    /**
+     * Mark complete.
+     */
     public function markComplete(): void
     {
         $this->update([
@@ -55,6 +68,9 @@ class LessonProgress extends Model
         ]);
     }
 
+    /**
+     * Update progress.
+     */
     public function updateProgress(int $percentage): void
     {
         $this->update([

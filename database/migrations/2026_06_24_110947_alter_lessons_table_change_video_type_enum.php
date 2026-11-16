@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database migration: alter lessons table change video type enum.
+ *
+ * @author Renatus Bernardo
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

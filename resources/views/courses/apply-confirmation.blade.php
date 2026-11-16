@@ -3,16 +3,45 @@
 @section('title', 'Application & Invoice ' . $invoice->invoice_number)
 
 @section('content')
+@php
+    $siteName = site_name();
+    $primaryLogoUrl = branding_asset(
+        ['primary_logo_path', 'logos.primary', 'dark_logo_path', 'logos.secondary'],
+        'assets/front/img/logo/brand-logo-v3.png'
+    );
+    $secondaryLogoUrl = branding_asset(
+        ['dark_logo_path', 'logos.secondary', 'primary_logo_path', 'logos.primary'],
+        'assets/front/img/logo/brand-logo-v3.png'
+    );
+@endphp
+@include('campus.partials.brand-edge-theme')
 <section class="section-padding" style="background:#f5f8fd; padding:60px 0 80px;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm" style="border-radius:16px;">
-                    <div class="card-body p-4 p-md-5">
-                        <div class="text-center mb-4">
-                            <span class="badge bg-success px-3 py-2 mb-2">Application Recorded</span>
-                            <h3 class="mb-1">{{ $invoice->course?->title }}</h3>
-                            <p class="text-muted mb-0">{{ $invoice->branch?->name ?? 'Campus Delivery' }}</p>
+                <div class="lmsout-doc-sheet">
+                    <div class="lmsout-doc-edge-top"></div>
+                    <div class="lmsout-doc-inner">
+                        <div class="lmsout-doc-watermark" aria-hidden="true">
+                            <img src="{{ $primaryLogoUrl }}" alt="">
+                        </div>
+                        <div class="lmsout-doc-content">
+                        <div class="lmsout-doc-header mb-4">
+                            <div class="lmsout-doc-side-left">
+                                <div class="lmsout-doc-logo-frame">
+                                    <img src="{{ $primaryLogoUrl }}" alt="{{ $siteName }} Logo" class="lmsout-invoice-logo-left">
+                                </div>
+                                <div>
+                                    <span class="badge bg-success px-3 py-1 mb-2">Application Recorded</span>
+                                    <h4 class="lmsout-doc-brand-name mb-1">{{ $invoice->course?->title }}</h4>
+                                    <p class="text-muted mb-0 small">{{ $invoice->branch?->name ?? 'Campus Delivery' }}</p>
+                                </div>
+                            </div>
+                            <div class="lmsout-doc-side-right">
+                                <div class="lmsout-doc-logo-frame lmsout-doc-logo-frame--right">
+                                    <img src="{{ $secondaryLogoUrl }}" alt="{{ $siteName }} Seal" class="lmsout-invoice-logo-right">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="p-3 rounded mb-4" style="background:#eef4ff; border:1px solid #cddffe;">
@@ -71,7 +100,9 @@
                                 </a>
                             @endauth
                         </div>
+                        </div>
                     </div>
+                    <div class="lmsout-doc-edge-bottom"></div>
                 </div>
             </div>
         </div>

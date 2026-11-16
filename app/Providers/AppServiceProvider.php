@@ -5,14 +5,18 @@ namespace App\Providers;
 use App\Models\FrontendSetting;
 use App\Models\Menu;
 use App\Services\SettingsRepository;
+use App\Services\PortalNotificationService;
 use App\Services\RecaptchaService;
 use App\Services\OtpService;
 use App\Services\SmtpConfigurator;
 use App\Services\RevenueShareService;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -27,6 +31,7 @@ use Illuminate\Support\Facades\RateLimiter;
  * This service provider registers the application services.
  *
  * @package App\Providers
+ * @author Renatus Bernardo
  */
 class AppServiceProvider extends ServiceProvider
 {
@@ -59,6 +64,10 @@ class AppServiceProvider extends ServiceProvider
             return new \App\Services\ThemeService();
         });
 
+        $this->app->singleton(PortalNotificationService::class, function () {
+            return new PortalNotificationService();
+        });
+
         $helpers = app_path('Support/helpers.php');
 
         if (file_exists($helpers)) {
@@ -71,11 +80,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureDynamicAppUrl();
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(160)->by($request->user()?->id ?: $request->ip());
         });
         Paginator::useBootstrap();
         Schema::defaultStringLength(191);
+
+        Event::listen(Login::class, function (Login $event): void {
+            if ($event->user instanceof \App\Models\User) {
+                $this->app->make(PortalNotificationService::class)->handleLogin($event->user);
+            }
+        });
 
         if ($this->shouldDeferBootstrapping()) {
             return;
@@ -180,6 +197,44 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * Dynamically bind app and public storage URLs to the incoming HTTP request host,
+     * scheme, port, and base subdirectory for zero-config cross-server deployment.
+     */
+    private function configureDynamicAppUrl(): void
+    {
+        if ($this->app->runningInConsole() || !$this->app->bound('request')) {
+            return;
+        }
+
+        $request = $this->app->make('request');
+        $httpHost = $request->getHttpHost();
+
+        if ($httpHost === '') {
+            return;
+        }
+
+        $rootUrl = rtrim($request->getSchemeAndHttpHost() . $request->getBaseUrl(), '/');
+
+        if ($rootUrl === '') {
+            return;
+        }
+
+        URL::forceRootUrl($rootUrl);
+
+        if ($request->isSecure()) {
+            URL::forceScheme('https');
+        }
+
+        config([
+            'app.url' => $rootUrl,
+            'filesystems.disks.public.url' => $rootUrl . '/storage',
+        ]);
+    }
+
+    /**
+     * Should defer bootstrapping.
+     */
     private function shouldDeferBootstrapping(): bool
     {
         if (!app()->runningInConsole()) {
@@ -199,6 +254,9 @@ class AppServiceProvider extends ServiceProvider
         ]);
     }
 
+    /**
+     * Settings tables are ready.
+     */
     private function settingsTablesAreReady(): bool
     {
         try {
@@ -211,6 +269,9 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
+    /**
+     * Build menu tree.
+     */
     protected function buildMenuTree(Collection $items, ?int $parentId = null): array
     {
         return $items

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 
 /**
  * Service to manage language locales and translation files.
+ * @author Renatus Bernardo
  */
 class LanguageManagerService
 {
@@ -26,6 +27,7 @@ class LanguageManagerService
         'ru' => ['name' => 'Russian', 'native' => 'Русский', 'flag' => '🇷🇺'],
         'zh' => ['name' => 'Chinese', 'native' => '中文',    'flag' => '🇨🇳'],
         'tr' => ['name' => 'Turkish', 'native' => 'Türkçe',  'flag' => '🇹🇷'],
+        'sw' => ['name' => 'Swahili', 'native' => 'Kiswahili', 'flag' => '🇹🇿'],
     ];
 
     /**

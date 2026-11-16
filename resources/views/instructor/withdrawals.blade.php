@@ -91,6 +91,8 @@
                                                     {{ __('instructor.paypal') }}</option>
                                                 <option value="stripe" {{ old('method') === 'stripe' ? 'selected' : '' }}>
                                                     {{ __('instructor.stripe') }}</option>
+                                                <option value="pesapal" {{ old('method') === 'pesapal' ? 'selected' : '' }}>
+                                                    {{ __('instructor.pesapal') }}</option>
                                             </select>
                                             @error('method')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -169,6 +171,8 @@
                                                         <i class="fa-solid fa-building-columns"></i>
                                                     @elseif($withdrawal->method === 'paypal')
                                                         <i class="fa-brands fa-paypal"></i>
+                                                    @elseif($withdrawal->method === 'pesapal')
+                                                        <i class="fa-solid fa-money-bill-transfer"></i>
                                                     @else
                                                         <i class="fa-solid fa-credit-card"></i>
                                                     @endif

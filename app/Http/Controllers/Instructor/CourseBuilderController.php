@@ -39,6 +39,7 @@ use Illuminate\Validation\ValidationException;
  * This controller handles the course builder functionality.
  *
  * @package App\Http\Controllers\Instructor
+ * @author Renatus Bernardo
  */
 class CourseBuilderController extends Controller
 {
@@ -140,6 +141,7 @@ class CourseBuilderController extends Controller
                 'max_students' => filter_var($request->input('public_course', false), FILTER_VALIDATE_BOOLEAN) ? null : $request->max_students,
                 'difficulty' => $request->difficulty,
                 'pricing_model' => $request->pricing_model,
+                'price_currency' => normalize_currency_code($request->input('price_currency', base_currency_code()), base_currency_code()),
                 'regular_price' => $request->pricing_model === 'paid' ? $request->regular_price : null,
                 'sale_price' => $request->pricing_model === 'paid' ? $request->sale_price : null,
                 'schedule_enabled' => filter_var($request->input('schedule_enabled', false), FILTER_VALIDATE_BOOLEAN),
@@ -449,6 +451,7 @@ class CourseBuilderController extends Controller
             'max_students' => $course->max_students,
             'difficulty' => $course->difficulty,
             'pricing_model' => $course->pricing_model,
+            'price_currency' => $course->getPriceCurrencyCode(),
             'regular_price' => $course->regular_price,
             'sale_price' => $course->sale_price,
             'schedule_enabled' => $course->schedule_enabled,
@@ -644,6 +647,10 @@ class CourseBuilderController extends Controller
             // Pricing & co-instructor / team assignment are strictly protected from co-editors
             if ($canManagePricingAndTeam) {
                 $updatePayload['pricing_model'] = $request->pricing_model;
+                $updatePayload['price_currency'] = normalize_currency_code(
+                    $request->input('price_currency', $course->price_currency ?? base_currency_code()),
+                    base_currency_code()
+                );
                 $updatePayload['regular_price'] = $request->pricing_model === 'paid' ? $request->regular_price : null;
                 $updatePayload['sale_price'] = $request->pricing_model === 'paid' ? $request->sale_price : null;
                 if ($isAdmin && $request->filled('instructor_id')) {
@@ -1302,6 +1309,9 @@ class CourseBuilderController extends Controller
         }
     }
 
+    /**
+     * Notify course update.
+     */
     protected function notifyCourseUpdate(Course $course, User $instructor): void
     {
         $emailPreferences = settings('email.preferences', []);
@@ -1352,6 +1362,9 @@ class CourseBuilderController extends Controller
         }
     }
 
+    /**
+     * Builder form data.
+     */
     private function builderFormData(?Course $course = null): array
     {
         $categoryOptions = CourseCategory::query()
@@ -1391,6 +1404,9 @@ class CourseBuilderController extends Controller
         ];
     }
 
+    /**
+     * Resolve taxonomy selections.
+     */
     private function resolveTaxonomySelections(Request $request): array
     {
         $category = null;
@@ -1426,6 +1442,9 @@ class CourseBuilderController extends Controller
         ];
     }
 
+    /**
+     * Public disk file meta.
+     */
     private function publicDiskFileMeta(string $path): array
     {
         $size = 0;
