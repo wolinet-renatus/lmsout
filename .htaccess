@@ -4,7 +4,9 @@ DirectoryIndex public/index.php
     RewriteEngine On
 
     # Block direct HTTP access to hidden files/dirs (.env, .git, etc.) while allowing ACME .well-known
-    RewriteRule "(^|/)\.(?!well-known/)" - [F,L]
+    RewriteCond %{REQUEST_URI} (^|/)\. [NC]
+    RewriteCond %{REQUEST_URI} !^/\.well-known/ [NC]
+    RewriteRule ^ - [F,L]
 
     # Never redirect/expose /public/ in browser URLs (fixes OpenLiteSpeed DirectorySlash 301 -> /public/)
     RewriteCond %{THE_REQUEST} \s/+public(?:/([^\s?]*))?\s [NC]

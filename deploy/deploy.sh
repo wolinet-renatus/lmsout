@@ -159,6 +159,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Wrap execution in main() so bash parses the entire script into memory before git reset runs
+main() {
 log "Starting deployment in ${APP_DIR} (branch=${BRANCH}, url=${APP_URL})"
 
 mkdir -p \
@@ -301,19 +303,37 @@ log "Bringing application online..."
 "${PHP_BIN}" artisan up --no-interaction
 MAINT_ACTIVE="false"
 
-# On CyberPanel/cPanel when SSH runs as root, restore vHost site user ownership after all caches/views are generated
+# On CyberPanel/cPanel when SSH runs as root, restore vHost site user ownership while preserving web-server traverse rights
 if [[ "$(id -u)" -eq 0 ]] && command -v stat >/dev/null 2>&1; then
-  PARENT_OWNER="$(stat -c '%U:%G' "$(dirname "${APP_DIR}")" 2>/dev/null || true)"
-  if [[ -n "${PARENT_OWNER}" ]] && [[ "${PARENT_OWNER}" != "root:root" ]] && [[ "${PARENT_OWNER}" != ":" ]]; then
-    log "Restoring CyberPanel/vHost ownership (${PARENT_OWNER})..."
-    chown -R "${PARENT_OWNER}" "${APP_DIR}"
+  VHOST_USER="$(stat -c '%U' "$(dirname "${APP_DIR}")" 2>/dev/null || true)"
+  VHOST_GROUP="$(stat -c '%G' "$(dirname "${APP_DIR}")" 2>/dev/null || true)"
+  if [[ -n "${VHOST_USER}" ]] && [[ "${VHOST_USER}" != "root" ]]; then
+    WEB_GROUP=""
+    for grp in nobody nogroup www-data lsadm; do
+      if getent group "${grp}" >/dev/null 2>&1 || id -g "${grp}" >/dev/null 2>&1; then
+        WEB_GROUP="${grp}"
+        break
+      fi
+    done
+
+    log "Restoring CyberPanel/vHost ownership (${VHOST_USER}:${VHOST_GROUP}${WEB_GROUP:+, docRoot group ${WEB_GROUP}})..."
+    chown -R "${VHOST_USER}:${VHOST_GROUP}" "${APP_DIR}"
+    chmod 600 "${APP_DIR}/.env"
+    chmod 644 "${APP_DIR}/.htaccess" "${APP_DIR}/public/.htaccess" 2>/dev/null || true
+    chmod -R a+rX "${APP_DIR}/public" "${APP_DIR}/storage/app/public" 2>/dev/null || true
+    if [[ -n "${WEB_GROUP}" ]]; then
+      chown "${VHOST_USER}:${WEB_GROUP}" "${APP_DIR}" "${APP_DIR}/public"
+      chmod 750 "${APP_DIR}"
+      chmod 755 "${APP_DIR}/public"
+    fi
   fi
 fi
 
-# OpenLiteSpeed caches .htaccess in memory until gracefully restarted
+# OpenLiteSpeed caches .htaccess in memory until restarted
 if [[ "$(id -u)" -eq 0 ]] && [[ -x /usr/local/lsws/bin/lswsctrl ]]; then
   log "Reloading OpenLiteSpeed so .htaccess & PHP caches refresh cleanly..."
-  /usr/local/lsws/bin/lswsctrl restart >/dev/null 2>&1 || true
+  /usr/local/lsws/bin/lswsctrl restart >/dev/null 2>&1 || systemctl restart lsws >/dev/null 2>&1 || true
+  sleep 2
 fi
 
 # 10. Post-deploy HTTP smoke check
@@ -329,9 +349,13 @@ if [[ "${SKIP_HEALTH}" != "true" ]] && command -v curl >/dev/null 2>&1; then
   HTTP_CODE="${HTTP_CODE:-000}"
   echo "HTTP Status from ${HEALTH_URL}: ${HTTP_CODE}"
   if [[ ! "${HTTP_CODE}" =~ ^(200|302)$ ]]; then
-    echo "WARNING: Unexpected HTTP status ${HTTP_CODE} from ${HEALTH_URL}. Recent laravel.log lines:" >&2
+    echo "WARNING: Unexpected HTTP status ${HTTP_CODE} from ${HEALTH_URL}. Recent logs:" >&2
     tail -n 20 storage/logs/laravel.log 2>/dev/null || true
+    tail -n 15 "$(dirname "${APP_DIR}")/logs/${HEALTH_HOST}.error_log" 2>/dev/null || true
   fi
 fi
+}
+
+main "$@"
 
 log "Deployment completed cleanly for ${APP_URL}."
