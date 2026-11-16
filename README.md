@@ -12,8 +12,9 @@
 | **Organization** | The Open University of Tanzania (OUT) — IEMT |
 | **Baseline Reference** | `SCMIS SRS v1.0` (1st February, 2023 — Beatus Winifrid Mbunda, Evodius Albart, Mahfoudh Katakweba) merged with `OUT LMS v3.0.0` (Maintained by Wolinet) |
 | **System Version** | `3.0.0` (`VersionUpdateSeeder::NEW_VERSION`) |
-| **Runtime Stack** | PHP `^8.3 \| ^8.4 \| ^8.5`, Laravel Framework `^13.0`, MySQL `8+`, Vite `^7.0`, Tailwind CSS `^4.0`, Bootstrap 4/5 |
-| **Updated Date** | 14th November, 2026 |
+| **Runtime Stack** | PHP `8.3 / 8.4 / 8.5`, Laravel Framework `^13.0`, MySQL `8+`, Vite `^7.0`, Tailwind CSS `^4.0`, Bootstrap 4/5 |
+| **Master Unified SRS** | [SRS-LMSOUT-UNIFIED.md](SRS-LMSOUT-UNIFIED.md) / Word `.docx`: [SRS-LMSOUT-UNIFIED.docx](SRS-LMSOUT-UNIFIED.docx) |
+| **Updated Date** | 16th November, 2026 |
 
 ---
 
@@ -108,7 +109,7 @@ Built-in interactive role-aware **Online Help** portals are served across `/admi
 - Responsive client support across desktops, tablets, mobile smartphones (including camera/QR scan links for campus check-ins), and touch screens.
 
 ### 3.2 Software Interfaces
-- **Payment Gateways (`PaymentGatewayService`)**: Stripe (`stripe/stripe-php`), Paystack (`yabacon/paystack-php`), PayPal, Razorpay, Flutterwave, Mollie, SSLCommerz, bKash, XPay, plus institutional Offline Bank Transfer & GePG (`99104*`) control number workflow.
+- **Payment Gateways (`PaymentGatewayService`)**: Pesapal v3 (`PesapalService` native iframe checkout + IPN/status callbacks), Stripe (`stripe/stripe-php`), PayPal, Flutterwave, plus institutional Offline Bank Transfer & GePG (`99104*`) control number workflow and dual display currency (`TZS`/`USD`).
 - **AI Integration (`GeminiService`)**: Google Gemini API powering Student AI Study Assistant and Instructor/Admin AI Course Builder (`aiCourseBuilder`, `aiStudio`).
 - **Document & Export Engines**: `barryvdh/laravel-dompdf`, `codedge/laravel-fpdf` (PDF certificates, invoices, payment receipts, reports), `maatwebsite/excel` & `phpoffice/phpspreadsheet` (Excel/CSV reporting and question bank imports), `intervention/image` / GD (auto-resized profile avatars & media), `QrCodeService` (QR verification and classroom check-ins).
 - **Mail & Security Services**: Configurable SMTP (`SmtpConfigurator`), Google reCAPTCHA (`RecaptchaService`), OTP two-step verification (`OtpService`), Spatie Activitylog (`spatie/laravel-activitylog`), and Opcodes Log Viewer (`opcodesio/log-viewer`).
@@ -210,7 +211,7 @@ To prevent long scrolling and keep data immediately actionable across **Admin**,
 
 - **Course Authoring & AI Studio**: Supports modules/topics, video (uploaded/streamed/YouTube/Vimeo/iframe), PDF/document/text lessons, quizzes, question banks (CSV bulk import + randomized paper generation), and assignment originality scanning (`OriginalityCheckService`).
 - **Synchronous Live Classrooms**: Built-in scheduling & launch controls (`LiveClassService`) surfaced on Student and Instructor dashboards.
-- **Payment Gateways & Revenue Sharing**: Multi-gateway checkout (`Stripe`, `Paystack`, `PayPal`, `Razorpay`, `Flutterwave`, `Mollie`, `SSLCommerz`, `bKash`, `XPay`, `Offline` receipt approval) paired with automated platform/co-instructor revenue split ledger calculations (`RevenueShareService`).
+- **Payment Gateways & Revenue Sharing**: Multi-gateway checkout (`Pesapal v3`, `Stripe`, `PayPal`, `Flutterwave`, `Offline` receipt approval) paired with automated platform/co-instructor revenue split ledger calculations (`RevenueShareService`), dual-currency switching (`TZS`/`USD`), and real-time student directory exports (`StudentsExport` XLSX/CSV/PDF).
 - **Productivity & Collaboration**: Student **Focus Timer** (`FocusSession`), **Habit Tracker** (`Habit`, `HabitLog`), **Academic Community Q&A** (`CommunityQuestion`), per-course discussions, real-time student–instructor messaging (`ChatService`), and Gemini **AI Study Assistant** (`GeminiService`).
 - **Drag-and-Drop Certificate Builder**: Prebuilt institutional templates (`CertificateTemplateSeeder`) with custom backgrounds, dynamic placeholders, serial codes, and QR verification tokens (`/verify-certificate/{code}`).
 
