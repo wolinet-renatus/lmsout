@@ -281,6 +281,9 @@ fi
   || "${PHP_BIN}" artisan storage:link --force >/dev/null 2>&1 \
   || ln -sfn ../storage/app/public public/storage
 
+# Remove leftover CyberPanel/cPanel placeholder index.html if present in root
+rm -f "${APP_DIR}/index.html" "${APP_DIR}/index.htm"
+
 chmod -R ug+rwX storage bootstrap/cache
 find public/assets public/themes storage/app/public -type d -exec chmod 755 {} + 2>/dev/null || true
 find public/assets public/themes storage/app/public -type f -exec chmod 644 {} + 2>/dev/null || true
@@ -307,14 +310,27 @@ if [[ "$(id -u)" -eq 0 ]] && command -v stat >/dev/null 2>&1; then
   fi
 fi
 
+# OpenLiteSpeed caches .htaccess in memory until gracefully restarted
+if [[ "$(id -u)" -eq 0 ]] && [[ -x /usr/local/lsws/bin/lswsctrl ]]; then
+  log "Reloading OpenLiteSpeed so .htaccess & PHP caches refresh cleanly..."
+  /usr/local/lsws/bin/lswsctrl restart >/dev/null 2>&1 || true
+fi
+
 # 10. Post-deploy HTTP smoke check
 if [[ "${SKIP_HEALTH}" != "true" ]] && command -v curl >/dev/null 2>&1; then
   HEALTH_URL="${APP_URL%/}/"
+  HEALTH_HOST="$(printf '%s' "${HEALTH_URL}" | sed -E 's|^https?://([^/:]+).*|\1|')"
   log "Running HTTP health check on ${HEALTH_URL}..."
-  HTTP_CODE="$(curl -k -s -L -o /dev/null -w '%{http_code}' --max-time 20 "${HEALTH_URL}" || echo "000")"
+  HTTP_CODE="$(curl -k -s -L -o /dev/null -w '%{http_code}' --max-time 20 "${HEALTH_URL}" 2>/dev/null)" || true
+  if [[ "${HTTP_CODE}" == "000" || -z "${HTTP_CODE}" ]]; then
+    # Retry resolving domain to 127.0.0.1 in case VPS NAT/firewall blocks self-loopback via public IP
+    HTTP_CODE="$(curl -k -s -L -o /dev/null -w '%{http_code}' --resolve "${HEALTH_HOST}:443:127.0.0.1" --resolve "${HEALTH_HOST}:80:127.0.0.1" --max-time 20 "${HEALTH_URL}" 2>/dev/null)" || true
+  fi
+  HTTP_CODE="${HTTP_CODE:-000}"
   echo "HTTP Status from ${HEALTH_URL}: ${HTTP_CODE}"
-  if [[ ! "${HTTP_CODE}" =~ ^(200|301|302)$ ]]; then
-    echo "WARNING: Unexpected HTTP status ${HTTP_CODE} from ${HEALTH_URL}. Check storage/logs/laravel.log." >&2
+  if [[ ! "${HTTP_CODE}" =~ ^(200|302)$ ]]; then
+    echo "WARNING: Unexpected HTTP status ${HTTP_CODE} from ${HEALTH_URL}. Recent laravel.log lines:" >&2
+    tail -n 20 storage/logs/laravel.log 2>/dev/null || true
   fi
 fi
 

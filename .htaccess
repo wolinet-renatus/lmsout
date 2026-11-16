@@ -1,9 +1,29 @@
+DirectoryIndex public/index.php
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
     # Block direct HTTP access to hidden files/dirs (.env, .git, etc.) while allowing ACME .well-known
     RewriteRule "(^|/)\.(?!well-known/)" - [F,L]
 
-    RewriteCond %{REQUEST_URI} !/public/ [NC]
+    # Never redirect/expose /public/ in browser URLs (fixes OpenLiteSpeed DirectorySlash 301 -> /public/)
+    RewriteCond %{THE_REQUEST} \s/+public(?:/([^\s?]*))?\s [NC]
+    RewriteRule ^ /%1 [R=301,L,NE]
+
+    # Serve existing static/storage files inside public/ silently for vHost root (e.g. CyberPanel public_html)
+    RewriteCond %{REQUEST_URI} !^/public/ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -l
     RewriteRule ^(.*)$ public/$1 [L]
+
+    # Support local subdirectory DocumentRoot installs (e.g. MAMP /lmsout/)
+    RewriteCond %{REQUEST_URI} !/public/ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/lmsout/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/lmsout/public/$1 -l
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Route all application paths (including "/") straight to Laravel front controller
+    # Avoids rewriting "/" to bare "public/" directory
+    RewriteCond %{REQUEST_URI} !/public/index\.php$ [NC]
+    RewriteRule ^ public/index.php [L]
 </IfModule>
