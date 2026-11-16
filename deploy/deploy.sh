@@ -180,12 +180,14 @@ fi
 # 2. Pull latest repository changes
 if [[ "${NO_GIT}" != "true" ]] && [[ -d "${APP_DIR}/.git" ]]; then
   log "Fetching and syncing git origin/${BRANCH}..."
+  git config --global --add safe.directory "${APP_DIR}" >/dev/null 2>&1 || true
   git fetch origin "${BRANCH}" --prune
   git checkout -B "${BRANCH}" "origin/${BRANCH}"
   git reset --hard "origin/${BRANCH}"
 fi
 
 # 3. Install Composer production dependencies (auto-fetch composer.phar if missing on VPS/CyberPanel)
+export COMPOSER_ALLOW_SUPERUSER=1
 if [[ -z "${COMPOSER_BIN}" ]] && [[ ! -f "${APP_DIR}/composer.phar" ]]; then
   log "Composer not found globally; downloading composer.phar locally..."
   "${PHP_BIN}" -r 'copy("https://getcomposer.org/installer", "composer-setup.php");'

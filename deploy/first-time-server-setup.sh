@@ -174,6 +174,7 @@ mkdir -p storage/framework/{cache/data,sessions,views,testing} storage/logs stor
 chmod -R ug+rwX storage bootstrap/cache
 
 if [[ ! -f "${APP_DIR}/vendor/autoload.php" ]]; then
+  export COMPOSER_ALLOW_SUPERUSER=1
   COMPOSER_BIN="${COMPOSER_BIN:-$(command -v composer || true)}"
   if [[ -z "${COMPOSER_BIN}" ]] && [[ ! -f "${APP_DIR}/composer.phar" ]]; then
     echo "==> Composer not found globally; downloading composer.phar locally..."
@@ -198,21 +199,34 @@ if ! grep -qE '^APP_KEY=base64:' "${APP_DIR}/.env"; then
   "${PHP_BIN}" artisan key:generate --force --no-interaction
 fi
 
-# Verify MySQL connection via PHP PDO before running migrations
+# Verify MySQL connection via PHP PDO before running migrations (falls back 127.0.0.1 -> localhost if CyberPanel socket-only user)
 echo "==> Verifying MySQL connection to ${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}..."
 if ! "${PHP_BIN}" -r '
   $host = $argv[1]; $port = $argv[2]; $db = $argv[3]; $user = $argv[4]; $pass = $argv[5];
-  try {
-    new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    echo "MySQL connection verified successfully.\n";
-  } catch (Throwable $e) {
-    fwrite(STDERR, "ERROR: MySQL connection failed: " . $e->getMessage() . "\n");
-    exit(1);
-  }
-' "${DB_HOST}" "${DB_PORT}" "${DB_NAME}" "${DB_USER}" "${DB_PASS}"; then
-  echo "Ensure database '${DB_NAME}' exists and user '${DB_USER}' has ALL PRIVILEGES on it in cPanel/MySQL." >&2
-  exit 1
+  new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+' "${DB_HOST}" "${DB_PORT}" "${DB_NAME}" "${DB_USER}" "${DB_PASS}" 2>/dev/null; then
+  if [[ "${DB_HOST}" == "127.0.0.1" ]] && "${PHP_BIN}" -r '
+    $db = $argv[1]; $user = $argv[2]; $pass = $argv[3];
+    new PDO("mysql:host=localhost;dbname={$db};charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+  ' "${DB_NAME}" "${DB_USER}" "${DB_PASS}" 2>/dev/null; then
+    echo "==> Switched DB_HOST to 'localhost' for CyberPanel/MariaDB socket auth."
+    DB_HOST="localhost"
+    printf '{"DB_HOST":"localhost"}' | write_env_vars
+  else
+    "${PHP_BIN}" -r '
+      $host = $argv[1]; $port = $argv[2]; $db = $argv[3]; $user = $argv[4]; $pass = $argv[5];
+      try {
+        new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+      } catch (Throwable $e) {
+        fwrite(STDERR, "ERROR: MySQL connection failed: " . $e->getMessage() . "\n");
+        exit(1);
+      }
+    ' "${DB_HOST}" "${DB_PORT}" "${DB_NAME}" "${DB_USER}" "${DB_PASS}"
+    echo "Ensure database '${DB_NAME}' exists and user '${DB_USER}' has ALL PRIVILEGES on it in CyberPanel." >&2
+    exit 1
+  fi
 fi
+echo "MySQL connection verified successfully."
 
 DEPLOY_ARGS=(--no-git --php="${PHP_BIN}")
 [[ -n "${SQL_DUMP}" ]] && DEPLOY_ARGS+=(--with-sql="${SQL_DUMP}")
