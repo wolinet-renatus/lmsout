@@ -16,7 +16,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${APP_DIR}"
 
-PHP_BIN="${PHP_BIN:-$(command -v php || true)}"
+detect_php_bin() {
+  for candidate in \
+    "${PHP_BIN:-}" \
+    "$(command -v php || true)" \
+    /usr/local/lsws/lsphp85/bin/php \
+    /usr/local/lsws/lsphp84/bin/php \
+    /usr/local/lsws/lsphp83/bin/php \
+    /usr/local/bin/ea-php83 \
+    /usr/bin/php8.3; do
+    if [[ -n "${candidate}" ]] && [[ -x "${candidate}" ]]; then
+      if "${candidate}" -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' >/dev/null 2>&1; then
+        printf '%s' "${candidate}"
+        return 0
+      fi
+    fi
+  done
+  command -v php || true
+}
+
+PHP_BIN="$(detect_php_bin)"
 APP_URL="${APP_URL:-https://lmsout.wolinet.com}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
@@ -156,11 +175,18 @@ chmod -R ug+rwX storage bootstrap/cache
 
 if [[ ! -f "${APP_DIR}/vendor/autoload.php" ]]; then
   COMPOSER_BIN="${COMPOSER_BIN:-$(command -v composer || true)}"
-  if [[ -n "${COMPOSER_BIN}" ]]; then
-    echo "==> Installing Composer production dependencies..."
-    "${PHP_BIN}" "${COMPOSER_BIN}" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
-  elif [[ -f "${APP_DIR}/composer.phar" ]]; then
+  if [[ -z "${COMPOSER_BIN}" ]] && [[ ! -f "${APP_DIR}/composer.phar" ]]; then
+    echo "==> Composer not found globally; downloading composer.phar locally..."
+    "${PHP_BIN}" -r 'copy("https://getcomposer.org/installer", "composer-setup.php");'
+    "${PHP_BIN}" composer-setup.php --quiet
+    rm -f composer-setup.php
+  fi
+  if [[ -f "${APP_DIR}/composer.phar" ]] && [[ -z "${COMPOSER_BIN}" ]]; then
+    echo "==> Installing Composer production dependencies via composer.phar..."
     "${PHP_BIN}" "${APP_DIR}/composer.phar" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+  elif [[ -n "${COMPOSER_BIN}" ]]; then
+    echo "==> Installing Composer production dependencies..."
+    "${PHP_BIN}" "$(command -v "${COMPOSER_BIN}")" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
   else
     echo "ERROR: composer not found. Install composer before running setup." >&2
     exit 1

@@ -29,34 +29,39 @@ Two workflows live under `.github/workflows/`:
 
 ---
 
-## 2. Interactive Server Setup (Configures `.env`, Migrates & Seeds Everything)
+## 2. CyberPanel One-Shot Terminal Setup (`/home/lmsout.wolinet.com/public_html`)
 
-SSH into your server (`lmsout.wolinet.com`), clone the repository, and run the provisioning script interactively (so your DB password stays hidden and out of Git/shell history):
+CyberPanel's `public_html` directory already exists with a default placeholder file, so initialize Git directly inside `/home/lmsout.wolinet.com/public_html` and run `first-time-server-setup.sh`:
 
 ```bash
-git clone -b main https://github.com/wolinet-renatus/lmsout.git /var/www/lmsout
-cd /var/www/lmsout
+cd /home/lmsout.wolinet.com/public_html
+git init -b main
+git remote add origin https://github.com/wolinet-renatus/lmsout.git
+git fetch origin main --prune
+git checkout -f -B main origin/main
 bash deploy/first-time-server-setup.sh --app-url="https://lmsout.wolinet.com"
 ```
 
-What it configures and deploys automatically:
-1. Prompts securely (`read -s`) for **Database Name**, **Database User**, and **Database Password** (or reads them from flags/env vars) and writes `.env` safely (`chmod 600`), properly quoting special characters like `!` or `$`.
-2. Installs Composer dependencies (`--no-dev --optimize-autoloader`), generates `APP_KEY`, and builds Vite frontend assets (`npm ci && npm run build`) while preserving tracked `public/assets/*`, `public/themes/*`, and `storage/app/public/*`.
-3. Verifies MySQL PDO connectivity before migrating.
-4. Runs `php artisan migrate --force` and `php artisan db:seed --force` (all 12 RBAC roles + 42 permissions, 239 countries, 17 OUT regional branches & 17 computer labs, all 16 official OUT face-to-face short courses in TZS + 6 online courses = 22 courses, payment gateways including Pesapal, OUT branding assets, menus, custom pages, demo users, and sample paid + pending GePG invoices & payment schedules).
-5. Links `public/storage -> ../storage/app/public`, sets writable permissions on `storage/` & `bootstrap/cache/`, caches config/routes/views, installs the Laravel scheduler cron job, and verifies HTTP response from `https://lmsout.wolinet.com/`.
+What `first-time-server-setup.sh` + `deploy.sh` do automatically on CyberPanel:
+1. Auto-detects CyberPanel PHP `8.3+` (`/usr/local/lsws/lsphp83/bin/php`, `lsphp84`, `lsphp85`, or `php`).
+2. Prompts securely (`read -s`) for **Database Name**, **Database User**, and **Database Password** and writes `.env` (`chmod 600`), safely quoting special characters (`!`, `$`, `#`).
+3. Installs Composer (`composer` or auto-fetched `composer.phar`) dependencies (`--no-dev --optimize-autoloader`), generates `APP_KEY`, and runs `npm run build` if npm is installed (preserving git-tracked `public/assets/*`, `public/themes/*`, and `storage/app/public/*`).
+4. Verifies MySQL PDO connectivity before migrating.
+5. Runs `php artisan migrate --force` and `php artisan db:seed --force` (all 12 RBAC roles + 42 permissions, 239 countries, 17 OUT regional branches & 17 labs, all 16 OUT face-to-face short courses in `TZS` + 6 online courses = 22 courses, payment gateways including Pesapal, OUT branding assets, menus, custom pages, demo accounts, and paid + pending GePG invoices).
+6. Links `public/storage -> ../storage/app/public`, sets writable permissions on `storage/` & `bootstrap/cache/`, restores CyberPanel vHost ownership if run as `root`, caches config/routes/views, installs cron, and tests `https://lmsout.wolinet.com/`.
 
 ---
 
-## 3. Private Mac-to-Server Sync of Exact Local Database & Uploaded Assets
+## 3. Private Mac-to-Server Sync of Exact Local Database & Assets
 
-If you want your **exact local MAMP MySQL dataset** (every local record & setting) and `storage/app/public` assets mirrored to the live server privately without ever uploading data to public GitHub, run this from your local Mac workspace:
+If you want your **exact local MAMP MySQL dataset** and uploaded files mirrored privately over SSH without ever exposing PII/credentials on public GitHub, run from your local Mac:
 
 ```bash
 bash deploy/push-db-and-assets-to-server.sh \
-  --ssh="YOUR_SSH_USER@lmsout.wolinet.com" \
+  --ssh="root@lmsout.wolinet.com" \
   --port="22" \
-  --deploy-path="/path/on/server/lmsout"
+  --deploy-path="/home/lmsout.wolinet.com/public_html" \
+  --remote-php="/usr/local/lsws/lsphp83/bin/php"
 ```
 
 ---
@@ -64,6 +69,6 @@ bash deploy/push-db-and-assets-to-server.sh \
 ## 4. Routine Server Terminal Redeploy
 
 ```bash
-cd /path/on/server/lmsout
+cd /home/lmsout.wolinet.com/public_html
 bash deploy/deploy.sh --seed
 ```

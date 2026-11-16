@@ -17,7 +17,25 @@ APP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${APP_DIR}"
 
 BRANCH="${DEPLOY_BRANCH:-main}"
-PHP_BIN="${PHP_BIN:-$(command -v php || true)}"
+detect_php_bin() {
+  for candidate in \
+    "${PHP_BIN:-}" \
+    "$(command -v php || true)" \
+    /usr/local/lsws/lsphp85/bin/php \
+    /usr/local/lsws/lsphp84/bin/php \
+    /usr/local/lsws/lsphp83/bin/php \
+    /usr/local/bin/ea-php83 \
+    /usr/bin/php8.3; do
+    if [[ -n "${candidate}" ]] && [[ -x "${candidate}" ]]; then
+      if "${candidate}" -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' >/dev/null 2>&1; then
+        printf '%s' "${candidate}"
+        return 0
+      fi
+    fi
+  done
+  command -v php || true
+}
+PHP_BIN="$(detect_php_bin)"
 COMPOSER_BIN="${COMPOSER_BIN:-$(command -v composer || true)}"
 NPM_BIN="${NPM_BIN:-$(command -v npm || true)}"
 RUN_SEED="${RUN_SEED:-false}"
@@ -167,8 +185,15 @@ if [[ "${NO_GIT}" != "true" ]] && [[ -d "${APP_DIR}/.git" ]]; then
   git reset --hard "origin/${BRANCH}"
 fi
 
-# 3. Install Composer production dependencies
-if [[ -z "${COMPOSER_BIN}" ]] && [[ -f "${APP_DIR}/composer.phar" ]]; then
+# 3. Install Composer production dependencies (auto-fetch composer.phar if missing on VPS/CyberPanel)
+if [[ -z "${COMPOSER_BIN}" ]] && [[ ! -f "${APP_DIR}/composer.phar" ]]; then
+  log "Composer not found globally; downloading composer.phar locally..."
+  "${PHP_BIN}" -r 'copy("https://getcomposer.org/installer", "composer-setup.php");'
+  "${PHP_BIN}" composer-setup.php --quiet
+  rm -f composer-setup.php
+fi
+
+if [[ -f "${APP_DIR}/composer.phar" ]] && [[ -z "${COMPOSER_BIN}" ]]; then
   COMPOSER_CMD=("${PHP_BIN}" "${APP_DIR}/composer.phar")
 elif [[ -n "${COMPOSER_BIN}" ]]; then
   COMPOSER_CMD=("${PHP_BIN}" "$(command -v "${COMPOSER_BIN}")")
@@ -255,6 +280,15 @@ fi
 chmod -R ug+rwX storage bootstrap/cache
 find public/assets public/themes storage/app/public -type d -exec chmod 755 {} + 2>/dev/null || true
 find public/assets public/themes storage/app/public -type f -exec chmod 644 {} + 2>/dev/null || true
+
+# On CyberPanel/cPanel when SSH runs as root, restore vHost site user ownership
+if [[ "$(id -u)" -eq 0 ]] && command -v stat >/dev/null 2>&1; then
+  PARENT_OWNER="$(stat -c '%U:%G' "$(dirname "${APP_DIR}")" 2>/dev/null || true)"
+  if [[ -n "${PARENT_OWNER}" ]] && [[ "${PARENT_OWNER}" != "root:root" ]] && [[ "${PARENT_OWNER}" != ":" ]]; then
+    log "Restoring CyberPanel/vHost ownership (${PARENT_OWNER})..."
+    chown -R "${PARENT_OWNER}" "${APP_DIR}"
+  fi
+fi
 
 # 8. Clear stale caches and warm production caches
 log "Optimizing Laravel caches..."
