@@ -43,10 +43,10 @@ class PlatformSettingSeeder extends Seeder
                 'value' => [
                     'site_name' => config('app.name', 'OUT LMS'),
                     'tagline' => 'Affordable and quality education for all',
-                    'timezone' => config('app.timezone', 'UTC'),
+                    'timezone' => env('APP_TIMEZONE', 'Africa/Dar_es_Salaam'),
                     'default_language' => config('app.locale', 'en'),
-                    'default_currency' => config('app.currency', 'USD'),
-                    'system_version' => '2.0.0',
+                    'default_currency' => env('APP_CURRENCY', 'TZS'),
+                    'system_version' => '3.0.0',
                 ],
             ],
             'email.preferences' => [
@@ -95,11 +95,13 @@ class PlatformSettingSeeder extends Seeder
                 'group' => 'branding',
                 'type' => 'array',
                 'value' => [
-                    'primary_logo_path' => 'assets/front/img/logo/logo.png',
-                    'dark_logo_path' => 'assets/front/img/logo/logo-dark.png',
-                    'favicon_path' => 'assets/front/img/favicon.png',
+                    'primary_logo_path' => 'assets/front/img/logo/brand-logo-v3.png',
+                    'dark_logo_path' => 'assets/front/img/logo/brand-logo-v3.png',
+                    'footer_logo_path' => 'assets/front/img/logo/brand-logo-v3.png',
+                    'favicon_path' => 'assets/front/img/logo/brand-favicon-v3.png',
                     'primary_color' => '#013ba6',
                     'secondary_color' => '#228ddd',
+                    'accent_color' => '#f4ed2d',
                 ],
             ],
             'contact.details' => [
@@ -148,7 +150,7 @@ class PlatformSettingSeeder extends Seeder
                 'type' => 'array',
                 'value' => [
                     'minimum_amount' => 10,
-                    'currency' => config('app.currency', 'USD'),
+                    'currency' => env('APP_CURRENCY', 'TZS'),
                 ],
             ],
             'support.channels' => [

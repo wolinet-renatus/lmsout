@@ -1,19 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# LMSOUT First-Time Live Server Setup Script
+# LMSOUT First-Time Live Server Provisioning & Credential Setup Script
 # Target Live URL: https://lmsout.wolinet.com/
 #
-# Run once on a fresh Linux VPS / cPanel SSH shell:
-#   bash deploy/first-time-server-setup.sh \
-#     --app-url="https://lmsout.wolinet.com" \
-#     --db-host="127.0.0.1" \
-#     --db-port="3306" \
-#     --db-name="lmsout" \
-#     --db-user="lmsout_user" \
-#     --db-pass="YOUR_DB_PASSWORD"
-#
-# Or export variables in your shell and run:
+# PUBLIC REPO SAFE: Never commit real passwords or keys to Git.
+# Run directly on the live server over SSH:
 #   bash deploy/first-time-server-setup.sh
+# Or supply flags / environment variables (use single quotes if password has '!'):
+#   DB_DATABASE='...' DB_USERNAME='...' DB_PASSWORD='...' \
+#     bash deploy/first-time-server-setup.sh --app-url="https://lmsout.wolinet.com"
 # ==============================================================================
 set -Eeuo pipefail
 
@@ -25,12 +20,17 @@ PHP_BIN="${PHP_BIN:-$(command -v php || true)}"
 APP_URL="${APP_URL:-https://lmsout.wolinet.com}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
-DB_NAME="${DB_NAME:-}"
-DB_USER="${DB_USER:-}"
-DB_PASS="${DB_PASS:-}"
+DB_NAME="${DB_DATABASE:-${DB_NAME:-}}"
+DB_USER="${DB_USERNAME:-${DB_USER:-}}"
+DB_PASS="${DB_PASSWORD:-${DB_PASS:-}}"
+PESAPAL_KEY="${PESAPAL_CONSUMER_KEY:-}"
+PESAPAL_SECRET="${PESAPAL_CONSUMER_SECRET:-}"
+PESAPAL_IPN="${PESAPAL_IPN_ID:-}"
+PESAPAL_MODE="${PESAPAL_MODE:-sandbox}"
 SQL_DUMP="${SQL_DUMP:-}"
 SKIP_CRON="false"
 SKIP_SEED="false"
+NON_INTERACTIVE="false"
 
 for arg in "$@"; do
   case "${arg}" in
@@ -41,11 +41,16 @@ for arg in "$@"; do
     --db-name=*) DB_NAME="${arg#*=}" ;;
     --db-user=*) DB_USER="${arg#*=}" ;;
     --db-pass=*) DB_PASS="${arg#*=}" ;;
+    --pesapal-key=*) PESAPAL_KEY="${arg#*=}" ;;
+    --pesapal-secret=*) PESAPAL_SECRET="${arg#*=}" ;;
+    --pesapal-ipn=*) PESAPAL_IPN="${arg#*=}" ;;
+    --pesapal-mode=*) PESAPAL_MODE="${arg#*=}" ;;
     --with-sql=*) SQL_DUMP="${arg#*=}" ;;
     --skip-cron) SKIP_CRON="true" ;;
     --skip-seed) SKIP_SEED="true" ;;
+    --non-interactive) NON_INTERACTIVE="true" ;;
     -h|--help)
-      sed -n '2,18p' "$0"
+      sed -n '2,15p' "$0"
       exit 0
       ;;
     *)
@@ -56,11 +61,31 @@ for arg in "$@"; do
 done
 
 if [[ -z "${PHP_BIN}" ]] || ! command -v "${PHP_BIN}" >/dev/null 2>&1; then
-  echo "ERROR: PHP binary not found. Pass --php=/path/to/php." >&2
+  echo "ERROR: PHP binary not found. Pass --php=/path/to/php (e.g., /usr/local/bin/ea-php83)." >&2
   exit 1
 fi
 
-echo "==> Checking PHP extensions (8.3+ recommended)..."
+# Interactive prompt when running in terminal & credentials were not pre-supplied
+if [[ "${NON_INTERACTIVE}" != "true" ]] && [[ -t 0 ]]; then
+  echo "=== LMSOUT Server Environment Setup (${APP_URL}) ==="
+  if [[ -z "${DB_NAME}" ]]; then
+    read -r -p "MySQL Database Name: " DB_NAME
+  fi
+  if [[ -z "${DB_USER}" ]]; then
+    read -r -p "MySQL Database User: " DB_USER
+  fi
+  if [[ -z "${DB_PASS}" ]]; then
+    read -r -s -p "MySQL Database Password (hidden): " DB_PASS
+    echo ""
+  fi
+fi
+
+if [[ -z "${DB_NAME}" ]] || [[ -z "${DB_USER}" ]]; then
+  echo "ERROR: Database name and username are required. Pass --db-name/--db-user or run interactively." >&2
+  exit 1
+fi
+
+echo "==> Checking PHP runtime & required extensions (PHP 8.3+)..."
 "${PHP_BIN}" -v
 REQUIRED_EXTS=(mbstring openssl pdo pdo_mysql tokenizer xml ctype json bcmath fileinfo curl zip gd)
 for ext in "${REQUIRED_EXTS[@]}"; do
@@ -69,57 +94,98 @@ for ext in "${REQUIRED_EXTS[@]}"; do
   fi
 done
 
-set_env_key() {
-  local key="$1"
-  local val="$2"
-  local file="${APP_DIR}/.env"
-  local escaped
-  escaped="$(printf '%s' "${val}" | sed 's/[&/\]/\\&/g')"
-  if grep -qE "^${key}=" "${file}"; then
-    sed -i.bak "s|^${key}=.*|${key}=${escaped}|" "${file}" && rm -f "${file}.bak"
-  else
-    printf '\n%s=%s\n' "${key}" "${val}" >> "${file}"
-  fi
-}
-
 if [[ ! -f "${APP_DIR}/.env" ]]; then
   echo "==> Creating .env from .env.production.example..."
   cp "${APP_DIR}/.env.production.example" "${APP_DIR}/.env"
   chmod 600 "${APP_DIR}/.env"
 fi
 
-set_env_key "APP_ENV" "production"
-set_env_key "APP_DEBUG" "false"
-set_env_key "APP_URL" "${APP_URL}"
-set_env_key "DB_CONNECTION" "mysql"
-set_env_key "DB_HOST" "${DB_HOST}"
-set_env_key "DB_PORT" "${DB_PORT}"
-[[ -n "${DB_NAME}" ]] && set_env_key "DB_DATABASE" "${DB_NAME}"
-[[ -n "${DB_USER}" ]] && set_env_key "DB_USERNAME" "${DB_USER}"
-[[ -n "${DB_PASS}" ]] && set_env_key "DB_PASSWORD" "${DB_PASS}"
+# Safe .env writer using PHP so special characters (!, $, #, &, spaces) never corrupt .env
+write_env_vars() {
+  ENV_FILE="${APP_DIR}/.env" "${PHP_BIN}" -r '
+    $file = getenv("ENV_FILE");
+    $content = file_get_contents($file);
+    $updates = json_decode(stream_get_contents(STDIN), true);
+    foreach ($updates as $key => $val) {
+        if ($val === null) continue;
+        $str = (string) $val;
+        $needsQuotes = $str !== "" && (preg_match("/[\s#\"'\''\\\\\$!]/", $str) === 1);
+        $formatted = $needsQuotes
+            ? "\"" . str_replace(["\\", "\"", "\$"], ["\\\\", "\\\"", "\\\$"], $str) . "\""
+            : $str;
+        $pattern = "/^" . preg_quote($key, "/") . "=.*$/m";
+        $line = $key . "=" . $formatted;
+        if (preg_match($pattern, $content)) {
+            $content = preg_replace($pattern, str_replace(["\\", "\$"], ["\\\\", "\\\$"], $line), $content, 1);
+        } else {
+            $content = rtrim($content) . PHP_EOL . $line . PHP_EOL;
+        }
+    }
+    file_put_contents($file, $content);
+  '
+}
 
-if grep -qE '^APP_KEY=$' "${APP_DIR}/.env" || ! grep -qE '^APP_KEY=base64:' "${APP_DIR}/.env"; then
-  echo "==> Preparing storage directories & installing Composer packages before key:generate..."
-  mkdir -p storage/framework/{cache/data,sessions,views,testing} storage/logs storage/app/public bootstrap/cache
-  chmod -R ug+rwX storage bootstrap/cache
-  if [[ ! -f "${APP_DIR}/vendor/autoload.php" ]]; then
-    COMPOSER_BIN="$(command -v composer || true)"
-    if [[ -n "${COMPOSER_BIN}" ]]; then
-      "${PHP_BIN}" "${COMPOSER_BIN}" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
-    elif [[ -f "${APP_DIR}/composer.phar" ]]; then
-      "${PHP_BIN}" "${APP_DIR}/composer.phar" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
-    fi
-  fi
-  if [[ -f "${APP_DIR}/vendor/autoload.php" ]]; then
-    "${PHP_BIN}" artisan key:generate --force --no-interaction
+JSON_PAYLOAD="$("${PHP_BIN}" -r '
+  echo json_encode(array_filter([
+    "APP_ENV" => "production",
+    "APP_DEBUG" => "false",
+    "APP_URL" => $argv[1],
+    "APP_TIMEZONE" => "Africa/Dar_es_Salaam",
+    "APP_CURRENCY" => "TZS",
+    "SESSION_SECURE_COOKIE" => str_starts_with($argv[1], "https://") ? "true" : "false",
+    "DB_CONNECTION" => "mysql",
+    "DB_HOST" => $argv[2],
+    "DB_PORT" => $argv[3],
+    "DB_DATABASE" => $argv[4],
+    "DB_USERNAME" => $argv[5],
+    "DB_PASSWORD" => $argv[6],
+    "PESAPAL_CONSUMER_KEY" => $argv[7] !== "" ? $argv[7] : null,
+    "PESAPAL_CONSUMER_SECRET" => $argv[8] !== "" ? $argv[8] : null,
+    "PESAPAL_IPN_ID" => $argv[9] !== "" ? $argv[9] : null,
+    "PESAPAL_MODE" => $argv[10],
+  ], fn($v) => $v !== null));
+' "${APP_URL}" "${DB_HOST}" "${DB_PORT}" "${DB_NAME}" "${DB_USER}" "${DB_PASS}" "${PESAPAL_KEY}" "${PESAPAL_SECRET}" "${PESAPAL_IPN}" "${PESAPAL_MODE}")"
+
+printf '%s' "${JSON_PAYLOAD}" | write_env_vars
+chmod 600 "${APP_DIR}/.env"
+echo "==> Wrote production database & app credentials into .env (chmod 600)."
+
+# Prepare storage & cache folders and ensure Composer autoloader exists for key:generate
+mkdir -p storage/framework/{cache/data,sessions,views,testing} storage/logs storage/app/public bootstrap/cache
+chmod -R ug+rwX storage bootstrap/cache
+
+if [[ ! -f "${APP_DIR}/vendor/autoload.php" ]]; then
+  COMPOSER_BIN="${COMPOSER_BIN:-$(command -v composer || true)}"
+  if [[ -n "${COMPOSER_BIN}" ]]; then
+    echo "==> Installing Composer production dependencies..."
+    "${PHP_BIN}" "${COMPOSER_BIN}" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+  elif [[ -f "${APP_DIR}/composer.phar" ]]; then
+    "${PHP_BIN}" "${APP_DIR}/composer.phar" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+  else
+    echo "ERROR: composer not found. Install composer before running setup." >&2
+    exit 1
   fi
 fi
 
-# Optionally create database if credentials have CREATE DATABASE rights
-if [[ -n "${DB_NAME}" ]] && [[ -n "${DB_USER}" ]] && command -v mysql >/dev/null 2>&1; then
-  MYSQL_PWD="${DB_PASS}" mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "${DB_USER}" \
-    -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" \
-    >/dev/null 2>&1 || true
+if ! grep -qE '^APP_KEY=base64:' "${APP_DIR}/.env"; then
+  echo "==> Generating Laravel APP_KEY..."
+  "${PHP_BIN}" artisan key:generate --force --no-interaction
+fi
+
+# Verify MySQL connection via PHP PDO before running migrations
+echo "==> Verifying MySQL connection to ${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}..."
+if ! "${PHP_BIN}" -r '
+  $host = $argv[1]; $port = $argv[2]; $db = $argv[3]; $user = $argv[4]; $pass = $argv[5];
+  try {
+    new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    echo "MySQL connection verified successfully.\n";
+  } catch (Throwable $e) {
+    fwrite(STDERR, "ERROR: MySQL connection failed: " . $e->getMessage() . "\n");
+    exit(1);
+  }
+' "${DB_HOST}" "${DB_PORT}" "${DB_NAME}" "${DB_USER}" "${DB_PASS}"; then
+  echo "Ensure database '${DB_NAME}' exists and user '${DB_USER}' has ALL PRIVILEGES on it in cPanel/MySQL." >&2
+  exit 1
 fi
 
 DEPLOY_ARGS=(--no-git --php="${PHP_BIN}")
@@ -134,14 +200,17 @@ if [[ "${SKIP_CRON}" != "true" ]] && command -v crontab >/dev/null 2>&1; then
   EXISTING_CRON="$(crontab -l 2>/dev/null || true)"
   if ! printf '%s\n' "${EXISTING_CRON}" | grep -Fq "${APP_DIR} && ${PHP_BIN} artisan schedule:run"; then
     (printf '%s\n' "${EXISTING_CRON}"; printf '%s\n' "${CRON_LINE}") | awk 'NF' | crontab - || true
-    echo "==> Installed Laravel scheduler cron entry."
+    echo "==> Installed Laravel scheduler cron job."
   fi
 fi
 
 echo ""
-echo "Setup complete! Live URL: ${APP_URL}"
-echo "Seeded Demo Accounts (password: password — change on production after testing!):"
-echo "  - Super Admin : superadmin@lsmout.ac.tz"
-echo "  - Admin       : admin@lsmout.ac.tz"
-echo "  - Instructor  : instructor@lsmout.ac.tz"
-echo "  - Student     : student@lsmout.ac.tz"
+echo "======================================================================"
+echo " LMSOUT Provisioning Complete!"
+echo " Live URL : ${APP_URL}"
+echo " Seeded Super Admin : superadmin@lsmout.ac.tz / password"
+echo " Seeded Admin       : admin@lsmout.ac.tz / password"
+echo " Seeded Instructor  : instructor@lsmout.ac.tz / password"
+echo " Seeded Student     : student@lsmout.ac.tz / password"
+echo " IMPORTANT: Change seeded passwords after live testing!"
+echo "======================================================================"

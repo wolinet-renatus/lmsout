@@ -12,6 +12,11 @@ on:
         required: false
         default: "false"
         type: boolean
+      sync_env:
+        description: "Write/update server .env credentials from GitHub Secrets"
+        required: false
+        default: "false"
+        type: boolean
 
 concurrency:
   group: production-lmsout
@@ -43,17 +48,33 @@ jobs:
 
       - name: Deploy over SSH via deploy/deploy.sh
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_URL: ${{ vars.APP_URL || 'https://lmsout.wolinet.com' }}
+          DB_CONNECTION: mysql
+          DB_HOST: ${{ secrets.DB_HOST || '127.0.0.1' }}
+          DB_PORT: ${{ secrets.DB_PORT || '3306' }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PESAPAL_CONSUMER_KEY: ${{ secrets.PESAPAL_CONSUMER_KEY }}
+          PESAPAL_CONSUMER_SECRET: ${{ secrets.PESAPAL_CONSUMER_SECRET }}
+          PESAPAL_IPN_ID: ${{ secrets.PESAPAL_IPN_ID }}
+          PESAPAL_MODE: ${{ vars.PESAPAL_MODE || 'sandbox' }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT || 22 }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: APP_URL,DB_CONNECTION,DB_HOST,DB_PORT,DB_DATABASE,DB_USERNAME,DB_PASSWORD,PESAPAL_CONSUMER_KEY,PESAPAL_CONSUMER_SECRET,PESAPAL_IPN_ID,PESAPAL_MODE
           command_timeout: 15m
           script: |
             set -Eeuo pipefail
             cd "${{ secrets.DEPLOY_PATH }}"
-            SEED_FLAG=""
+            FLAGS="--branch=main"
             if [ "${{ inputs.run_seed || vars.RUN_SEED || 'false' }}" = "true" ]; then
-              SEED_FLAG="--seed"
+              FLAGS="${FLAGS} --seed"
             fi
-            bash deploy/deploy.sh --branch=main ${SEED_FLAG}
+            if [ "${{ inputs.sync_env || vars.SYNC_ENV || 'false' }}" = "true" ]; then
+              FLAGS="${FLAGS} --sync-env"
+            fi
+            bash deploy/deploy.sh ${FLAGS}
