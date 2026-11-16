@@ -277,7 +277,7 @@ class Course extends Model
     public function getThumbnailAttribute()
     {
         if (!$this->featured_image) {
-            return asset('assets/front/img/home-1/courses/courses-01.jpg');
+            return asset('storage/courses/images/out-campus-ict.jpg');
         }
         if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
             return $this->featured_image;

@@ -44,7 +44,7 @@ class CampusShowcaseSeeder extends Seeder
             Banner::create([
                 'title' => 'Master Full-Stack & Applied AI Engineering',
                 'subtitle' => 'Join 50,000+ learners building real-world projects with expert mentorship.',
-                'image_path' => 'assets/front/img/home-1/courses/courses-01.jpg',
+                'image_path' => 'courses/images/out-campus-ict.jpg',
                 'link' => '/courses',
                 'button_text' => 'Explore Courses',
                 'order' => 1,
@@ -71,22 +71,22 @@ class CampusShowcaseSeeder extends Seeder
 
         // 2. Seed all 16 institutional OUT Face-to-Face Short Courses (TZS)
         $shortCourses = [
-            ['scms_id' => 1, 'title' => 'Basic computer Application', 'duration' => '5 weeks', 'fee' => 172000.00, 'cat' => $catWeb, 'img' => 'assets/front/img/home-1/courses/courses-01.jpg'],
-            ['scms_id' => 2, 'title' => 'Video Production and Motion Graphics Design', 'duration' => '6 weeks', 'fee' => 450000.00, 'cat' => $catDesign, 'img' => 'assets/front/img/home-1/courses/courses-03.jpg'],
-            ['scms_id' => 3, 'title' => 'Advanced Computer Applications', 'duration' => '5 weeks', 'fee' => 250000.00, 'cat' => $catWeb, 'img' => 'assets/front/img/home-1/courses/courses-01.jpg'],
-            ['scms_id' => 4, 'title' => 'Graphic Design', 'duration' => '5 weeks', 'fee' => 350000.00, 'cat' => $catDesign, 'img' => 'assets/front/img/home-1/courses/courses-03.jpg'],
-            ['scms_id' => 5, 'title' => 'Computer Maintenance and Repair', 'duration' => '8 weeks', 'fee' => 390000.00, 'cat' => $catCloud, 'img' => 'assets/front/img/home-1/courses/courses-06.jpg'],
-            ['scms_id' => 6, 'title' => 'Data  Analysis with SPSS', 'duration' => '5 weeks', 'fee' => 300000.00, 'cat' => $catData, 'img' => 'assets/front/img/home-1/courses/courses-02.jpg'],
-            ['scms_id' => 7, 'title' => 'Advanced Website Development', 'duration' => '8 weeks', 'fee' => 800000.00, 'cat' => $catWeb, 'img' => 'assets/front/img/home-1/courses/courses-01.jpg'],
-            ['scms_id' => 8, 'title' => 'Basic Website Development', 'duration' => '4 weeks', 'fee' => 400000.00, 'cat' => $catWeb, 'img' => 'assets/front/img/home-1/courses/courses-01.jpg'],
-            ['scms_id' => 9, 'title' => 'Advanced  Microsoft  project', 'duration' => '5 weeks', 'fee' => 400000.00, 'cat' => $catBusiness, 'img' => 'assets/front/img/home-1/courses/courses-05.jpg'],
-            ['scms_id' => 10, 'title' => 'Social Media and Digital Marketing Strategies', 'duration' => '5 weeks', 'fee' => 400000.00, 'cat' => $catMarketing, 'img' => 'assets/front/img/home-1/courses/courses-04.jpg'],
-            ['scms_id' => 11, 'title' => 'IT Essentials (I&II)', 'duration' => '8 weeks', 'fee' => 390000.00, 'cat' => $catCloud, 'img' => 'assets/front/img/home-1/courses/courses-06.jpg'],
-            ['scms_id' => 12, 'title' => 'Get connect', 'duration' => '5 weeks', 'fee' => 90000.00, 'cat' => $catWeb, 'img' => 'assets/front/img/home-1/courses/courses-05.jpg'],
-            ['scms_id' => 13, 'title' => 'CCNA (Non Student)', 'duration' => '8 weeks', 'fee' => 800000.00, 'cat' => $catCloud, 'img' => 'assets/front/img/home-1/courses/courses-06.jpg'],
-            ['scms_id' => 14, 'title' => 'CCNA (Enrolled Student)', 'duration' => '8 weeks', 'fee' => 400000.00, 'cat' => $catCloud, 'img' => 'assets/front/img/home-1/courses/courses-06.jpg'],
-            ['scms_id' => 15, 'title' => 'E-learning and Instructional Design', 'duration' => '6 weeks', 'fee' => 450000.00, 'cat' => $catDesign, 'img' => 'assets/front/img/home-1/courses/courses-03.jpg'],
-            ['scms_id' => 16, 'title' => 'DATABASE TECHNOLOGY', 'duration' => '8 weeks', 'fee' => 400000.00, 'cat' => $catData, 'img' => 'assets/front/img/home-1/courses/courses-02.jpg'],
+            ['scms_id' => 1, 'title' => 'Basic computer Application', 'duration' => '5 weeks', 'fee' => 172000.00, 'cat' => $catWeb, 'img' => 'courses/images/out-computer-apps.jpg'],
+            ['scms_id' => 2, 'title' => 'Video Production and Motion Graphics Design', 'duration' => '6 weeks', 'fee' => 450000.00, 'cat' => $catDesign, 'img' => 'courses/images/out-video-production.jpg'],
+            ['scms_id' => 3, 'title' => 'Advanced Computer Applications', 'duration' => '5 weeks', 'fee' => 250000.00, 'cat' => $catWeb, 'img' => 'courses/images/out-campus-ict.jpg'],
+            ['scms_id' => 4, 'title' => 'Graphic Design', 'duration' => '5 weeks', 'fee' => 350000.00, 'cat' => $catDesign, 'img' => 'courses/images/out-uiux-design.jpg'],
+            ['scms_id' => 5, 'title' => 'Computer Maintenance and Repair', 'duration' => '8 weeks', 'fee' => 390000.00, 'cat' => $catCloud, 'img' => 'courses/images/out-hardware-repair.jpg'],
+            ['scms_id' => 6, 'title' => 'Data  Analysis with SPSS', 'duration' => '5 weeks', 'fee' => 300000.00, 'cat' => $catData, 'img' => 'courses/images/out-ai-data-science.jpg'],
+            ['scms_id' => 7, 'title' => 'Advanced Website Development', 'duration' => '8 weeks', 'fee' => 800000.00, 'cat' => $catWeb, 'img' => 'courses/images/out-web-development.jpg'],
+            ['scms_id' => 8, 'title' => 'Basic Website Development', 'duration' => '4 weeks', 'fee' => 400000.00, 'cat' => $catWeb, 'img' => 'courses/images/out-web-development.jpg'],
+            ['scms_id' => 9, 'title' => 'Advanced  Microsoft  project', 'duration' => '5 weeks', 'fee' => 400000.00, 'cat' => $catBusiness, 'img' => 'courses/images/out-business-leadership.jpg'],
+            ['scms_id' => 10, 'title' => 'Social Media and Digital Marketing Strategies', 'duration' => '5 weeks', 'fee' => 400000.00, 'cat' => $catMarketing, 'img' => 'courses/images/out-digital-marketing.jpg'],
+            ['scms_id' => 11, 'title' => 'IT Essentials (I&II)', 'duration' => '8 weeks', 'fee' => 390000.00, 'cat' => $catCloud, 'img' => 'courses/images/out-hardware-repair.jpg'],
+            ['scms_id' => 12, 'title' => 'Get connect', 'duration' => '5 weeks', 'fee' => 90000.00, 'cat' => $catWeb, 'img' => 'courses/images/out-computer-apps.jpg'],
+            ['scms_id' => 13, 'title' => 'CCNA (Non Student)', 'duration' => '8 weeks', 'fee' => 800000.00, 'cat' => $catCloud, 'img' => 'courses/images/out-cloud-networking.jpg'],
+            ['scms_id' => 14, 'title' => 'CCNA (Enrolled Student)', 'duration' => '8 weeks', 'fee' => 400000.00, 'cat' => $catCloud, 'img' => 'courses/images/out-cloud-networking.jpg'],
+            ['scms_id' => 15, 'title' => 'E-learning and Instructional Design', 'duration' => '6 weeks', 'fee' => 450000.00, 'cat' => $catDesign, 'img' => 'courses/images/out-campus-ict.jpg'],
+            ['scms_id' => 16, 'title' => 'DATABASE TECHNOLOGY', 'duration' => '8 weeks', 'fee' => 400000.00, 'cat' => $catData, 'img' => 'courses/images/out-ai-data-science.jpg'],
         ];
 
         $createdShortCourses = [];

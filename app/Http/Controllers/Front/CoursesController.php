@@ -336,7 +336,7 @@ class CoursesController extends Controller
                     'instructor' => optional($course->instructor)->name ?: 'Instructor',
                     'price_label' => $isFree ? 'Free' : $course->formatPrice($effectivePrice, 2, 'symbol'),
                     'is_free' => $isFree,
-                    'thumbnail' => $course->thumbnail ?: asset('assets/front/img/home-1/courses/courses-01.jpg'),
+                    'thumbnail' => $course->thumbnail ?: asset('storage/courses/images/out-campus-ict.jpg'),
                     'url' => route('courses.show', $course->id),
                 ];
             })

@@ -63,7 +63,7 @@ class InstructorController extends Controller
             ]);
 
             $featuredCourses = $courses->sortByDesc('students_count')->take(3)->map(function (Course $course) {
-                $course->setAttribute('display_image', $this->resolveMedia($course->featured_image, 'assets/front/img/home-1/courses/courses-01.jpg'));
+                $course->setAttribute('display_image', $this->resolveMedia($course->featured_image, 'storage/courses/images/out-campus-ict.jpg'));
                 $course->setAttribute('students_count', $course->students_count ?? 0);
                 $course->setAttribute('reviews_count', $course->reviews_count ?? 0);
                 $course->setAttribute('average_rating', $this->formatRating($course->reviews_avg_rating));
@@ -108,7 +108,7 @@ class InstructorController extends Controller
         }]);
 
         $courses = $instructor->courses->sortByDesc('students_count')->values()->map(function (Course $course) {
-            $course->setAttribute('display_image', $this->resolveMedia($course->featured_image, 'assets/front/img/home-1/courses/courses-01.jpg'));
+            $course->setAttribute('display_image', $this->resolveMedia($course->featured_image, 'storage/courses/images/out-campus-ict.jpg'));
             $course->setAttribute('students_count', $course->students_count ?? 0);
             $course->setAttribute('reviews_count', $course->reviews_count ?? 0);
             $course->setAttribute('average_rating', $this->formatRating($course->reviews_avg_rating));

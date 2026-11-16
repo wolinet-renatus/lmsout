@@ -79,7 +79,7 @@ class HomeController extends Controller
             });
 
         $transformHomeCourse = function (Course $course) {
-            $course->setAttribute('display_image', $this->resolveMedia($course->featured_image, 'assets/front/img/home-1/courses/courses-01.jpg'));
+            $course->setAttribute('display_image', $this->resolveMedia($course->featured_image, 'storage/courses/images/out-campus-ict.jpg'));
             $course->setAttribute('instructor_avatar', $this->resolveMedia(optional($course->instructor)->profile_photo, 'assets/front/img/home-1/courses/client-01.png'));
             $course->setAttribute('display_price', $this->resolvePrice($course));
             $course->setAttribute('is_free', $course->pricing_model === 'free' || $course->getAttribute('display_price') <= 0);
