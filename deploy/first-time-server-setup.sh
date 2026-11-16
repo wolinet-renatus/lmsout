@@ -151,6 +151,7 @@ JSON_PAYLOAD="$("${PHP_BIN}" -r '
     "APP_URL" => $argv[1],
     "APP_TIMEZONE" => "Africa/Dar_es_Salaam",
     "APP_CURRENCY" => "TZS",
+    "CACHE_STORE" => "file",
     "SESSION_SECURE_COOKIE" => str_starts_with($argv[1], "https://") ? "true" : "false",
     "DB_CONNECTION" => "mysql",
     "DB_HOST" => $argv[2],
@@ -184,10 +185,10 @@ if [[ ! -f "${APP_DIR}/vendor/autoload.php" ]]; then
   fi
   if [[ -f "${APP_DIR}/composer.phar" ]] && [[ -z "${COMPOSER_BIN}" ]]; then
     echo "==> Installing Composer production dependencies via composer.phar..."
-    "${PHP_BIN}" "${APP_DIR}/composer.phar" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+    CACHE_STORE=array "${PHP_BIN}" "${APP_DIR}/composer.phar" install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
   elif [[ -n "${COMPOSER_BIN}" ]]; then
     echo "==> Installing Composer production dependencies..."
-    "${PHP_BIN}" "$(command -v "${COMPOSER_BIN}")" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+    CACHE_STORE=array "${PHP_BIN}" "$(command -v "${COMPOSER_BIN}")" install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
   else
     echo "ERROR: composer not found. Install composer before running setup." >&2
     exit 1
@@ -196,7 +197,7 @@ fi
 
 if ! grep -qE '^APP_KEY=base64:' "${APP_DIR}/.env"; then
   echo "==> Generating Laravel APP_KEY..."
-  "${PHP_BIN}" artisan key:generate --force --no-interaction
+  CACHE_STORE=array "${PHP_BIN}" artisan key:generate --force --no-interaction
 fi
 
 # Verify MySQL connection via PHP PDO before running migrations (falls back 127.0.0.1 -> localhost if CyberPanel socket-only user)

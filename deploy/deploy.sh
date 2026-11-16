@@ -171,7 +171,7 @@ mkdir -p \
 
 # 1. Enter maintenance mode cleanly
 if [[ -f "${APP_DIR}/vendor/autoload.php" ]]; then
-  if "${PHP_BIN}" artisan down --retry=60 --refresh=15 >/dev/null 2>&1; then
+  if CACHE_STORE=array "${PHP_BIN}" artisan down --retry=60 --refresh=15 >/dev/null 2>&1; then
     MAINT_ACTIVE="true"
     log "Maintenance mode enabled."
   fi
@@ -205,11 +205,11 @@ else
 fi
 
 log "Installing Composer dependencies (--no-dev --optimize-autoloader)..."
-"${COMPOSER_CMD[@]}" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+CACHE_STORE=array "${COMPOSER_CMD[@]}" install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
 if ! grep -qE '^APP_KEY=base64:' "${APP_DIR}/.env"; then
   log "Generating missing APP_KEY..."
-  "${PHP_BIN}" artisan key:generate --force --no-interaction
+  CACHE_STORE=array "${PHP_BIN}" artisan key:generate --force --no-interaction
 fi
 
 # 4. Build Vite assets if Node/npm is present (prebuilt public/assets/* & public/themes/* remain available)
@@ -260,10 +260,11 @@ if [[ "${FRESH_SEED}" == "true" ]]; then
     exit 1
   fi
   log "Running FRESH migration + seeding (migrate:fresh --seed --force)..."
-  "${PHP_BIN}" artisan migrate:fresh --seed --force --no-interaction
+  CACHE_STORE=array "${PHP_BIN}" artisan migrate:fresh --seed --force --no-interaction
 else
   log "Running database migrations..."
-  "${PHP_BIN}" artisan migrate --force --no-interaction
+  CACHE_STORE=array "${PHP_BIN}" artisan migrate --force --no-interaction
+  CACHE_STORE=array "${PHP_BIN}" artisan package:discover --ansi --no-interaction
   if [[ "${RUN_SEED}" == "true" ]]; then
     log "Running idempotent database seeders (db:seed --force)..."
     "${PHP_BIN}" artisan db:seed --force --no-interaction
@@ -283,15 +284,6 @@ chmod -R ug+rwX storage bootstrap/cache
 find public/assets public/themes storage/app/public -type d -exec chmod 755 {} + 2>/dev/null || true
 find public/assets public/themes storage/app/public -type f -exec chmod 644 {} + 2>/dev/null || true
 
-# On CyberPanel/cPanel when SSH runs as root, restore vHost site user ownership
-if [[ "$(id -u)" -eq 0 ]] && command -v stat >/dev/null 2>&1; then
-  PARENT_OWNER="$(stat -c '%U:%G' "$(dirname "${APP_DIR}")" 2>/dev/null || true)"
-  if [[ -n "${PARENT_OWNER}" ]] && [[ "${PARENT_OWNER}" != "root:root" ]] && [[ "${PARENT_OWNER}" != ":" ]]; then
-    log "Restoring CyberPanel/vHost ownership (${PARENT_OWNER})..."
-    chown -R "${PARENT_OWNER}" "${APP_DIR}"
-  fi
-fi
-
 # 8. Clear stale caches and warm production caches
 log "Optimizing Laravel caches..."
 "${PHP_BIN}" artisan optimize:clear --no-interaction
@@ -304,6 +296,15 @@ log "Optimizing Laravel caches..."
 log "Bringing application online..."
 "${PHP_BIN}" artisan up --no-interaction
 MAINT_ACTIVE="false"
+
+# On CyberPanel/cPanel when SSH runs as root, restore vHost site user ownership after all caches/views are generated
+if [[ "$(id -u)" -eq 0 ]] && command -v stat >/dev/null 2>&1; then
+  PARENT_OWNER="$(stat -c '%U:%G' "$(dirname "${APP_DIR}")" 2>/dev/null || true)"
+  if [[ -n "${PARENT_OWNER}" ]] && [[ "${PARENT_OWNER}" != "root:root" ]] && [[ "${PARENT_OWNER}" != ":" ]]; then
+    log "Restoring CyberPanel/vHost ownership (${PARENT_OWNER})..."
+    chown -R "${PARENT_OWNER}" "${APP_DIR}"
+  fi
+fi
 
 # 10. Post-deploy HTTP smoke check
 if [[ "${SKIP_HEALTH}" != "true" ]] && command -v curl >/dev/null 2>&1; then
