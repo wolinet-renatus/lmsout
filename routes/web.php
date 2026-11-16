@@ -21,26 +21,18 @@ use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\NewsletterController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\HomeController;
+use App\Http\Controllers\Front\CurrencyController;
 use App\Http\Controllers\Front\BundleController;
 use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Front\CertificateVerificationController;
 use App\Models\CustomPage;
 
 Route::get('/', HomeController::class)->name('home');
-Route::get('/currency/{code}', function (string $code) {
-    $normalized = normalize_currency_code($code);
-    if (isset(supported_switch_currencies()[$normalized])) {
-        session()->put('active_currency', $normalized);
-    }
-
-    return back();
-})->name('currency.switch');
+Route::get('/currency/{code}', CurrencyController::class)->name('currency.switch');
 Route::match(['get', 'post'], '/verify-certificate', [CertificateVerificationController::class, 'verify'])->name('verify-certificate');
 
 // Terms and conditions routes
-Route::get('/terms-conditions', function () {
-    return redirect()->route('pages.show', ['customPage' => 'terms-and-conditions'], 301);
-});
+Route::redirect('/terms-conditions', '/pages/terms-and-conditions', 301);
 
 // About and contact routes
 Route::get('/about', AboutController::class)->name('about');

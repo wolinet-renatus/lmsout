@@ -34,7 +34,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
-Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout.get');
 
 // Email Verification Routes
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify')->middleware(['signed', 'throttle:6,1']);

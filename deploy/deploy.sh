@@ -43,7 +43,7 @@ FRESH_SEED="false"
 FRESH_CONFIRMED="false"
 SYNC_ENV="false"
 NO_GIT="false"
-SKIP_BUILD="false"
+SKIP_BUILD="true"
 SKIP_HEALTH="false"
 SQL_DUMP=""
 APP_URL_DEFAULT="https://lmsout.wolinet.com"
@@ -60,6 +60,7 @@ for arg in "$@"; do
     --fresh-seed) FRESH_SEED="true" ;;
     --i-am-sure) FRESH_CONFIRMED="true" ;;
     --no-git) NO_GIT="true" ;;
+    --build-assets) SKIP_BUILD="false" ;;
     --skip-build) SKIP_BUILD="true" ;;
     --skip-health-check) SKIP_HEALTH="true" ;;
     -h|--help)
